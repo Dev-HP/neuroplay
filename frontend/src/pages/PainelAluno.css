@@ -1,0 +1,100 @@
+.painel-aluno {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-info span {
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-logout {
+  background: #f44336;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.welcome-section {
+  text-align: center;
+  padding: 40px 20px;
+  color: white;
+}
+
+.welcome-section h1 {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.jogos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.jogo-card {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.jogo-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.jogo-coral {
+  background: linear-gradient(135deg, #FF9B9B 0%, #FF6B6B 100%);
+  color: white;
+}
+
+.jogo-amarelo {
+  background: linear-gradient(135deg, #FFD93D 0%, #FFC107 100%);
+  color: #333;
+}
+
+.jogo-azul {
+  background: linear-gradient(135deg, #6BCB77 0%, #4CAF50 100%);
+  color: white;
+}
+
+.jogo-roxo {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.jogo-verde {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+  color: white;
+}
+
+.jogo-icone {
+  font-size: 72px;
+  margin-bottom: 16px;
+}
+
+.jogo-card h3 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.jogo-card p {
+  font-size: 16px;
+  opacity: 0.9;
+}
