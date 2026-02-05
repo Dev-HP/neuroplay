@@ -17,7 +17,6 @@ function JogoMemoriaDupla({ user }) {
   const [sequence, setSequence] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showingStimulus, setShowingStimulus] = useState(false);
-  const [userResponses] = useState({ visual: [], audio: [] });
   const [stats, setStats] = useState({
     visualCorrect: 0,
     audioCorrect: 0,
@@ -86,6 +85,7 @@ function JogoMemoriaDupla({ user }) {
     setShowingStimulus(true);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const nextStimulus = useCallback(() => {
     if (currentIndex >= sequence.length - 1) {
       finishRound();
@@ -142,7 +142,7 @@ function JogoMemoriaDupla({ user }) {
     setTimeout(() => setFeedback(null), 500);
   };
 
-  const finishRound = () => {
+  const finishRound = useCallback(() => {
     setShowingStimulus(false);
     setRound(prev => prev + 1);
 
@@ -154,13 +154,11 @@ function JogoMemoriaDupla({ user }) {
     const overallAccuracy = (visualAccuracy + audioAccuracy) / 2;
 
     // IA adapta dificuldade
-    const performance = aiAdaptation.analyzePerformance({
+    aiAdaptation.analyzePerformance({
       accuracy: overallAccuracy,
       reactionTime: 1000,
       errorsCount: stats.visualWrong + stats.audioWrong,
-      successStreak: stats.visualCorrect + stats.audioCorrect,
-      timeSpent: (Date.now() - gameStartTime.current) / 1000,
-      difficultyLevel: nBackLevel
+      successStreak: stats.visualCorrect + stats.audioCorrect
     });
 
     // Decidir se avança de nível
@@ -180,7 +178,7 @@ function JogoMemoriaDupla({ user }) {
         setShowingStimulus(true);
       }, 2000);
     }
-  };
+  }, [round, stats, nBackLevel, generateSequence, finishGame]);
 
   const finishGame = async () => {
     setGameState('finished');
