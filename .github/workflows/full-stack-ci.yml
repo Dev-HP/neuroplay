@@ -78,7 +78,7 @@ jobs:
       - name: Build Frontend
         working-directory: ./frontend
         run: |
-          npm install --legacy-peer-deps
+          npm ci || npm install
           npm run build
 
       - name: Verificar Backend

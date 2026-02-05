@@ -36,7 +36,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps
+        run: npm ci || npm install
 
       - name: Build do projeto
         working-directory: ./frontend
@@ -78,7 +78,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps
+        run: npm ci || npm install
 
       - name: Executar testes
         working-directory: ./frontend

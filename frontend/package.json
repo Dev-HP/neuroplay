@@ -13,7 +13,8 @@
     "@react-three/fiber": "^8.15.12",
     "@react-three/drei": "^9.92.7",
     "framer-motion": "^10.16.16",
-    "zustand": "^4.4.7"
+    "zustand": "^4.4.7",
+    "@tensorflow/tfjs": "^4.15.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -22,7 +23,9 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2"
   },
   "browserslist": {
     "production": [
