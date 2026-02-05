@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './JogoMestresSinal.css';
@@ -12,21 +12,7 @@ function JogoMestresSinal({ user }) {
   const [sinalAtual, setSinalAtual] = useState('go'); // go ou no-go
   const [tempoInicio, setTempoInicio] = useState(null);
 
-  useEffect(() => {
-    if (gameState === 'playing') {
-      iniciarRodada();
-    }
-  }, [gameState]);
-
-  const iniciarJogo = () => {
-    setPontos(0);
-    setAcertos(0);
-    setErros(0);
-    setGameState('playing');
-    setTempoInicio(Date.now());
-  };
-
-  const iniciarRodada = () => {
+  const iniciarRodada = useCallback(() => {
     const isNoGo = Math.random() > 0.5;
     setSinalAtual(isNoGo ? 'no-go' : 'go');
     setGameState('waiting');
@@ -37,7 +23,13 @@ function JogoMestresSinal({ user }) {
         iniciarRodada();
       }
     }, 2000 + Math.random() * 2000);
-  };
+  }, [gameState]);
+
+  useEffect(() => {
+    if (gameState === 'playing') {
+      iniciarRodada();
+    }
+  }, [gameState, iniciarRodada]);
 
   const handleClick = () => {
     if (gameState !== 'waiting') return;

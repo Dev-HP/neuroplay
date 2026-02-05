@@ -36,9 +36,7 @@ class AIAdaptation {
       accuracy,
       reactionTime,
       errorsCount,
-      successStreak,
-      timeSpent,
-      difficultyLevel
+      successStreak
     } = gameData;
 
     // Calcular métricas normalizadas
@@ -235,4 +233,5 @@ class AIAdaptation {
   }
 }
 
-export default new AIAdaptation();
+const aiAdaptationInstance = new AIAdaptation();
+export default aiAdaptationInstance;

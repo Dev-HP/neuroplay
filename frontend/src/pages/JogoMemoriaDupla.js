@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import audioManager from '../utils/audioManager';
@@ -17,7 +17,7 @@ function JogoMemoriaDupla({ user }) {
   const [sequence, setSequence] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showingStimulus, setShowingStimulus] = useState(false);
-  const [userResponses, setUserResponses] = useState({ visual: [], audio: [] });
+  const [userResponses] = useState({ visual: [], audio: [] });
   const [stats, setStats] = useState({
     visualCorrect: 0,
     audioCorrect: 0,
@@ -47,57 +47,7 @@ function JogoMemoriaDupla({ user }) {
     aiAdaptation.init();
   }, []);
 
-  useEffect(() => {
-    if (gameState === 'playing' && showingStimulus) {
-      const timer = setTimeout(() => {
-        nextStimulus();
-      }, 2500); // 2.5 segundos por estímulo
-
-      return () => clearTimeout(timer);
-    }
-  }, [gameState, showingStimulus, currentIndex]);
-
-  const startGame = () => {
-    setGameState('playing');
-    setScore(0);
-    setRound(0);
-    setStats({ visualCorrect: 0, audioCorrect: 0, visualWrong: 0, audioWrong: 0 });
-    gameStartTime.current = Date.now();
-    generateSequence();
-  };
-
-  const generateSequence = () => {
-    const length = 20 + nBackLevel * 5; // Sequência mais longa para níveis maiores
-    const newSequence = [];
-
-    for (let i = 0; i < length; i++) {
-      // Decidir se haverá match (30% de chance)
-      const shouldMatchVisual = i >= nBackLevel && Math.random() < 0.3;
-      const shouldMatchAudio = i >= nBackLevel && Math.random() < 0.3;
-
-      const visualPos = shouldMatchVisual 
-        ? newSequence[i - nBackLevel].visual
-        : Math.floor(Math.random() * 9);
-      
-      const audioIdx = shouldMatchAudio
-        ? newSequence[i - nBackLevel].audio
-        : Math.floor(Math.random() * audioStimuli.length);
-
-      newSequence.push({
-        visual: visualPos,
-        audio: audioIdx,
-        visualMatch: shouldMatchVisual,
-        audioMatch: shouldMatchAudio
-      });
-    }
-
-    setSequence(newSequence);
-    setCurrentIndex(0);
-    setUserResponses({ visual: [], audio: [] });
-    setShowingStimulus(true);
-  };
-
-  const nextStimulus = () => {
+  const nextStimulus = useCallback(() => {
     if (currentIndex >= sequence.length - 1) {
       finishRound();
       return;
@@ -108,18 +58,23 @@ function JogoMemoriaDupla({ user }) {
     // Tocar som correspondente
     const current = sequence[currentIndex + 1];
     audioManager.playNote(audioNotes[current.audio], 0.3);
-  };
+  }, [currentIndex, sequence]);
+
+  useEffect(() => {
+    if (gameState === 'playing' && showingStimulus) {
+      const timer = setTimeout(() => {
+        nextStimulus();
+      }, 2500); // 2.5 segundos por estímulo
+
+      return () => clearTimeout(timer);
+    }
+  }, [gameState, showingStimulus, nextStimulus]);
 
   const handleResponse = (type) => {
     if (!showingStimulus || currentIndex < nBackLevel) return;
 
     const current = sequence[currentIndex];
     const isCorrect = type === 'visual' ? current.visualMatch : current.audioMatch;
-    
-    setUserResponses(prev => ({
-      ...prev,
-      [type]: [...prev[type], { index: currentIndex, response: true, correct: isCorrect }]
-    }));
 
     // Feedback visual e sonoro
     if (isCorrect) {

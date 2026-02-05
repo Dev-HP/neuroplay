@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei';
-import * as THREE from 'three';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import audioManager from '../utils/audioManager';
 import aiAdaptation from '../utils/aiAdaptation';
 import ParticleSystem from '../components/ParticleSystem';
@@ -130,7 +129,7 @@ function JogoCacadorAlvos({ user }) {
   });
   const [showParticles, setShowParticles] = useState(false);
   const [particleType, setParticleType] = useState('success');
-  const [shipPosition, setShipPosition] = useState([0, 0, 0]);
+  const [shipPosition] = useState([0, 0, 0]);
   const gameStartTime = useRef(null);
   const addPoints = useGameStore(state => state.addPoints);
 
@@ -138,6 +137,39 @@ function JogoCacadorAlvos({ user }) {
     audioManager.init();
     aiAdaptation.init();
   }, []);
+
+  const finishGame = useCallback(async () => {
+    setGameState('finished');
+    addPoints(score);
+
+    const gameTime = (Date.now() - gameStartTime.current) / 1000;
+    
+    // Salvar progresso no backend
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('http://localhost:5000/api/progresso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          aluno_id: user.id,
+          atividade_id: 2,
+          pontos: score,
+          tempo_gasto: Math.floor(gameTime),
+          acertos: stats.collected,
+          erros: stats.collisions
+        })
+      });
+    } catch (error) {
+      console.error('Erro ao salvar progresso:', error);
+    }
+
+    // Gerar insights com IA
+    const insights = aiAdaptation.generateInsights();
+    console.log('Insights da IA:', insights);
+  }, [score, stats, user.id, addPoints]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -153,7 +185,7 @@ function JogoCacadorAlvos({ user }) {
 
       return () => clearInterval(timer);
     }
-  }, [gameState]);
+  }, [gameState, finishGame]);
 
   const startGame = () => {
     setGameState('playing');
@@ -237,7 +269,7 @@ function JogoCacadorAlvos({ user }) {
     }
 
     // Analisar performance com IA
-    const performance = aiAdaptation.analyzePerformance({
+    aiAdaptation.analyzePerformance({
       accuracy: stats.accuracy,
       reactionTime: 500,
       errorsCount: stats.collisions,
@@ -276,38 +308,7 @@ function JogoCacadorAlvos({ user }) {
     }, 1000);
   };
 
-  const finishGame = async () => {
-    setGameState('finished');
-    addPoints(score);
 
-    const gameTime = (Date.now() - gameStartTime.current) / 1000;
-    
-    // Salvar progresso no backend
-    try {
-      const token = localStorage.getItem('token');
-      await fetch('http://localhost:5000/api/progresso', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          aluno_id: user.id,
-          atividade_id: 2,
-          pontos: score,
-          tempo_gasto: Math.floor(gameTime),
-          acertos: stats.collected,
-          erros: stats.collisions
-        })
-      });
-    } catch (error) {
-      console.error('Erro ao salvar progresso:', error);
-    }
-
-    // Gerar insights com IA
-    const insights = aiAdaptation.generateInsights();
-    console.log('Insights da IA:', insights);
-  };
 
   return (
     <div className="jogo-cacador-container">
