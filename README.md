@@ -1,11 +1,13 @@
 # 🧠 NeuroPlay - Plataforma Adaptativa para Inclusão Digital
 
-[![Deploy Frontend](https://github.com/[user]/[repo]/workflows/Deploy%20Frontend/badge.svg)](https://github.com/[user]/[repo]/actions)
-[![Backend CI](https://github.com/[user]/[repo]/workflows/Backend%20CI/badge.svg)](https://github.com/[user]/[repo]/actions)
-[![Docker Build](https://github.com/[user]/[repo]/workflows/Docker%20Build/badge.svg)](https://github.com/[user]/[repo]/actions)
+[![Deploy Frontend](https://github.com/Dev-HP/neuroplay/workflows/Deploy%20Frontend/badge.svg)](https://github.com/Dev-HP/neuroplay/actions)
+[![Backend CI](https://github.com/Dev-HP/neuroplay/workflows/Backend%20CI/badge.svg)](https://github.com/Dev-HP/neuroplay/actions)
+[![Docker Build](https://github.com/Dev-HP/neuroplay/workflows/Docker%20Build/badge.svg)](https://github.com/Dev-HP/neuroplay/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Plataforma web gamificada de **primeira linha** com jogos terapêuticos baseados em evidências científicas para crianças com TEA e TDAH.
+
+🌐 **Demo:** https://dev-hp.github.io/neuroplay
 
 ## 🌟 Destaques
 
@@ -54,7 +56,7 @@
 
 ```bash
 # Clone o repositório
-git clone https://github.com/[user]/neuroplay.git
+git clone https://github.com/Dev-HP/neuroplay.git
 cd neuroplay
 
 # Inicie todos os serviços
@@ -76,7 +78,7 @@ python app.py
 
 # Frontend (em outro terminal)
 cd frontend
-npm install
+npm install --legacy-peer-deps
 npm start
 ```
 
@@ -91,7 +93,7 @@ git commit -m "Deploy"
 git push origin main
 ```
 
-2. Acesse: `https://[seu-usuario].github.io/[repo]`
+2. Acesse: `https://dev-hp.github.io/neuroplay`
 
 ### Outras Plataformas
 
@@ -135,9 +137,9 @@ Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhe
 
 ## 📞 Contato
 
-- Email: [seu-email]
-- LinkedIn: [seu-linkedin]
-- GitHub: [seu-github]
+- GitHub: [@Dev-HP](https://github.com/Dev-HP)
+- Projeto: [NeuroPlay](https://github.com/Dev-HP/neuroplay)
+- Demo: [https://dev-hp.github.io/neuroplay](https://dev-hp.github.io/neuroplay)
 
 ---
 
