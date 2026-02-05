@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Logo from '../components/Logo';
 import './Login.css';
 
 function Login({ onLogin }) {
+  console.log('🔌 Login component - onLogin prop:', typeof onLogin);
+  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -16,6 +20,37 @@ function Login({ onLogin }) {
     e.preventDefault();
     setError('');
 
+    console.log('🔐 Tentando login com:', formData.email);
+
+    // Modo demonstração - credenciais de teste
+    const demoUsers = {
+      'aluno@demo.com': { senha: 'demo123', tipo: 'aluno', nome: 'Aluno Demo' },
+      'educador@demo.com': { senha: 'demo123', tipo: 'educador', nome: 'Educador Demo' }
+    };
+
+    if (!isRegister) {
+      // Login com credenciais demo
+      const user = demoUsers[formData.email];
+      console.log('👤 Usuário encontrado:', user);
+      
+      if (user && user.senha === formData.senha) {
+        console.log('✅ Login bem-sucedido!');
+        onLogin(
+          { id: 1, nome: user.nome, email: formData.email, tipo: user.tipo },
+          'demo-token-123'
+        );
+        // Redirecionar após login
+        setTimeout(() => {
+          navigate(user.tipo === 'aluno' ? '/aluno' : '/educador');
+        }, 100);
+        return;
+      } else {
+        console.log('❌ Credenciais inválidas');
+        setError('Email ou senha incorretos. Use: aluno@demo.com ou educador@demo.com (senha: demo123)');
+        return;
+      }
+    }
+
     try {
       const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
       const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
@@ -27,7 +62,7 @@ function Login({ onLogin }) {
         onLogin(response.data.usuario, response.data.token);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Erro ao processar requisição');
+      setError(err.response?.data?.message || 'Erro ao conectar ao servidor. Use as credenciais demo: aluno@demo.com ou educador@demo.com (senha: demo123)');
     }
   };
 
@@ -35,9 +70,19 @@ function Login({ onLogin }) {
     <div className="login-container">
       <div className="login-card fade-in">
         <div className="login-header">
-          <div className="logo-icon">🧠</div>
+          <div className="logo-wrapper">
+            <Logo size="large" showText={false} animated={true} />
+          </div>
           <h1>NeuroPlay</h1>
           <p>Bem-vindo(a) ao NeuroPlay!</p>
+          <div className="demo-credentials">
+            <small>
+              <strong>Modo Demo:</strong><br/>
+              Aluno: aluno@demo.com<br/>
+              Educador: educador@demo.com<br/>
+              Senha: demo123
+            </small>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

@@ -20,9 +20,11 @@ function App() {
   }, []);
 
   const handleLogin = (userData, token) => {
+    console.log('🎯 App.js handleLogin chamado com:', userData);
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+    console.log('✅ User state atualizado:', userData);
   };
 
   const handleLogout = () => {

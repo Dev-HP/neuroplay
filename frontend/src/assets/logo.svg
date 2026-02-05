@@ -1,0 +1,89 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradiente principal -->
+  <defs>
+    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Filtro de sombra suave -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Círculo de fundo com gradiente -->
+  <circle cx="100" cy="100" r="90" fill="url(#brainGradient)" opacity="0.1"/>
+  
+  <!-- Cérebro estilizado com conexões neurais -->
+  <g filter="url(#softShadow)">
+    <!-- Hemisfério esquerdo -->
+    <path d="M 70 60 Q 50 70, 50 90 Q 50 110, 60 125 Q 70 135, 85 135 Q 95 135, 100 130" 
+          stroke="url(#brainGradient)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    
+    <!-- Hemisfério direito -->
+    <path d="M 130 60 Q 150 70, 150 90 Q 150 110, 140 125 Q 130 135, 115 135 Q 105 135, 100 130" 
+          stroke="url(#brainGradient)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    
+    <!-- Conexão central -->
+    <path d="M 100 130 L 100 145" 
+          stroke="url(#brainGradient)" stroke-width="5" stroke-linecap="round"/>
+    
+    <!-- Neurônios (pontos de conexão) -->
+    <circle cx="70" cy="80" r="8" fill="url(#accentGradient)">
+      <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="130" cy="80" r="8" fill="url(#accentGradient)">
+      <animate attributeName="r" values="8;10;8" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="100" cy="100" r="10" fill="url(#accentGradient)">
+      <animate attributeName="r" values="10;12;10" dur="2s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="85" cy="115" r="7" fill="url(#accentGradient)">
+      <animate attributeName="r" values="7;9;7" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="115" cy="115" r="7" fill="url(#accentGradient)">
+      <animate attributeName="r" values="7;9;7" dur="2s" begin="0.8s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Linhas de conexão neural (sinapses) -->
+    <line x1="70" y1="80" x2="100" y2="100" stroke="url(#brainGradient)" stroke-width="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="130" y1="80" x2="100" y2="100" stroke="url(#brainGradient)" stroke-width="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" begin="1s" repeatCount="indefinite"/>
+    </line>
+    <line x1="100" y1="100" x2="85" y2="115" stroke="url(#brainGradient)" stroke-width="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+    </line>
+    <line x1="100" y1="100" x2="115" y2="115" stroke="url(#brainGradient)" stroke-width="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    </line>
+    
+    <!-- Elemento de jogo (controlador) -->
+    <g transform="translate(100, 155)">
+      <!-- Base do controlador -->
+      <rect x="-20" y="0" width="40" height="15" rx="7" fill="url(#accentGradient)"/>
+      
+      <!-- Botões -->
+      <circle cx="-8" cy="7" r="3" fill="white" opacity="0.8"/>
+      <circle cx="8" cy="7" r="3" fill="white" opacity="0.8"/>
+      
+      <!-- D-pad -->
+      <rect x="-12" y="5" width="2" height="5" rx="1" fill="white" opacity="0.6"/>
+      <rect x="-14" y="7" width="6" height="2" rx="1" fill="white" opacity="0.6"/>
+    </g>
+  </g>
+</svg>

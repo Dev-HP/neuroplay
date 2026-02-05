@@ -1,100 +1,470 @@
+/* ===== PAINEL ALUNO - DESIGN SYSTEM ===== */
+
 .painel-aluno {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow-x: hidden;
 }
 
-.user-info {
+/* Padrão de fundo decorativo */
+.painel-aluno::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ===== HEADER ===== */
+.painel-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.user-section {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 2rem;
 }
 
-.user-info span {
-  font-weight: 600;
-  color: #333;
+.user-greeting {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.greeting-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.greeting-subtitle {
+  font-size: 0.875rem;
+  color: #718096;
 }
 
 .btn-logout {
-  background: #f44336;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
   color: white;
-  padding: 8px 16px;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: 12px;
+  font-size: 1rem;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
 }
 
-.welcome-section {
-  text-align: center;
-  padding: 40px 20px;
+.btn-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 101, 101, 0.4);
+}
+
+.btn-logout:active {
+  transform: translateY(0);
+}
+
+.logout-icon {
+  font-size: 1.25rem;
+}
+
+/* ===== PROGRESS SECTION ===== */
+.progress-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.progress-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.progress-icon {
+  font-size: 4rem;
+  animation: rotate 3s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+}
+
+.progress-info h3 {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+}
+
+.progress-stats {
+  display: flex;
+  gap: 3rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #718096;
+  margin-top: 0.5rem;
+}
+
+/* ===== JOGOS SECTION ===== */
+.jogos-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 2rem;
+  font-weight: 800;
   color: white;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.6s ease-out 0.3s both;
 }
 
-.welcome-section h1 {
-  font-size: 36px;
-  margin-bottom: 16px;
+.title-icon {
+  font-size: 2.5rem;
 }
 
 .jogos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  padding: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
+/* ===== JOGO CARDS ===== */
 .jogo-card {
   background: white;
   border-radius: 24px;
-  padding: 40px;
-  text-align: center;
+  padding: 2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out both;
 }
+
+.jogo-card:nth-child(1) { animation-delay: 0.4s; }
+.jogo-card:nth-child(2) { animation-delay: 0.5s; }
+.jogo-card:nth-child(3) { animation-delay: 0.6s; }
+.jogo-card:nth-child(4) { animation-delay: 0.7s; }
+.jogo-card:nth-child(5) { animation-delay: 0.8s; }
+
+.jogo-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  transition: height 0.3s ease;
+}
+
+.jogo-card.jogo-coral::before { background: linear-gradient(90deg, #ff6b6b, #ff8787); }
+.jogo-card.jogo-azul::before { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+.jogo-card.jogo-verde::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+.jogo-card.jogo-amarelo::before { background: linear-gradient(90deg, #ffd93d, #ffb800); }
+.jogo-card.jogo-roxo::before { background: linear-gradient(90deg, #a8edea, #fed6e3); }
 
 .jogo-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
-.jogo-coral {
-  background: linear-gradient(135deg, #FF9B9B 0%, #FF6B6B 100%);
-  color: white;
+.jogo-card:hover::before {
+  height: 100%;
+  opacity: 0.1;
 }
 
-.jogo-amarelo {
-  background: linear-gradient(135deg, #FFD93D 0%, #FFC107 100%);
-  color: #333;
+.jogo-card:active {
+  transform: translateY(-8px) scale(1);
 }
 
-.jogo-azul {
-  background: linear-gradient(135deg, #6BCB77 0%, #4CAF50 100%);
-  color: white;
+.jogo-card.em-breve {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.jogo-roxo {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+.jogo-card.em-breve:hover {
+  transform: none;
 }
 
-.jogo-verde {
-  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-  color: white;
+.badge-em-breve {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #ffd93d, #ffb800);
+  color: #2d3748;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(255, 217, 61, 0.4);
 }
 
 .jogo-icone {
-  font-size: 72px;
-  margin-bottom: 16px;
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
-.jogo-card h3 {
-  font-size: 24px;
-  margin-bottom: 8px;
+.jogo-card:hover .jogo-icone {
+  transform: scale(1.2) rotate(5deg);
 }
 
-.jogo-card p {
-  font-size: 16px;
-  opacity: 0.9;
+.jogo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.jogo-titulo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2d3748;
+  margin: 0;
+}
+
+.jogo-descricao {
+  font-size: 1rem;
+  color: #718096;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.jogo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.jogo-nivel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.jogo-cta {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #667eea;
+  transition: transform 0.3s ease;
+}
+
+.jogo-card:hover .jogo-cta {
+  transform: translateX(5px);
+}
+
+/* ===== TIPS SECTION ===== */
+.tips-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.tip-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.6s ease-out 0.9s both;
+}
+
+.tip-icon {
+  font-size: 3rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.tip-content h3 {
+  font-size: 1.25rem;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+}
+
+.tip-content p {
+  font-size: 1rem;
+  color: #718096;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .user-section {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .user-greeting {
+    align-items: center;
+    text-align: center;
+  }
+
+  .btn-logout {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .progress-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .jogos-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .tip-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ===== ACESSIBILIDADE ===== */
+.jogo-card:focus {
+  outline: 4px solid #667eea;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Alto contraste para acessibilidade */
+@media (prefers-contrast: high) {
+  .painel-aluno {
+    background: #1a202c;
+  }
+
+  .jogo-card {
+    border: 3px solid #fff;
+  }
 }
