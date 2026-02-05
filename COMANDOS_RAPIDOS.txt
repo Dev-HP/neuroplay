@@ -1,0 +1,74 @@
+===========================================
+  COMANDOS RÁPIDOS - NEUROPLAY
+===========================================
+
+📌 FAZER DEPLOY NO GITHUB
+--------------------------
+git push -u origin main
+
+
+📌 RODAR LOCALMENTE (FRONTEND)
+-------------------------------
+cd frontend
+npm install --legacy-peer-deps
+npm start
+
+
+📌 RODAR BACKEND
+----------------
+cd backend
+pip install -r requirements.txt
+python app.py
+
+
+📌 VER STATUS DO GIT
+---------------------
+git status
+
+
+📌 ADICIONAR MUDANÇAS
+---------------------
+git add .
+git commit -m "Sua mensagem"
+git push
+
+
+📌 LINKS IMPORTANTES
+--------------------
+Repositório: https://github.com/Dev-HP/neuroplay
+Site Deploy: https://dev-hp.github.io/neuroplay
+Actions: https://github.com/Dev-HP/neuroplay/actions
+Criar Repo: https://github.com/new
+
+
+📌 VERIFICAR INSTALAÇÃO
+-----------------------
+node --version
+npm --version
+python --version
+git --version
+
+
+📌 LIMPAR E REINSTALAR
+----------------------
+cd frontend
+rm -rf node_modules
+npm install --legacy-peer-deps
+
+
+📌 BUILD PARA PRODUÇÃO
+-----------------------
+cd frontend
+npm run build
+
+
+📌 DOCKER (SE INSTALADO)
+------------------------
+docker-compose up -d
+docker-compose logs -f
+docker-compose down
+
+
+===========================================
+  PRONTO PARA USAR! 🚀
+===========================================
