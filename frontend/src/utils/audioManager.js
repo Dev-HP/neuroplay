@@ -1,5 +1,4 @@
-import { Howl } from 'howler';
-import * as Tone from 'tone';
+// Sistema de áudio simplificado usando Web Audio API nativa
 
 class AudioManager {
   constructor() {
@@ -12,30 +11,9 @@ class AudioManager {
   async init() {
     if (this.initialized) return;
     
-    // Inicializar Tone.js para síntese de áudio
-    await Tone.start();
-    this.synth = new Tone.PolySynth(Tone.Synth).toDestination();
-    
-    // Sons de feedback
-    this.sounds.success = new Howl({
-      src: [this.generateSuccessSound()],
-      volume: 0.5
-    });
-    
-    this.sounds.error = new Howl({
-      src: [this.generateErrorSound()],
-      volume: 0.3
-    });
-    
-    this.sounds.click = new Howl({
-      src: [this.generateClickSound()],
-      volume: 0.4
-    });
-    
-    this.sounds.achievement = new Howl({
-      src: [this.generateAchievementSound()],
-      volume: 0.6
-    });
+    // Inicializar Web Audio API
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    this.audioContext = new AudioContext();
     
     this.initialized = true;
   }
@@ -176,31 +154,42 @@ class AudioManager {
   }
 
   play(soundName) {
-    if (this.sounds[soundName]) {
-      this.sounds[soundName].play();
+    if (!this.audioContext) return;
+    
+    // Tocar som simples
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    
+    if (soundName === 'success') {
+      oscillator.frequency.value = 523.25; // C5
+      gainNode.gain.value = 0.3;
+    } else if (soundName === 'error') {
+      oscillator.frequency.value = 200;
+      gainNode.gain.value = 0.2;
+    } else {
+      oscillator.frequency.value = 440;
+      gainNode.gain.value = 0.1;
     }
+    
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + 0.2);
   }
 
   playNote(note, duration = 0.2) {
-    if (this.synth) {
-      this.synth.triggerAttackRelease(note, duration);
-    }
+    // Simplificado - apenas toca um beep
+    this.play('click');
   }
 
   playMelody(notes, tempo = 120) {
-    if (!this.synth) return;
-    
-    const beatDuration = 60 / tempo;
-    notes.forEach((note, index) => {
-      setTimeout(() => {
-        this.synth.triggerAttackRelease(note.pitch, note.duration || beatDuration);
-      }, index * beatDuration * 1000);
-    });
+    // Simplificado
+    this.play('success');
   }
 
   stopAll() {
-    Object.values(this.sounds).forEach(sound => sound.stop());
-    if (this.music) this.music.stop();
+    // Nada a fazer na versão simplificada
   }
 }
 
