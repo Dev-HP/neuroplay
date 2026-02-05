@@ -12,6 +12,14 @@ function JogoMestresSinal({ user }) {
   const [sinalAtual, setSinalAtual] = useState('go'); // go ou no-go
   const [tempoInicio, setTempoInicio] = useState(null);
 
+  const iniciarJogo = () => {
+    setPontos(0);
+    setAcertos(0);
+    setErros(0);
+    setGameState('playing');
+    setTempoInicio(Date.now());
+  };
+
   const iniciarRodada = useCallback(() => {
     const isNoGo = Math.random() > 0.5;
     setSinalAtual(isNoGo ? 'no-go' : 'go');

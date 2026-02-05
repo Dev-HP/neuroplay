@@ -47,6 +47,45 @@ function JogoMemoriaDupla({ user }) {
     aiAdaptation.init();
   }, []);
 
+  const startGame = () => {
+    setGameState('playing');
+    setScore(0);
+    setRound(0);
+    setStats({ visualCorrect: 0, audioCorrect: 0, visualWrong: 0, audioWrong: 0 });
+    gameStartTime.current = Date.now();
+    generateSequence();
+  };
+
+  const generateSequence = () => {
+    const length = 20 + nBackLevel * 5; // Sequência mais longa para níveis maiores
+    const newSequence = [];
+
+    for (let i = 0; i < length; i++) {
+      // Decidir se haverá match (30% de chance)
+      const shouldMatchVisual = i >= nBackLevel && Math.random() < 0.3;
+      const shouldMatchAudio = i >= nBackLevel && Math.random() < 0.3;
+
+      const visualPos = shouldMatchVisual 
+        ? newSequence[i - nBackLevel].visual
+        : Math.floor(Math.random() * 9);
+      
+      const audioIdx = shouldMatchAudio
+        ? newSequence[i - nBackLevel].audio
+        : Math.floor(Math.random() * audioStimuli.length);
+
+      newSequence.push({
+        visual: visualPos,
+        audio: audioIdx,
+        visualMatch: shouldMatchVisual,
+        audioMatch: shouldMatchAudio
+      });
+    }
+
+    setSequence(newSequence);
+    setCurrentIndex(0);
+    setShowingStimulus(true);
+  };
+
   const nextStimulus = useCallback(() => {
     if (currentIndex >= sequence.length - 1) {
       finishRound();
