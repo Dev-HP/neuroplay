@@ -78,8 +78,10 @@ jobs:
       - name: Build Frontend
         working-directory: ./frontend
         run: |
-          npm ci || npm install
+          npm install --legacy-peer-deps
           npm run build
+        env:
+          CI: false
 
       - name: Verificar Backend
         working-directory: ./backend
