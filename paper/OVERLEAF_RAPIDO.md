@@ -20,13 +20,29 @@ Ver o artigo científico formatado em PDF profissional em **5 minutos**!
 
 ## 📤 Passo 2: Upload do Projeto
 
-### Opção Fácil: Usar o ZIP
+### Escolha a Versão do Artigo
+
+**🇧🇷 Versão Bilíngue (RECOMENDADO para revistas brasileiras)**
+- Arquivo: **`neuroplay_bilingue.zip`**
+- Título em português e inglês
+- Resumo em português + Abstract em inglês
+- Corpo do artigo em português
+- Segue padrão de revistas brasileiras
+
+**🇺🇸 Versão em Inglês (para revistas internacionais)**
+- Arquivo: **`neuroplay_overleaf.zip`**
+- Artigo completo em inglês
+- Padrão internacional
+
+### Upload do ZIP
 
 1. No Overleaf, clique no botão verde **"New Project"**
 2. Selecione **"Upload Project"**
 3. Clique em **"Select a .zip file"**
 4. Navegue até: `C:\APLICATIVO DE TEA\paper\`
-5. Selecione o arquivo: **`neuroplay_overleaf.zip`**
+5. Selecione o arquivo desejado:
+   - **`neuroplay_bilingue.zip`** (versão bilíngue) OU
+   - **`neuroplay_overleaf.zip`** (versão inglês)
 6. Clique **"Open"** e aguarde o upload
 
 **✅ O projeto abrirá automaticamente!**
@@ -103,7 +119,9 @@ Ver o artigo científico formatado em PDF profissional em **5 minutos**!
 - **Solução**: Aguarde 1 minuto e clique "Recompile" novamente
 
 ### "File not found"
-- **Solução**: Certifique-se de que usou o arquivo `neuroplay_overleaf.zip`
+- **Solução**: Certifique-se de que usou o arquivo correto:
+  - `neuroplay_bilingue.zip` (versão bilíngue) OU
+  - `neuroplay_overleaf.zip` (versão inglês)
 
 ### "Erro desconhecido"
 - **Solução**: Recarregue a página (F5) e tente novamente
@@ -187,4 +205,6 @@ Você agora tem acesso ao artigo científico completo do NeuroPlay em formato PD
 
 **🔗 Link Overleaf**: https://www.overleaf.com/
 
-**📁 Arquivo ZIP**: `C:\APLICATIVO DE TEA\paper\neuroplay_overleaf.zip`
+**📁 Arquivos ZIP Disponíveis**:
+- `C:\APLICATIVO DE TEA\paper\neuroplay_bilingue.zip` (🇧🇷 Bilíngue - RECOMENDADO)
+- `C:\APLICATIVO DE TEA\paper\neuroplay_overleaf.zip` (🇺🇸 Inglês)
