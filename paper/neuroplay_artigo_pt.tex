@@ -1,0 +1,105 @@
+\documentclass[12pt,a4paper]{article}
+
+% Pacotes essenciais
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{abstract}
+\usepackage{authblk}
+
+\geometry{margin=2.5cm}
+
+% Configurações do hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\title{\textbf{NeuroPlay: Uma Plataforma Web Adaptativa para Treinamento de Funções Executivas em Indivíduos com Transtorno do Espectro Autista}}
+
+\author[1]{Equipe de Pesquisa}
+\affil[1]{Departamento de Ciência da Computação e Neurociência Cognitiva}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\textbf{Contexto:} O Transtorno do Espectro Autista (TEA) é caracterizado por déficits em funções executivas (FE), incluindo memória de trabalho, controle inibitório e flexibilidade cognitiva. Intervenções digitais têm demonstrado potencial para abordar esses desafios, com gamificação e aprendizado adaptativo emergindo como estratégias eficazes.
+
+\textbf{Objetivo:} Este artigo apresenta o NeuroPlay, uma plataforma web projetada para treinar funções executivas em indivíduos com TEA através de jogos terapêuticos gamificados e adaptativos. A plataforma integra inteligência artificial para ajuste personalizado de dificuldade, princípios de design informados pela neurodiversidade e paradigmas de treinamento cognitivo baseados em evidências.
+
+\textbf{Métodos:} O NeuroPlay foi desenvolvido utilizando React.js para o frontend, Three.js para visualização 3D e TensorFlow.js para aprendizado de máquina no cliente. A plataforma implementa três jogos principais direcionados a domínios específicos de FE: (1) Dual N-Back para memória de trabalho, (2) Caçador de Alvos para controle inibitório, e (3) Mestre do Sinal para flexibilidade cognitiva. O design seguiu os padrões de acessibilidade WCAG 2.1 AA e diretrizes específicas para neurodiversidade.
+
+\textbf{Resultados:} A arquitetura da plataforma integra com sucesso algoritmos adaptativos de IA que ajustam a dificuldade das tarefas em tempo real com base no desempenho do usuário. O sistema alcança compatibilidade multiplataforma, opções de customização sensorial e rastreamento abrangente de progresso para educadores e cuidadores.
+
+\textbf{Conclusões:} O NeuroPlay representa uma solução escalável e acessível para treinamento de FE em populações com TEA. Trabalhos futuros incluirão estudos de validação clínica, expansão de módulos de cognição social e integração de feedback biométrico multimodal.
+
+\textbf{Palavras-chave:} Transtorno do Espectro Autista, Funções Executivas, Gamificação, Aprendizado Adaptativo, Intervenção Baseada na Web, Neurodiversidade, Acessibilidade
+\end{abstract}
+
+
+\section{Introdução}
+
+O Transtorno do Espectro Autista (TEA) é uma condição do neurodesenvolvimento que afeta aproximadamente 1 em cada 100 crianças globalmente \cite{WHO2023}. Além das características diagnósticas centrais de diferenças na comunicação social e comportamentos restritos/repetitivos, indivíduos com TEA frequentemente exibem déficits em funções executivas (FE) que impactam significativamente o funcionamento diário, desempenho acadêmico e qualidade de vida \cite{Demetriou2018}.
+
+\subsection{Funções Executivas no Autismo}
+
+As funções executivas englobam um conjunto de processos cognitivos de ordem superior, incluindo memória de trabalho (MT), controle inibitório (CI) e flexibilidade cognitiva (FC) \cite{Diamond2013}. Pesquisas demonstram consistentemente que indivíduos com TEA apresentam prejuízos nesses domínios:
+
+\begin{itemize}
+    \item \textbf{Memória de Trabalho:} Déficits tanto em MT verbal quanto espacial são bem documentados em populações com TEA, afetando a capacidade de manter e manipular informações temporariamente \cite{Barendse2013}.
+    \item \textbf{Controle Inibitório:} Dificuldades em suprimir respostas prepotentes contribuem para rigidez comportamental e perseveração \cite{Geurts2014}.
+    \item \textbf{Flexibilidade Cognitiva:} Habilidades prejudicadas de mudança de conjunto manifestam-se como dificuldade em adaptar-se a regras ou contextos em mudança, contribuindo para a necessidade característica de mesmice no TEA \cite{Leung2016}.
+\end{itemize}
+
+Meta-análises recentes indicam que déficits de FE no TEA não são meramente secundários a outros sintomas, mas representam uma característica central da condição \cite{Lai2017}. Importante, esses déficits são passíveis de intervenção, com tamanhos de efeito variando de médio a grande (d de Cohen = 0,45-0,59) para programas de treinamento direcionados \cite{Frontiers2025}.
+
+\subsection{Intervenções Digitais para Autismo}
+
+A última década testemunhou uma proliferação de intervenções baseadas em tecnologia para TEA, impulsionadas por várias vantagens sobre abordagens tradicionais:
+
+\begin{enumerate}
+    \item \textbf{Escalabilidade:} Plataformas digitais podem alcançar populações carentes com acesso limitado a serviços especializados.
+    \item \textbf{Consistência:} Tarefas computadorizadas fornecem protocolos de treinamento padronizados e replicáveis.
+    \item \textbf{Engajamento:} Elementos de gamificação aumentam a motivação e adesão, particularmente para crianças e adolescentes.
+    \item \textbf{Coleta de Dados:} Rastreamento automatizado de desempenho permite monitoramento preciso de progresso e resultados.
+\end{enumerate}
+
+Uma revisão sistemática de 2025 com 1.801 pacientes com TEA descobriu que jogos terapêuticos digitais produziram melhorias significativas em habilidades sociais, capacidades cognitivas e resultados comportamentais \cite{Frontiers2025Pediatrics}. Notavelmente, sistemas adaptativos que ajustam a dificuldade em tempo real com base no desempenho do usuário demonstraram eficácia superior em comparação com intervenções estáticas \cite{Restack2024}.
+
+\subsection{Neurodiversidade e Design Acessível}
+
+O paradigma da neurodiversidade reformula o autismo como uma variação natural na cognição humana, em vez de um déficit a ser corrigido \cite{Singer1998}. Esta perspectiva tem implicações profundas para o design de intervenções, enfatizando:
+
+\begin{itemize}
+    \item Respeito por diferenças individuais no processamento sensorial
+    \item Interfaces customizáveis que acomodam necessidades diversas
+    \item Abordagens baseadas em forças que aproveitam as habilidades únicas de indivíduos autistas
+    \item Design participativo envolvendo stakeholders autistas
+\end{itemize}
+
+As Diretrizes de Acessibilidade para Conteúdo Web (WCAG) 2.1 fornecem uma base para design acessível, mas considerações específicas para neurodiversidade se estendem além da conformidade padrão \cite{WCAG2023}. Princípios-chave incluem minimizar sobrecarga sensorial, fornecer estrutura e previsibilidade claras, oferecer múltiplos meios de representação e apoiar a autorregulação \cite{Devqube2025}.
+
+\subsection{Objetivos}
+
+Este artigo apresenta o NeuroPlay, uma plataforma web projetada para abordar as lacunas identificadas nas intervenções atuais de treinamento de FE para TEA. Objetivos específicos incluem:
+
+\begin{enumerate}
+    \item Desenvolver uma plataforma acessível e gamificada direcionada aos domínios centrais de FE (MT, CI, FC)
+    \item Implementar algoritmos adaptativos de IA para ajuste personalizado de dificuldade
+    \item Integrar princípios de design informados pela neurodiversidade em toda a experiência do usuário
+    \item Criar um painel abrangente para educadores/cuidadores para monitoramento de progresso
+    \item Garantir compatibilidade multiplataforma e funcionalidade offline
+\end{enumerate}
+
