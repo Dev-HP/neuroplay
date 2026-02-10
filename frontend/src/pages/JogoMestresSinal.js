@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import EmergencyStop from '../components/EmergencyStop';
+import errorCascadeDetector from '../utils/errorCascadeDetector';
 import './JogoMestresSinal.css';
 
 function JogoMestresSinal({ user }) {
@@ -46,6 +48,12 @@ function JogoMestresSinal({ user }) {
 
     const reactionTime = performance.now() - stimulusTimestamp;
     const isCorrect = sinalAtual === 'go';
+
+    const cascadeResult = errorCascadeDetector.addAttempt(isCorrect);
+    
+    if (cascadeResult.cascade) {
+      console.warn('Cascata de erros detectada!', cascadeResult);
+    }
 
     setReactionTimes(prev => [...prev, {
       timestamp: Date.now(),
@@ -99,6 +107,7 @@ function JogoMestresSinal({ user }) {
 
   return (
     <div className="jogo-container">
+      <EmergencyStop onStop={() => setGameState('ready')} />
       <header className="jogo-header">
         <button onClick={() => navigate('/aluno')} className="btn-voltar">← Voltar</button>
         <div className="pontos-display">Pontos: {pontos}</div>

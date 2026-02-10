@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import audioManager from '../utils/audioManager';
 import aiAdaptation from '../utils/aiAdaptation';
 import ParticleSystem from '../components/ParticleSystem';
+import EmergencyStop from '../components/EmergencyStop';
+import errorCascadeDetector from '../utils/errorCascadeDetector';
 import useGameStore from '../store/gameStore';
 import './JogoCacadorAlvos.css';
 
@@ -331,6 +333,7 @@ function JogoCacadorAlvos({ user }) {
 
   return (
     <div className="jogo-cacador-container">
+      <EmergencyStop onStop={() => setGameState('ready')} />
       <ParticleSystem type={particleType} active={showParticles} />
       
       <div className="game-header">

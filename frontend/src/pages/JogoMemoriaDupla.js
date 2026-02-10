@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import audioManager from '../utils/audioManager';
 import aiAdaptation from '../utils/aiAdaptation';
 import ParticleSystem from '../components/ParticleSystem';
+import EmergencyStop from '../components/EmergencyStop';
+import errorCascadeDetector from '../utils/errorCascadeDetector';
 import useGameStore from '../store/gameStore';
 import './JogoMemoriaDupla.css';
 
@@ -212,6 +214,7 @@ function JogoMemoriaDupla({ user }) {
 
   return (
     <div className="jogo-memoria-dupla-container">
+      <EmergencyStop onStop={() => setGameState('ready')} />
       <ParticleSystem type={particleType} active={showParticles} />
 
       <div className="game-header">
