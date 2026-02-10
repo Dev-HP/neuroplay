@@ -15,7 +15,7 @@
     {
       "label": "🔴 FASE 1.2: Criar Detector de Erro em Cascata",
       "type": "shell",
-      "command": "echo 'Criando ErrorCascadeDetector...' && mkdir -p frontend/src/utils && echo 'export class ErrorCascadeDetector { constructor(threshold = 4) { this.threshold = threshold; this.recentAttempts = []; } addAttempt(isCorrect) { this.recentAttempts.push({ isCorrect, timestamp: Date.now() }); if (this.recentAttempts.length > 10) { this.recentAttempts.shift(); } return this.checkCascade(); } checkCascade() { const lastFive = this.recentAttempts.slice(-5); const errors = lastFive.filter(a => !a.isCorrect).length; if (errors >= this.threshold) { return { cascade: true, consecutiveErrors: errors, action: \"reduce_difficulty\", suggestion: \"Oferecer pausa de 30 segundos\" }; } return { cascade: false }; } reset() { this.recentAttempts = []; } }' > frontend/src/utils/errorCascadeDetector.js && code frontend/src/utils/errorCascadeDetector.js",
+      "command": "Write-Host 'Task 1.2: Detector de Erro em Cascata criado!' ; Write-Host 'Arquivo: frontend/src/utils/errorCascadeDetector.js' ; code frontend/src/utils/errorCascadeDetector.js",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
