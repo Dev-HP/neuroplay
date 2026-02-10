@@ -20,7 +20,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --passWithNoTests",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "audit:a11y": "axe http://localhost:3000 --save audit-axe.json",
+    "audit:lighthouse": "lighthouse http://localhost:3000 --output=json --output-path=./audit-lighthouse.json --only-categories=accessibility",
+    "audit:all": "npm run audit:a11y && npm run audit:lighthouse"
   },
   "devDependencies": {
     "react-scripts": "5.0.1",
