@@ -1,35 +1,147 @@
-# COMANDOS RÁPIDOS - NEUROPLAY
+═══════════════════════════════════════════════════════════════
+🚀 COMANDOS RÁPIDOS - NEUROPLAY PRÉ-DEPLOY
+═══════════════════════════════════════════════════════════════
 
-## GIT & DEPLOY
-git add .
-git commit -m "Fix: Remove package-lock.json cache references from workflows"
-git push origin main
+📋 COMO USAR AS TASKS AUTOMATIZADAS:
 
-## MONITORAR DEPLOY
-https://github.com/Dev-HP/neuroplay/actions
+1. Pressione: Ctrl+Shift+P (Windows) ou Cmd+Shift+P (Mac)
+2. Digite: "Tasks: Run Task"
+3. Selecione a task desejada
 
-## HABILITAR GITHUB PAGES (após deploy com sucesso)
-1. Acesse: https://github.com/Dev-HP/neuroplay/settings/pages
-2. Source: GitHub Actions
-3. Aguarde deploy finalizar
-4. Acesse: https://dev-hp.github.io/neuroplay
+═══════════════════════════════════════════════════════════════
+🔴 FASE 1 - TASKS CRÍTICAS (Executar em ordem)
+═══════════════════════════════════════════════════════════════
 
-## DOCKER LOCAL
-docker-compose up -d
+Task 1.1: 🔴 FASE 1.1: Implementar Medição de Latência IA
+  ↳ Abre o arquivo aiAdaptation.js
+  ↳ Adicione o código das linhas 47-67 do TASKS_PRE_DEPLOY.md
+  ↳ Tempo: 4 horas
+
+Task 1.2: 🔴 FASE 1.2: Criar Detector de Erro em Cascata
+  ↳ Cria automaticamente errorCascadeDetector.js
+  ↳ Integre nos 3 jogos
+  ↳ Tempo: 6 horas
+
+Task 1.3: 🔴 FASE 1.3: Implementar Captura de Tempo de Reação
+  ↳ Abre os 3 jogos
+  ↳ Adicione timestamps conforme TASKS_PRE_DEPLOY.md
+  ↳ Tempo: 8 horas
+
+Task 1.4: 🔴 FASE 1.4: Criar Service Worker (Modo Offline)
+  ↳ Cria automaticamente service-worker.js
+  ↳ Configure no index.html
+  ↳ Tempo: 12 horas
+
+Task 1.5: 🔴 FASE 1.5: Criar Botão de Emergência Sensorial
+  ↳ Abre EmergencyStop.js para edição
+  ↳ Copie código do TASKS_PRE_DEPLOY.md
+  ↳ Tempo: 4 horas
+
+Task 1.6: 🔴 FASE 1.6: Executar Auditoria WCAG
+  ↳ Instala ferramentas automaticamente
+  ↳ Executa auditoria completa
+  ↳ Tempo: 6 horas
+
+═══════════════════════════════════════════════════════════════
+⚡ ATALHO RÁPIDO - EXECUTAR TUDO
+═══════════════════════════════════════════════════════════════
+
+Task: ✅ Executar TODAS as Tasks da FASE 1
+  ↳ Executa tasks 1.1 a 1.5 automaticamente
+  ↳ Você só precisa preencher os códigos
+
+═══════════════════════════════════════════════════════════════
+🧪 TASKS DE TESTE
+═══════════════════════════════════════════════════════════════
+
+🧪 Testar Latência da IA
+  ↳ Executa testes automatizados de latência
+
+🧪 Testar Detector de Cascata
+  ↳ Testa detecção de erros consecutivos
+
+📊 Gerar Relatório de Acessibilidade
+  ↳ Cria relatório WCAG completo
+
+═══════════════════════════════════════════════════════════════
+🚀 TASKS DE DESENVOLVIMENTO
+═══════════════════════════════════════════════════════════════
+
+🚀 Iniciar Frontend (Dev)
+  ↳ Inicia servidor React em http://localhost:3000
+
+🚀 Iniciar Backend (Dev)
+  ↳ Inicia servidor Flask em http://localhost:5000
+
+🐳 Docker: Build e Start
+  ↳ Inicia projeto completo com Docker
+
+🛑 Docker: Stop
+  ↳ Para todos os containers
+
+📦 Instalar Dependências (Frontend + Backend)
+  ↳ Instala todas as dependências necessárias
+
+═══════════════════════════════════════════════════════════════
+🔍 VERIFICAR PROGRESSO
+═══════════════════════════════════════════════════════════════
+
+Task: 🔍 Verificar Status das Tasks
+  ↳ Mostra checklist de progresso
+
+═══════════════════════════════════════════════════════════════
+📝 COMANDOS MANUAIS (Se preferir terminal)
+═══════════════════════════════════════════════════════════════
+
+# Instalar dependências
+cd frontend && npm install
+cd backend && pip install -r requirements.txt
+
+# Iniciar desenvolvimento
+cd frontend && npm start
+cd backend && python app.py
+
+# Docker
+docker-compose up --build
 docker-compose down
-docker-compose logs -f
 
-## FRONTEND LOCAL
+# Auditoria WCAG
 cd frontend
-npm install --legacy-peer-deps
-npm start
+npm install --save-dev @axe-core/cli lighthouse
+npm run audit:all
 
-## BACKEND LOCAL
-cd backend
-pip install -r requirements.txt
-python app.py
+# Testes
+cd frontend && npm test
 
-## VERIFICAR STATUS
-Frontend: http://localhost:3000
-Backend: http://localhost:5000
-PgAdmin: http://localhost:5050
+═══════════════════════════════════════════════════════════════
+📚 DOCUMENTAÇÃO DE REFERÊNCIA
+═══════════════════════════════════════════════════════════════
+
+TASKS_PRE_DEPLOY.md          → Checklist completo com código
+ANALISE_TECNICA_DETALHADA.md → Análise do código atual
+PESQUISA_E_MELHORIAS.md      → Protocolo de validação
+paper/APRESENTACAO_CLINICA.md → Artigo para clínicas
+
+═══════════════════════════════════════════════════════════════
+✅ CRITÉRIOS DE CONCLUSÃO
+═══════════════════════════════════════════════════════════════
+
+Fase 1 está completa quando:
+  ✅ Latência IA < 50ms
+  ✅ Erro em cascata detectado
+  ✅ Tempo de reação capturado
+  ✅ Funciona offline
+  ✅ Botão de emergência presente
+  ✅ Score WCAG > 90
+
+═══════════════════════════════════════════════════════════════
+🎯 PRÓXIMOS PASSOS APÓS FASE 1
+═══════════════════════════════════════════════════════════════
+
+1. Executar testes integrados
+2. Submeter ao comitê de ética
+3. Preparar TCLE e questionários
+4. Recrutar 20-30 participantes
+5. Iniciar estudo piloto (8 semanas)
+
+═══════════════════════════════════════════════════════════════
