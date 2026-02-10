@@ -26,8 +26,8 @@ function JogoMestresSinal({ user }) {
     const isNoGo = Math.random() > 0.5;
     setSinalAtual(isNoGo ? 'no-go' : 'go');
     setGameState('waiting');
+    setStimulusTimestamp(performance.now());
 
-    // Tempo aleatório para próxima rodada (2-4 segundos)
     setTimeout(() => {
       if (gameState !== 'ready') {
         iniciarRodada();
@@ -42,19 +42,26 @@ function JogoMestresSinal({ user }) {
   }, [gameState, iniciarRodada]);
 
   const handleClick = () => {
-    if (gameState !== 'waiting') return;
+    if (gameState !== 'waiting' || !stimulusTimestamp) return;
+
+    const reactionTime = performance.now() - stimulusTimestamp;
+    const isCorrect = sinalAtual === 'go';
+
+    setReactionTimes(prev => [...prev, {
+      timestamp: Date.now(),
+      reactionTime: Math.round(reactionTime),
+      correct: isCorrect,
+      stimulusType: sinalAtual
+    }]);
 
     if (sinalAtual === 'go') {
-      // Acertou - clicou no sinal verde
       setAcertos(prev => prev + 1);
       setPontos(prev => prev + 10);
     } else {
-      // Errou - clicou no sinal vermelho (no-go)
       setErros(prev => prev + 1);
       setPontos(prev => Math.max(0, prev - 5));
     }
 
-    // Verificar se completou 10 rodadas
     if (acertos + erros >= 9) {
       finalizarJogo();
     }
@@ -63,6 +70,10 @@ function JogoMestresSinal({ user }) {
   const finalizarJogo = async () => {
     setGameState('ready');
     const tempoTotal = Math.floor((Date.now() - tempoInicio) / 1000);
+    
+    const avgReactionTime = reactionTimes.length > 0
+      ? reactionTimes.reduce((sum, rt) => sum + rt.reactionTime, 0) / reactionTimes.length
+      : 0;
 
     try {
       const token = localStorage.getItem('token');
@@ -72,7 +83,9 @@ function JogoMestresSinal({ user }) {
         pontos: pontos,
         tempo_gasto: tempoTotal,
         acertos: acertos + 1,
-        erros: erros
+        erros: erros,
+        reaction_times: reactionTimes,
+        avg_reaction_time: Math.round(avgReactionTime)
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });

@@ -130,6 +130,8 @@ function JogoCacadorAlvos({ user }) {
   const [showParticles, setShowParticles] = useState(false);
   const [particleType, setParticleType] = useState('success');
   const [shipPosition] = useState([0, 0, 0]);
+  const [targetTimestamps, setTargetTimestamps] = useState({});
+  const [reactionTimes, setReactionTimes] = useState([]);
   const gameStartTime = useRef(null);
   const addPoints = useGameStore(state => state.addPoints);
 
@@ -143,8 +145,10 @@ function JogoCacadorAlvos({ user }) {
     addPoints(score);
 
     const gameTime = (Date.now() - gameStartTime.current) / 1000;
+    const avgReactionTime = reactionTimes.length > 0
+      ? reactionTimes.reduce((sum, rt) => sum + rt.reactionTime, 0) / reactionTimes.length
+      : 0;
     
-    // Salvar progresso no backend
     try {
       const token = localStorage.getItem('token');
       await fetch('http://localhost:5000/api/progresso', {
@@ -159,17 +163,18 @@ function JogoCacadorAlvos({ user }) {
           pontos: score,
           tempo_gasto: Math.floor(gameTime),
           acertos: stats.collected,
-          erros: stats.collisions
+          erros: stats.collisions,
+          reaction_times: reactionTimes,
+          avg_reaction_time: Math.round(avgReactionTime)
         })
       });
     } catch (error) {
       console.error('Erro ao salvar progresso:', error);
     }
 
-    // Gerar insights com IA
     const insights = aiAdaptation.generateInsights();
     console.log('Insights da IA:', insights);
-  }, [score, stats, user.id, addPoints]);
+  }, [score, stats, user.id, addPoints, reactionTimes]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -206,11 +211,14 @@ function JogoCacadorAlvos({ user }) {
   const spawnTargets = () => {
     const newTargets = [];
     const count = 5 + level * 2;
+    const now = performance.now();
+    const newTimestamps = {};
     
     for (let i = 0; i < count; i++) {
       const type = Math.random() > 0.8 ? 'bonus' : 'good';
+      const targetId = Date.now() + i;
       newTargets.push({
-        id: Date.now() + i,
+        id: targetId,
         position: [
           (Math.random() - 0.5) * 10,
           (Math.random() - 0.5) * 5 + 2,
@@ -218,9 +226,11 @@ function JogoCacadorAlvos({ user }) {
         ],
         type
       });
+      newTimestamps[targetId] = now;
     }
     
     setTargets(newTargets);
+    setTargetTimestamps(newTimestamps);
   };
 
   const spawnObstacles = () => {
@@ -242,6 +252,15 @@ function JogoCacadorAlvos({ user }) {
   };
 
   const handleCollectTarget = (type, id) => {
+    const reactionTime = performance.now() - (targetTimestamps[id] || 0);
+    
+    setReactionTimes(prev => [...prev, {
+      timestamp: Date.now(),
+      reactionTime: Math.round(reactionTime),
+      targetType: type,
+      targetId: id
+    }]);
+    
     const points = type === 'bonus' ? 50 : 20;
     const comboBonus = combo * 5;
     const totalPoints = points + comboBonus;

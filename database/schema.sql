@@ -40,6 +40,8 @@ CREATE TABLE progresso (
     tempo_gasto INTEGER,
     acertos INTEGER DEFAULT 0,
     erros INTEGER DEFAULT 0,
+    reaction_times JSONB,
+    avg_reaction_time FLOAT,
     data_realizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
