@@ -55,7 +55,7 @@ function JogoMemoriaDupla({ user }) {
     generateSequence();
   };
 
-  const generateSequence = () => {
+  const generateSequence = useCallback(() => {
     const length = 20 + nBackLevel * 5; // Sequência mais longa para níveis maiores
     const newSequence = [];
 
@@ -83,7 +83,7 @@ function JogoMemoriaDupla({ user }) {
     setSequence(newSequence);
     setCurrentIndex(0);
     setShowingStimulus(true);
-  };
+  }, [nBackLevel, audioStimuli.length]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const nextStimulus = useCallback(() => {
@@ -97,7 +97,7 @@ function JogoMemoriaDupla({ user }) {
     // Tocar som correspondente
     const current = sequence[currentIndex + 1];
     audioManager.playNote(audioNotes[current.audio], 0.3);
-  }, [currentIndex, sequence]);
+  }, [currentIndex, sequence, audioNotes, finishRound]);
 
   useEffect(() => {
     if (gameState === 'playing' && showingStimulus) {
@@ -180,7 +180,7 @@ function JogoMemoriaDupla({ user }) {
     }
   }, [round, stats, nBackLevel, generateSequence, finishGame]);
 
-  const finishGame = async () => {
+  const finishGame = useCallback(async () => {
     setGameState('finished');
     addPoints(score);
 
@@ -206,7 +206,7 @@ function JogoMemoriaDupla({ user }) {
     } catch (error) {
       console.error('Erro ao salvar progresso:', error);
     }
-  };
+  }, [score, stats, user.id, addPoints]);
 
   const currentStimulus = sequence[currentIndex];
 
