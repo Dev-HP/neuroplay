@@ -1,172 +1,145 @@
-# 🚀 Quick Start - NeuroPlay
+# 🚀 QUICK START - NEUROPLAY TASKS AUTOMATIZADAS
 
-## ⚡ Execução Rápida (Recomendado)
+## ⚡ INÍCIO RÁPIDO (30 segundos)
 
-### 1. Criar Repositório no GitHub
+1. **Abrir Command Palette:**
+   - Windows: `Ctrl + Shift + P`
+   - Mac: `Cmd + Shift + P`
 
-1. Acesse: https://github.com/new
-2. Nome: `neuroplay`
-3. Clique em "Create repository"
-4. **Copie a URL do repositório**
+2. **Digitar:** `Tasks: Run Task`
 
-### 2. Configurar Git
+3. **Selecionar:** `🔴 FASE 1.1: Implementar Medição de Latência IA`
 
-```powershell
-# Substitua SEU_USUARIO pelo seu usuário do GitHub
-git remote set-url origin https://github.com/SEU_USUARIO/neuroplay.git
-
-# Fazer push
-git push -u origin main
-```
-
-### 3. Habilitar GitHub Pages
-
-1. Vá em: `Settings > Pages`
-2. Source: **GitHub Actions**
-3. Aguarde o deploy (5-10 minutos)
-4. Acesse: `https://SEU_USUARIO.github.io/neuroplay`
+4. **Pronto!** O arquivo abrirá automaticamente
 
 ---
 
-## 💻 Executar Localmente
+## 📋 TODAS AS TASKS DISPONÍVEIS
 
-### Opção A: Apenas Frontend (Mais Rápido)
+### 🔴 FASE 1 - CRÍTICO (40 horas)
 
-```powershell
-# 1. Ir para pasta frontend
-cd frontend
+| Task | Tempo | Descrição |
+|------|-------|-----------|
+| 🔴 FASE 1.1 | 4h | Implementar Medição de Latência IA |
+| 🔴 FASE 1.2 | 6h | Criar Detector de Erro em Cascata |
+| 🔴 FASE 1.3 | 8h | Implementar Captura de Tempo de Reação |
+| 🔴 FASE 1.4 | 12h | Criar Service Worker (Modo Offline) |
+| 🔴 FASE 1.5 | 4h | Criar Botão de Emergência Sensorial |
+| 🔴 FASE 1.6 | 6h | Executar Auditoria WCAG |
 
-# 2. Instalar dependências (pode demorar)
-npm install --legacy-peer-deps
+### ⚡ ATALHO
 
-# 3. Iniciar servidor
-npm start
+| Task | Descrição |
+|------|-----------|
+| ✅ Executar TODAS as Tasks da FASE 1 | Executa tasks 1.1 a 1.5 automaticamente |
 
-# 4. Abrir navegador em: http://localhost:3000
-```
+### 🧪 TESTES
 
-### Opção B: Frontend + Backend
+| Task | Descrição |
+|------|-----------|
+| 🧪 Testar Latência da IA | Testa performance do motor de IA |
+| 🧪 Testar Detector de Cascata | Testa detecção de erros consecutivos |
+| 📊 Gerar Relatório de Acessibilidade | Cria relatório WCAG completo |
 
-**Terminal 1 (Backend):**
-```powershell
-cd backend
-pip install -r requirements.txt
-python app.py
-```
+### 🚀 DESENVOLVIMENTO
 
-**Terminal 2 (Frontend):**
-```powershell
-cd frontend
-npm install --legacy-peer-deps
-npm start
-```
+| Task | Descrição |
+|------|-----------|
+| 🚀 Iniciar Frontend (Dev) | Inicia React em localhost:3000 |
+| 🚀 Iniciar Backend (Dev) | Inicia Flask em localhost:5000 |
+| 🐳 Docker: Build e Start | Inicia projeto completo |
+| 🛑 Docker: Stop | Para todos os containers |
+| 📦 Instalar Dependências | Instala frontend + backend |
 
----
+### 🔍 UTILIDADES
 
-## 🐛 Problemas Comuns
-
-### Erro: "npm install falha"
-
-**Solução:**
-```powershell
-# Limpar cache
-npm cache clean --force
-
-# Tentar novamente
-npm install --legacy-peer-deps --force
-```
-
-### Erro: "Docker não encontrado"
-
-**Solução:**
-- Instale Docker Desktop: https://www.docker.com/products/docker-desktop
-- OU execute localmente (Opção A acima)
-
-### Erro: "Python não encontrado"
-
-**Solução:**
-- Instale Python 3.11: https://www.python.org/downloads/
-- Marque "Add Python to PATH" durante instalação
-
-### Erro: "PostgreSQL não conecta"
-
-**Solução:**
-- Instale PostgreSQL: https://www.postgresql.org/download/
-- OU use SQLite (mais simples para desenvolvimento)
+| Task | Descrição |
+|------|-----------|
+| 🔍 Verificar Status das Tasks | Mostra checklist de progresso |
 
 ---
 
-## 📱 Acessar o Site
+## 📚 DOCUMENTAÇÃO
 
-### GitHub Pages (Após deploy)
-```
-https://SEU_USUARIO.github.io/neuroplay
-```
-
-### Local
-```
-http://localhost:3000
-```
+| Arquivo | Conteúdo |
+|---------|----------|
+| `PLANO_ACAO_IMEDIATO.md` | Plano dia-a-dia detalhado |
+| `COMANDOS_RAPIDOS.txt` | Guia completo de comandos |
+| `TASKS_PRE_DEPLOY.md` | Checklist com código completo |
+| `ANALISE_TECNICA_DETALHADA.md` | Análise do código atual |
+| `PESQUISA_E_MELHORIAS.md` | Protocolo de validação |
 
 ---
 
-## 🎮 Testar os Jogos
+## ✅ CHECKLIST DE CONCLUSÃO
 
-1. **Criar conta** como Aluno ou Educador
-2. **Fazer login**
-3. **Selecionar jogo:**
-   - 🚫 Mestres do Sinal
-   - 🚀 Caçador de Alvos (3D)
-   - 🧠 Memória Dupla (N-Back)
-
----
-
-## 📊 Ver Relatórios (Educador)
-
-1. Login como Educador
-2. Painel mostra:
-   - Lista de alunos
-   - Gráficos de desempenho
-   - Métricas detalhadas
+- [ ] Task 1.1: Latência IA < 50ms
+- [ ] Task 1.2: Erro em cascata detectado
+- [ ] Task 1.3: Tempo de reação capturado
+- [ ] Task 1.4: Funciona offline
+- [ ] Task 1.5: Botão de emergência presente
+- [ ] Task 1.6: Score WCAG > 90
 
 ---
 
-## 🔧 Comandos Úteis
+## 🎯 PRÓXIMOS PASSOS
 
-```powershell
-# Ver status do Git
-git status
+Após completar Fase 1:
 
-# Ver logs do npm
-npm run build
-
-# Verificar versões
-node --version
-npm --version
-python --version
-
-# Limpar tudo e recomeçar
-rm -rf node_modules
-npm install --legacy-peer-deps
-```
+1. ✅ Executar testes integrados
+2. 📄 Submeter ao comitê de ética
+3. 📋 Preparar TCLE e questionários
+4. 👥 Recrutar 20-30 participantes
+5. 🚀 Iniciar estudo piloto (8 semanas)
 
 ---
 
-## 💡 Dicas
+## 💡 DICAS
 
-1. **Use Chrome ou Edge** para melhor compatibilidade
-2. **Habilite JavaScript** no navegador
-3. **Aguarde o build** completar (pode demorar 5-10 min)
-4. **Verifique o console** (F12) se houver erros
-
----
-
-## 📞 Precisa de Ajuda?
-
-- Abra uma issue no GitHub
-- Verifique a documentação em `docs/`
-- Consulte `docs/DEPLOY.md` para deploy avançado
+- **Siga a ordem:** Execute tasks na sequência 1.1 → 1.6
+- **Use o atalho:** Task "Executar TODAS" para automatizar
+- **Consulte o código:** Todos os exemplos estão em `TASKS_PRE_DEPLOY.md`
+- **Teste sempre:** Use tasks de teste após cada implementação
+- **Verifique progresso:** Task "Verificar Status" mostra o que falta
 
 ---
 
-**NeuroPlay** - Pronto para usar! 🚀🧠✨
+## 🚨 PROBLEMAS?
+
+**Erro de dependências:**
+→ Execute: `📦 Instalar Dependências`
+
+**Servidor não inicia:**
+→ Execute: `🚀 Iniciar Frontend (Dev)` ou `🚀 Iniciar Backend (Dev)`
+
+**Docker não funciona:**
+→ Execute: `🐳 Docker: Build e Start`
+
+**Dúvidas sobre código:**
+→ Consulte: `TASKS_PRE_DEPLOY.md` ou `ANALISE_TECNICA_DETALHADA.md`
+
+---
+
+## 🎉 MOTIVAÇÃO
+
+**Você está a 40 horas de ter um sistema pronto para validação clínica!**
+
+- ✅ Arquitetura implementada
+- ✅ 3 jogos funcionais
+- ✅ Painel do educador
+- ✅ Documentação científica
+- 🔴 Faltam apenas as melhorias técnicas
+
+**Impacto:**
+- 20-30 crianças no estudo piloto
+- Validação científica real
+- Possível publicação
+- Ferramenta útil para clínicas
+
+---
+
+**Tempo até deploy:** 10 dias úteis  
+**Próxima milestone:** Submissão ao comitê de ética  
+**Meta final:** Estudo piloto com dados reais
+
+**Boa sorte! 💪🚀**
