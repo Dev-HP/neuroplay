@@ -11,6 +11,8 @@ function JogoMestresSinal({ user }) {
   const [erros, setErros] = useState(0);
   const [sinalAtual, setSinalAtual] = useState('go'); // go ou no-go
   const [tempoInicio, setTempoInicio] = useState(null);
+  const [stimulusTimestamp, setStimulusTimestamp] = useState(null); // ← TIMESTAMP DO ESTÍMULO
+  const [reactionTimes, setReactionTimes] = useState([]); // ← ARRAY DE TEMPOS DE REAÇÃO
 
   const iniciarJogo = () => {
     setPontos(0);

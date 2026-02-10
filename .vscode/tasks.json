@@ -4,7 +4,7 @@
     {
       "label": "🔴 FASE 1.1: Implementar Medição de Latência IA",
       "type": "shell",
-      "command": "Write-Host 'Iniciando Task 1.1: Medição de Latência IA...' ; code frontend/src/utils/aiAdaptation.js",
+      "command": "Write-Host 'Task 1.1: Medição de Latência IA - JÁ IMPLEMENTADA!' -ForegroundColor Green ; Write-Host 'Arquivo: frontend/src/utils/aiAdaptation.js' ; code frontend/src/utils/aiAdaptation.js",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -15,7 +15,7 @@
     {
       "label": "🔴 FASE 1.2: Criar Detector de Erro em Cascata",
       "type": "shell",
-      "command": "Write-Host 'Task 1.2: Detector de Erro em Cascata criado!' ; Write-Host 'Arquivo: frontend/src/utils/errorCascadeDetector.js' ; code frontend/src/utils/errorCascadeDetector.js",
+      "command": "Write-Host 'Task 1.2: Detector de Erro em Cascata - JÁ IMPLEMENTADA!' -ForegroundColor Green ; Write-Host 'Arquivo: frontend/src/utils/errorCascadeDetector.js' ; code frontend/src/utils/errorCascadeDetector.js",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -25,7 +25,7 @@
     {
       "label": "🔴 FASE 1.3: Implementar Captura de Tempo de Reação",
       "type": "shell",
-      "command": "echo 'Abrindo jogos para adicionar timestamps...' && code frontend/src/pages/JogoMestresSinal.js frontend/src/pages/JogoMemoriaDupla.js frontend/src/pages/JogoCacadorAlvos.js",
+      "command": "Write-Host 'Task 1.3: Captura de Tempo de Reação' ; Write-Host 'Abrindo os 3 jogos para edição...' ; code frontend/src/pages/JogoMestresSinal.js ; code frontend/src/pages/JogoMemoriaDupla.js ; code frontend/src/pages/JogoCacadorAlvos.js",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -35,7 +35,7 @@
     {
       "label": "🔴 FASE 1.4: Criar Service Worker (Modo Offline)",
       "type": "shell",
-      "command": "echo 'Criando Service Worker...' && mkdir -p frontend/public && echo \"const CACHE_NAME = 'neuroplay-v1'; const urlsToCache = ['/', '/static/js/main.js', '/static/css/main.css', '/manifest.json', '/logo192.png']; self.addEventListener('install', (event) => { event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))); }); self.addEventListener('fetch', (event) => { event.respondWith(caches.match(event.request).then((response) => response || fetch(event.request))); });\" > frontend/public/service-worker.js && code frontend/public/service-worker.js",
+      "command": "Write-Host 'Task 1.4: Criando Service Worker...' ; Write-Host 'Arquivo será criado: frontend/public/service-worker.js'",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -45,7 +45,7 @@
     {
       "label": "🔴 FASE 1.5: Criar Botão de Emergência Sensorial",
       "type": "shell",
-      "command": "echo 'Criando componente EmergencyStop...' && mkdir -p frontend/src/components && code frontend/src/components/EmergencyStop.js",
+      "command": "Write-Host 'Task 1.5: Criando Botão de Emergência...' ; Write-Host 'Arquivo será criado: frontend/src/components/EmergencyStop.js'",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -55,7 +55,7 @@
     {
       "label": "🔴 FASE 1.6: Executar Auditoria WCAG",
       "type": "shell",
-      "command": "cd frontend && npm install --save-dev @axe-core/cli lighthouse && npm run audit:all",
+      "command": "cd frontend ; npm install --save-dev @axe-core/cli lighthouse ; npm run audit:all",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -80,7 +80,7 @@
     {
       "label": "🧪 Testar Latência da IA",
       "type": "shell",
-      "command": "cd frontend && npm test -- --testPathPattern=aiAdaptation",
+      "command": "cd frontend ; npm test -- --testPathPattern=aiAdaptation",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -90,7 +90,7 @@
     {
       "label": "🧪 Testar Detector de Cascata",
       "type": "shell",
-      "command": "cd frontend && npm test -- --testPathPattern=errorCascade",
+      "command": "cd frontend ; npm test -- --testPathPattern=errorCascade",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -100,7 +100,7 @@
     {
       "label": "📊 Gerar Relatório de Acessibilidade",
       "type": "shell",
-      "command": "cd frontend && npm run audit:lighthouse && echo 'Relatório gerado em: frontend/audit-lighthouse.json'",
+      "command": "cd frontend ; npm run audit:lighthouse ; Write-Host 'Relatório gerado em: frontend/audit-lighthouse.json'",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -110,7 +110,7 @@
     {
       "label": "🚀 Iniciar Frontend (Dev)",
       "type": "shell",
-      "command": "cd frontend && npm start",
+      "command": "cd frontend ; npm start",
       "problemMatcher": [],
       "isBackground": true,
       "presentation": {
@@ -121,7 +121,7 @@
     {
       "label": "🚀 Iniciar Backend (Dev)",
       "type": "shell",
-      "command": "cd backend && python app.py",
+      "command": "cd backend ; python app.py",
       "problemMatcher": [],
       "isBackground": true,
       "presentation": {
@@ -149,7 +149,7 @@
     {
       "label": "📦 Instalar Dependências (Frontend + Backend)",
       "type": "shell",
-      "command": "cd frontend && npm install && cd ../backend && pip install -r requirements.txt",
+      "command": "cd frontend ; npm install ; cd ../backend ; pip install -r requirements.txt",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -159,7 +159,7 @@
     {
       "label": "🔍 Verificar Status das Tasks",
       "type": "shell",
-      "command": "echo '=== STATUS DAS TASKS PRÉ-DEPLOY ===' && echo '' && echo '🔴 FASE 1 - CRÍTICO:' && echo '[ ] 1.1 Medição de Latência IA' && echo '[ ] 1.2 Detector de Erro em Cascata' && echo '[ ] 1.3 Captura de Tempo de Reação' && echo '[ ] 1.4 Modo Offline' && echo '[ ] 1.5 Botão de Emergência' && echo '[ ] 1.6 Auditoria WCAG' && echo '' && echo 'Abra TASKS_PRE_DEPLOY.md para detalhes'",
+      "command": "Write-Host '=== STATUS DAS TASKS PRÉ-DEPLOY ===' ; Write-Host '' ; Write-Host '✅ FASE 1 - COMPLETAS:' -ForegroundColor Green ; Write-Host '  ✅ 1.1 Medição de Latência IA' -ForegroundColor Green ; Write-Host '  ✅ 1.2 Detector de Erro em Cascata' -ForegroundColor Green ; Write-Host '' ; Write-Host '🔴 FASE 1 - PENDENTES:' -ForegroundColor Yellow ; Write-Host '  🔴 1.3 Captura de Tempo de Reação' ; Write-Host '  🔴 1.4 Modo Offline' ; Write-Host '  🔴 1.5 Botão de Emergência' ; Write-Host '  🔴 1.6 Auditoria WCAG' ; Write-Host '' ; Write-Host 'Progresso: 25% (2/6 tasks)' ; Write-Host 'Abra TASKS_PRE_DEPLOY.md para detalhes'",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
