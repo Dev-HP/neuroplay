@@ -32,6 +32,8 @@ class AIAdaptation {
 
   // Analisar desempenho do jogador
   analyzePerformance(gameData) {
+    const startTime = performance.now(); // ← MEDIÇÃO DE LATÊNCIA INICIADA
+
     const {
       accuracy,
       reactionTime,
@@ -53,9 +55,22 @@ class AIAdaptation {
       normalizedStreak * 0.2
     );
 
+    const latency = performance.now() - startTime; // ← MEDIÇÃO DE LATÊNCIA FINALIZADA
+
+    // Log para análise (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[IA Performance] Latência: ${latency.toFixed(2)}ms | Score: ${(performanceScore * 100).toFixed(1)}%`);
+    }
+
+    // Alerta se latência muito alta
+    if (latency > 50) {
+      console.warn(`⚠️ IA Latency HIGH: ${latency.toFixed(2)}ms (meta: <50ms)`);
+    }
+
     this.performanceHistory.push({
       score: performanceScore,
       timestamp: Date.now(),
+      latency, // ← SALVAR LATÊNCIA NO HISTÓRICO
       gameData
     });
 
@@ -64,7 +79,11 @@ class AIAdaptation {
       this.performanceHistory.shift();
     }
 
-    return performanceScore;
+    return { 
+      performanceScore, 
+      latency, // ← RETORNAR LATÊNCIA
+      timestamp: Date.now()
+    };
   }
 
   // Recomendar próximo nível de dificuldade
@@ -223,7 +242,52 @@ class AIAdaptation {
       performanceHistory: this.performanceHistory,
       patterns: this.detectPatterns(),
       insights: this.generateInsights(),
-      optimalSessionTime: this.predictOptimalSessionTime()
+      optimalSessionTime: this.predictOptimalSessionTime(),
+      latencyStats: this.getLatencyStats() // ← ADICIONAR ESTATÍSTICAS DE LATÊNCIA
+    };
+  }
+
+  // Obter estatísticas de latência da IA
+  getLatencyStats() {
+    if (this.performanceHistory.length === 0) {
+      return {
+        average: 0,
+        min: 0,
+        max: 0,
+        p95: 0,
+        withinTarget: 0
+      };
+    }
+
+    const latencies = this.performanceHistory
+      .filter(h => h.latency !== undefined)
+      .map(h => h.latency);
+
+    if (latencies.length === 0) {
+      return {
+        average: 0,
+        min: 0,
+        max: 0,
+        p95: 0,
+        withinTarget: 0
+      };
+    }
+
+    const sorted = [...latencies].sort((a, b) => a - b);
+    const average = latencies.reduce((a, b) => a + b, 0) / latencies.length;
+    const min = sorted[0];
+    const max = sorted[sorted.length - 1];
+    const p95Index = Math.floor(sorted.length * 0.95);
+    const p95 = sorted[p95Index];
+    const withinTarget = (latencies.filter(l => l < 50).length / latencies.length) * 100;
+
+    return {
+      average: parseFloat(average.toFixed(2)),
+      min: parseFloat(min.toFixed(2)),
+      max: parseFloat(max.toFixed(2)),
+      p95: parseFloat(p95.toFixed(2)),
+      withinTarget: parseFloat(withinTarget.toFixed(1)),
+      totalMeasurements: latencies.length
     };
   }
 
