@@ -182,7 +182,7 @@ class AchievementSystem {
       unlocked: unlocked.length,
       locked: all.length - unlocked.length,
       percentage: (unlocked.length / all.length) * 100,
-      totalPoints: unlocked.reduce((sum, a) => sum + a.points, 0),
+      totalPoints: unlocked.reduce((sum, a) => sum + (a.xp || 0), 0),
       byRarity: {
         common: unlocked.filter(a => a.rarity === 'common').length,
         rare: unlocked.filter(a => a.rarity === 'rare').length,
