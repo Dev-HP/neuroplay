@@ -50,7 +50,7 @@ jobs:
           pytest backend/tests/unit -v --tb=short --cov=backend/app --cov-report=term-missing
       
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
           flags: backend
@@ -134,7 +134,7 @@ jobs:
           echo "✅ Todos os artefatos essenciais presentes"
       
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: frontend/build
@@ -260,7 +260,7 @@ jobs:
       
       - name: Upload Locust Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: locust-report
           path: |
@@ -300,10 +300,11 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Upload Trivy Results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
       
       - name: Check Python Dependencies
         run: |
