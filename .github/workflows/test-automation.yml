@@ -50,8 +50,6 @@ jobs:
         run: npm run build
         env:
           CI: false
-        env:
-          CI: false
 
   # Job 2: Backend Tests
   backend-tests:
