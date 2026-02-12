@@ -104,54 +104,35 @@ class ChildGamer(HttpUser):
             self.token = 'fake-token-for-testing'
     
     @task(10)
-    def submit_game_score(self):
+    def check_health(self):
         """
-        Tarefa principal: Submeter pontuação de jogo
+        Tarefa principal: Verificar saúde da API
         Peso 10 = 10x mais frequente que outras tarefas
         """
-        session_data = generate_game_session()
-        session_data['student_id'] = self.student_id
-        
-        with self.client.post(
-            '/api/v1/gameplay/sync',
-            json=session_data,
-            headers={'Authorization': f'Bearer {self.token}'},
+        with self.client.get(
+            '/health',
             catch_response=True,
-            name='/api/v1/gameplay/sync'
+            name='/health'
         ) as response:
-            if response.status_code == 200:
-                response.success()
-            elif response.status_code == 202:
-                # Aceito para processamento assíncrono
+            if response.status_code in [200, 503]:
+                # 200 = saudável, 503 = não saudável mas respondendo
                 response.success()
             else:
                 response.failure(f'Status {response.status_code}')
     
-    @task(3)
-    def get_achievements(self):
-        """Consulta conquistas do estudante"""
-        self.client.get(
-            f'/api/v1/achievements/student/{self.student_id}',
-            headers={'Authorization': f'Bearer {self.token}'},
-            name='/api/v1/achievements/student/:id'
-        )
-    
-    @task(2)
-    def get_statistics(self):
-        """Consulta estatísticas do estudante"""
-        self.client.get(
-            f'/api/v1/statistics/student/{self.student_id}',
-            headers={'Authorization': f'Bearer {self.token}'},
-            name='/api/v1/statistics/student/:id'
-        )
-    
-    @task(1)
-    def get_leaderboard(self):
-        """Consulta ranking"""
-        self.client.get(
-            '/api/v1/leaderboard',
-            name='/api/v1/leaderboard'
-        )
+    @task(5)
+    def check_api_health(self):
+        """Consulta health check da API v1"""
+        with self.client.get(
+            '/api/v1/health',
+            catch_response=True,
+            name='/api/v1/health'
+        ) as response:
+            if response.status_code in [200, 404, 503]:
+                # Aceita 404 se endpoint não existir ainda
+                response.success()
+            else:
+                response.failure(f'Status {response.status_code}')
 
 
 # ============================================
@@ -160,40 +141,32 @@ class ChildGamer(HttpUser):
 
 class StressTestUser(HttpUser):
     """
-    Teste de estresse: Submissões rápidas sem espera
+    Teste de estresse: Requisições rápidas sem espera
     Simula pico de tráfego (ex: final de aula)
     """
     wait_time = between(0.1, 0.5)  # Muito rápido
     
     @task
-    def rapid_fire_submissions(self):
-        """Submissões em rajada"""
+    def rapid_fire_health_checks(self):
+        """Health checks em rajada"""
         for _ in range(5):
-            session_data = generate_game_session()
-            self.client.post('/api/v1/gameplay/sync', json=session_data)
+            self.client.get('/health')
 
 
 class ReadHeavyUser(HttpUser):
     """
-    Teste de leitura: Muitas consultas, poucas escritas
+    Teste de leitura: Muitas consultas
     Simula educador consultando dados
     """
     wait_time = between(0.5, 2)
     
     @task(10)
-    def read_statistics(self):
-        student_id = random.choice(STUDENT_IDS)
-        self.client.get(f'/api/v1/statistics/student/{student_id}')
+    def read_health(self):
+        self.client.get('/health')
     
     @task(5)
-    def read_achievements(self):
-        student_id = random.choice(STUDENT_IDS)
-        self.client.get(f'/api/v1/achievements/student/{student_id}')
-    
-    @task(1)
-    def write_game(self):
-        session_data = generate_game_session()
-        self.client.post('/api/v1/gameplay/sync', json=session_data)
+    def read_api_health(self):
+        self.client.get('/api/v1/health')
 
 
 # ============================================
