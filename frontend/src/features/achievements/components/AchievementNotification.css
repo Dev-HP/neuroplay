@@ -1,0 +1,107 @@
+.achievement-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 320px;
+  max-width: 400px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  color: white;
+  cursor: pointer;
+  z-index: 10000;
+  transform: translateX(450px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.achievement-notification.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notification-icon {
+  font-size: 40px;
+  line-height: 1;
+  animation: iconBounce 0.6s ease;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 4px;
+  opacity: 0.95;
+}
+
+.notification-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.notification-description {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.notification-points {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.achievement-notification:hover .notification-close {
+  opacity: 1;
+}
+
+/* Rarity specific animations */
+.achievement-notification.rarity-legendary {
+  animation: legendaryGlow 2s ease-in-out infinite;
+}
+
+@keyframes legendaryGlow {
+  0%, 100% { box-shadow: 0 8px 32px rgba(255, 216, 155, 0.4); }
+  50% { box-shadow: 0 8px 48px rgba(255, 216, 155, 0.6); }
+}
+
+@media (max-width: 768px) {
+  .achievement-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+}

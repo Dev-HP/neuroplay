@@ -1,0 +1,93 @@
+╔══════════════════════════════════════════════════════════════╗
+║     COMO INICIAR O CYBER-RUNNER ENHANCED                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 PASSO A PASSO:
+
+1️⃣ ABRIR PRIMEIRO TERMINAL
+   - Abra o PowerShell ou Terminal
+   - Navegue até a pasta do projeto
+
+2️⃣ INICIAR BACKEND
+   Digite:
+   
+   python backend/app.py
+
+   ✅ Aguarde ver: "Running on http://127.0.0.1:5000"
+   ⚠️  NÃO FECHE ESTE TERMINAL!
+
+
+3️⃣ ABRIR SEGUNDO TERMINAL
+   - Pressione: Ctrl+Shift+` (abre novo terminal)
+   - OU abra uma nova janela do PowerShell
+
+
+4️⃣ INICIAR FRONTEND
+   No novo terminal, digite:
+   
+   cd frontend
+   npm start
+
+   ✅ Aguarde o navegador abrir automaticamente
+   ✅ URL: http://localhost:3000
+
+
+5️⃣ JOGAR!
+   - Faça login (ou crie conta)
+   - Clique no card "Cyber-Runner"
+   - Pressione ESPAÇO para começar!
+
+
+╔══════════════════════════════════════════════════════════════╗
+║                    CONTROLES DO JOGO                         ║
+╚══════════════════════════════════════════════════════════════╝
+
+⌨️  ESPAÇO     → Pular (obstáculos verdes ↑)
+⌨️  ↓ (Seta)   → Deslizar (obstáculos vermelhos ↓)
+🖱️  Mouse      → Clicar nas respostas dos desafios
+
+
+╔══════════════════════════════════════════════════════════════╗
+║                  NOVIDADES DO JOGO! 🎮                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+🤖 Personagem robô animado
+🧠 4 tipos de desafios cognitivos
+💰 Moedas, estrelas e power-ups
+🔥 Sistema de combo
+📈 Níveis progressivos
+✨ Efeitos visuais profissionais
+💬 Mensagens motivacionais
+
+
+╔══════════════════════════════════════════════════════════════╗
+║                    PROBLEMAS COMUNS                          ║
+╚══════════════════════════════════════════════════════════════╝
+
+❌ "Port 3000 already in use"
+   → Feche outros processos na porta 3000
+   → Ou use: npx kill-port 3000
+
+❌ "Module not found"
+   → Execute: cd frontend
+   → Depois: npm install
+
+❌ Backend não inicia
+   → Verifique se Python está instalado
+   → Execute: python --version
+
+❌ Jogo não aparece
+   → Limpe cache: Ctrl+Shift+R
+   → Ou abra em aba anônima
+
+
+╔══════════════════════════════════════════════════════════════╗
+║                    PARAR OS SERVIDORES                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Em cada terminal, pressione: Ctrl+C
+
+
+╔══════════════════════════════════════════════════════════════╗
+║              ✅ PRONTO PARA JOGAR! 🎮🧠✨                    ║
+╚══════════════════════════════════════════════════════════════╝

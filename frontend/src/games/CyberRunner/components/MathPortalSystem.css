@@ -1,0 +1,101 @@
+.math-portal-container {
+  pointer-events: all;
+}
+
+.math-portal {
+  background: rgba(10, 14, 39, 0.95);
+  border: 3px solid #00ffff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  animation: portalAppear 0.5s ease-out;
+  min-width: 400px;
+}
+
+.math-question {
+  font-size: 48px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+  font-family: 'Courier New', monospace;
+}
+
+.math-answers {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.math-answer-btn {
+  background: linear-gradient(135deg, #00aaff 0%, #0066cc 100%);
+  border: 2px solid #00ffff;
+  border-radius: 15px;
+  color: #ffffff;
+  font-size: 36px;
+  font-weight: bold;
+  padding: 20px 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+}
+
+.math-answer-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(0, 255, 255, 0.6);
+  background: linear-gradient(135deg, #00ccff 0%, #0088ee 100%);
+}
+
+.math-answer-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes portalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+/* Acessibilidade */
+.math-answer-btn:focus {
+  outline: 3px solid #ffff00;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .math-portal {
+    animation: none;
+  }
+  
+  .math-answer-btn:hover {
+    transform: none;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .math-portal {
+    min-width: 300px;
+    padding: 20px;
+  }
+  
+  .math-question {
+    font-size: 32px;
+  }
+  
+  .math-answers {
+    flex-direction: column;
+  }
+  
+  .math-answer-btn {
+    font-size: 28px;
+    padding: 15px 30px;
+  }
+}

@@ -1,0 +1,117 @@
+╔══════════════════════════════════════════════════════════════╗
+║         CYBER-RUNNER ENHANCED - GUIA VISUAL                  ║
+╚══════════════════════════════════════════════════════════════╝
+
+🤖 PERSONAGEM (Robô Animado)
+┌────────────────────────────────────────┐
+│         👁️  👁️  ← Olhos piscando      │
+│        ┌─────┐                         │
+│        │     │  ← Cabeça               │
+│    ┌───┴─────┴───┐                     │
+│    │             │  ← Corpo            │
+│  ┌─┤             ├─┐                   │
+│  │ │             │ │  ← Braços         │
+│  │ └─────┬───┬───┘ │                   │
+│  │       │   │     │  ← Pernas         │
+│  │       │   │     │                   │
+└────────────────────────────────────────┘
+
+🎯 OBSTÁCULOS
+┌────────────────────────────────────────┐
+│  ┌──────┐                              │
+│  │  ↑   │  ← VERDE = PULAR             │
+│  │      │                              │
+│  └──────┘                              │
+│                                        │
+│  ┌──────┐                              │
+│  │  ↓   │  ← VERMELHO = DESLIZAR       │
+│  └──────┘                              │
+└────────────────────────────────────────┘
+
+💰 COLECIONÁVEIS
+┌────────────────────────────────────────┐
+│   💰  ← Moeda (+1 moeda, +5 pontos)    │
+│   ⭐  ← Estrela (+25 pontos)           │
+│   ⚡  ← Power-up (Shield 10s)          │
+└────────────────────────────────────────┘
+
+🧠 DESAFIOS COGNITIVOS
+┌────────────────────────────────────────┐
+│  🔢 MATEMÁTICA                         │
+│     5 + 3 = ?                          │
+│     [7] [8] [9]                        │
+│                                        │
+│  🎨 CORES (Stroop)                     │
+│     Qual a COR da palavra?             │
+│     VERMELHO (escrito em azul)         │
+│     [Vermelho] [Azul] [Verde]          │
+│                                        │
+│  🔄 SEQUÊNCIA                          │
+│     2, 4, 6, 8, ?                      │
+│     [9] [10] [11]                      │
+│                                        │
+│  🧠 MEMÓRIA                            │
+│     Memorize: 🌟 🎯 🚀                 │
+│     Qual foi o último?                 │
+│     [🌟] [🎯] [🚀]                     │
+└────────────────────────────────────────┘
+
+📊 HUD (Interface)
+┌────────────────────────────────────────┐
+│ PONTOS: 450    PRECISÃO: 87.5%  ❤️❤️❤️│
+│ 💰 12                                  │
+│ NÍVEL: 3                               │
+│                                        │
+│        COMBO x5! 🔥                    │
+│        ⚡ SHIELD ATIVO!                │
+└────────────────────────────────────────┘
+
+✨ EFEITOS VISUAIS
+┌────────────────────────────────────────┐
+│  Acerto:    💥 (partículas verdes)     │
+│  Erro:      💥 (partículas vermelhas)  │
+│  Moeda:     ✨ (partículas douradas)   │
+│  Estrela:   ⭐ (partículas amarelas)   │
+│  Power-up:  ⚡ (partículas roxas)      │
+└────────────────────────────────────────┘
+
+🎮 CONTROLES
+┌────────────────────────────────────────┐
+│  ESPAÇO  → Pular (obstáculos verdes)   │
+│  ↓       → Deslizar (obstáculos vermelhos)│
+│  Mouse   → Clicar nas respostas         │
+└────────────────────────────────────────┘
+
+📈 PROGRESSÃO
+┌────────────────────────────────────────┐
+│  Nível 1: Velocidade 5                 │
+│  Nível 2: Velocidade 5.5 (500 pontos)  │
+│  Nível 3: Velocidade 6 (1000 pontos)   │
+│  ...                                   │
+│  Nível 10: Velocidade 10 (4500 pontos) │
+└────────────────────────────────────────┘
+
+🏆 MENSAGENS MOTIVACIONAIS
+┌────────────────────────────────────────┐
+│  90%+  → 🌟 EXCELENTE! Você é um mestre!│
+│  75%+  → 👏 MUITO BOM! Continue assim!  │
+│  60%+  → 👍 BOM TRABALHO! Melhorando!   │
+│  <60%  → 💪 CONTINUE TENTANDO!          │
+└────────────────────────────────────────┘
+
+🎨 PALETA DE CORES
+┌────────────────────────────────────────┐
+│  Fundo:      #0a0e27 (azul escuro)     │
+│  Grid:       #003264 (azul médio)      │
+│  Jogador:    #4a9eff (azul claro)      │
+│  Acerto:     #00ff00 (verde neon)      │
+│  Erro:       #ff0000 (vermelho neon)   │
+│  Moeda:      #ffd700 (dourado)         │
+│  Estrela:    #ffff00 (amarelo)         │
+│  Power-up:   #ff00ff (roxo)            │
+│  HUD:        #00ffff (ciano)           │
+└────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════╗
+║  RESULTADO: JOGO PROFISSIONAL E TERAPÊUTICO! 🎮🧠✨         ║
+╚══════════════════════════════════════════════════════════════╝

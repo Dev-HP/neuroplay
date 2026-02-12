@@ -1,0 +1,100 @@
+===========================================
+  CYBER-RUNNER - COMANDOS DE TESTE RÁPIDO
+===========================================
+
+1. INICIAR BACKEND
+------------------
+cd backend
+python app.py
+
+(Aguarde ver: "Running on http://127.0.0.1:5000")
+
+
+2. INICIAR FRONTEND (ABRA NOVO TERMINAL)
+----------------------------------------
+Pressione: Ctrl+Shift+` (para abrir novo terminal)
+
+Depois execute:
+cd frontend
+npm start
+
+(Aguarda abrir automaticamente no navegador)
+
+
+3. TESTAR NO NAVEGADOR
+----------------------
+URL: http://localhost:3000
+
+Login:
+- Email: teste@teste.com
+- Senha: 123456
+
+(Ou crie uma nova conta)
+
+
+4. JOGAR
+--------
+1. Clique no card "Cyber-Runner" (badge ✨ Integrado)
+2. Pressione ESPAÇO para começar
+3. Use:
+   - ESPAÇO = Pular (obstáculos verdes)
+   - ↓ = Deslizar (obstáculos vermelhos)
+   - Mouse = Clicar nas respostas matemáticas
+
+
+5. VERIFICAR FUNCIONAMENTO
+--------------------------
+✓ Jogo carrega em tela cheia
+✓ Obstáculos aparecem e se movem
+✓ Pulo funciona (ESPAÇO)
+✓ Deslizar funciona (↓)
+✓ Matemática aparece aleatoriamente
+✓ HUD mostra pontos, vidas e precisão
+✓ Game Over ao perder todas as vidas
+
+
+6. PARAR SERVIDORES
+-------------------
+Pressione Ctrl+C em cada terminal
+
+
+===========================================
+  PROBLEMAS COMUNS
+===========================================
+
+ERRO: "Port 3000 already in use"
+SOLUÇÃO: Feche outros processos na porta 3000
+
+ERRO: "Module not found"
+SOLUÇÃO: cd frontend && npm install
+
+ERRO: Backend não inicia
+SOLUÇÃO: Verifique se Python está instalado
+
+ERRO: Jogo não aparece
+SOLUÇÃO: Limpe cache do navegador (Ctrl+Shift+R)
+
+
+===========================================
+  ARQUIVOS PRINCIPAIS
+===========================================
+
+Jogo:
+- frontend/src/games/CyberRunnerCanvas/CyberRunnerCanvas.js
+- frontend/src/games/CyberRunnerCanvas/CyberRunnerCanvas.css
+
+Rotas:
+- frontend/src/App.js
+
+Painel:
+- frontend/src/pages/PainelAluno.js
+- frontend/src/pages/PainelAluno.css
+
+Backend:
+- backend/app.py
+- backend/game_launcher.py
+
+
+===========================================
+  STATUS: ✅ PRONTO PARA TESTE
+===========================================

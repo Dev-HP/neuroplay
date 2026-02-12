@@ -1,0 +1,237 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  NEUROPLAY 2.0 - MELHORIAS CIENTÍFICAS                       ║
+║                     Guia Visual de Implementação                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📊 EVIDÊNCIAS CIENTÍFICAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Meta-análise (2025): 24 estudos, 1.801 pacientes
+   → Cognição: g = 0.57 (p < 0.001) ⭐⭐⭐
+   → Habilidades Sociais: g = -0.59 (p = 0.004) ⭐⭐⭐
+   → Comportamentos Sociais: g = 0.45 (p < 0.001) ⭐⭐⭐
+
+✅ Adaptação Dinâmica: 2.3x mais eficaz (Nature, 2021)
+✅ Feedback Multissensorial: +45% engajamento (MDPI, 2024)
+✅ Personalização Sensorial: +60% tempo de jogo (FastCapital, 2024)
+
+
+🎮 JOGO 1: CYBER-RUNNER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ATUAL:
+  ✅ Controle inibitório (Go/No-Go)
+  ✅ Desafios cognitivos variados
+  ✅ Feedback visual com partículas
+  ✅ Ajustes de gameplay (pulo suave, slow-motion)
+
+MELHORIAS PRIORITÁRIAS:
+  🔴 ALTA: Sistema de adaptação dinâmica
+  🔴 ALTA: Feedback auditivo rico
+  🔴 ALTA: Configurações sensoriais
+  🟡 MÉDIA: Sistema de conquistas
+
+IMPACTO ESPERADO: 2.3x eficácia, +45% engajamento
+
+
+🧠 JOGO 2: ECHO TEMPLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ATUAL:
+  ✅ Memória visuoespacial
+  ✅ 3 fases (codificação, retenção, recuperação)
+  ✅ Progressão de dificuldade
+  ✅ Feedback visual
+
+MELHORIAS PRIORITÁRIAS:
+  🔴 ALTA: Dual N-Back adaptativo (visual + auditivo)
+  🔴 ALTA: Tempo de retenção adaptativo
+  🔴 ALTA: Feedback auditivo
+  🟡 MÉDIA: Mapa de calor de acertos
+
+IMPACTO ESPERADO: Melhoria em memória de trabalho, transferência acadêmica
+
+
+🎵 JOGO 3: SONIC JUMP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ATUAL:
+  ✅ Processamento fonológico
+  ✅ 8 fonemas diferentes
+  ✅ Física de pulo realista
+  ✅ Feedback visual
+
+MELHORIAS PRIORITÁRIAS:
+  🔴 ALTA: Síntese de áudio REAL (Web Audio API)
+  🔴 ALTA: Progressão fonológica (fácil → difícil)
+  🔴 ALTA: Feedback auditivo contextual
+  🟡 MÉDIA: Repetição espaçada (SM-2)
+
+IMPACTO ESPERADO: Treino auditivo real, discriminação fonológica
+
+
+🧪 JOGO 4: GRAVITY LAB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ATUAL:
+  ✅ Flexibilidade cognitiva (set-shifting)
+  ✅ Mudança de regras (cor ↔ forma)
+  ✅ NPC com emoções
+  ✅ Drag-and-drop intuitivo
+
+MELHORIAS PRIORITÁRIAS:
+  🔴 ALTA: Mudança de regra IMPREVISÍVEL
+  🔴 ALTA: Inibição de resposta prepotente (armadilhas)
+  🔴 ALTA: Feedback auditivo
+  🟡 MÉDIA: NPC com teoria da mente
+
+IMPACTO ESPERADO: Flexibilidade real, não memorização de padrão
+
+
+🌟 MELHORIAS TRANSVERSAIS (Todos os Jogos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CONFIGURAÇÕES SENSORIAIS GLOBAL
+   ┌─────────────────────────────────────┐
+   │ 👁️ Visual                           │
+   │   • Brilho (50-150%)                │
+   │   • Esquema de cores                │
+   │   • Animações (full/reduced/none)   │
+   │                                     │
+   │ 🔊 Auditivo                         │
+   │   • Volume geral (0-100%)           │
+   │   • Efeitos sonoros (on/off)        │
+   │   • Música de fundo (on/off)        │
+   │                                     │
+   │ 🎮 Gameplay                         │
+   │   • Velocidade (0.5x - 2.0x)        │
+   │   • Lembretes de pausa              │
+   └─────────────────────────────────────┘
+
+2. DASHBOARD PARA EDUCADORES
+   ┌─────────────────────────────────────┐
+   │ 📊 Funções Executivas               │
+   │   • Memória de Trabalho: ████░ 80%  │
+   │   • Controle Inibitório: ███░░ 65%  │
+   │   • Flexibilidade: ██████ 95%       │
+   │                                     │
+   │ 📈 Evolução (4 semanas)             │
+   │   [Gráfico de linha]                │
+   │                                     │
+   │ 💡 Insights da IA                   │
+   │   • João mostra progresso em...     │
+   │   • Considerar aumentar...          │
+   │                                     │
+   │ 📋 Recomendações                    │
+   │   • Foco em flexibilidade           │
+   │   • Manter treino de memória        │
+   └─────────────────────────────────────┘
+
+3. TELEMETRIA AVANÇADA
+   • Tempo de reação (ms)
+   • Acurácia (%)
+   • Detecção de ansiedade
+   • Detecção de estado de flow
+   • Padrões de erro
+
+
+📅 ROADMAP DE IMPLEMENTAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FASE 1: CRÍTICO (1-2 meses) 🔴
+┌────────────────────────────────────────────────────────────┐
+│ ☐ Sistema de adaptação dinâmica (todos os jogos)          │
+│ ☐ Feedback auditivo (todos os jogos)                      │
+│ ☐ Síntese de áudio real (Sonic Jump)                      │
+│ ☐ Configurações sensoriais (global)                       │
+└────────────────────────────────────────────────────────────┘
+
+FASE 2: IMPORTANTE (2-3 meses) 🟡
+┌────────────────────────────────────────────────────────────┐
+│ ☐ Dual N-Back adaptativo (Echo Temple)                    │
+│ ☐ Sistema de conquistas (todos os jogos)                  │
+│ ☐ Progressão fonológica (Sonic Jump)                      │
+│ ☐ Mudança de regra imprevisível (Gravity Lab)             │
+└────────────────────────────────────────────────────────────┘
+
+FASE 3: AVANÇADO (3-4 meses) 🟢
+┌────────────────────────────────────────────────────────────┐
+│ ☐ Dashboard para educadores                               │
+│ ☐ Telemetria avançada                                     │
+│ ☐ NPC com teoria da mente (Gravity Lab)                   │
+│ ☐ Repetição espaçada (Sonic Jump)                         │
+└────────────────────────────────────────────────────────────┘
+
+
+📈 MÉTRICAS DE SUCESSO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CLÍNICAS:
+  🎯 Melhoria em testes: 15-20% (12 semanas)
+  🎯 Generalização: 70% reportam melhoria
+  🎯 Taxa de abandono: < 20%
+
+ENGAJAMENTO:
+  🎯 Tempo de sessão: > 25 minutos
+  🎯 Frequência: > 3x/semana
+  🎯 Taxa de conclusão: > 80%
+
+USABILIDADE:
+  🎯 SUS (System Usability Scale): > 80
+  🎯 NPS (Net Promoter Score): > 50
+  🎯 Conformidade WCAG 2.1 AA: 100%
+
+
+🔬 VALIDAÇÃO CIENTÍFICA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ESTUDO PILOTO:
+  • N = 30 crianças com TEA (6-12 anos)
+  • Duração: 8 semanas
+  • Frequência: 3-5 sessões/semana, 20-30 min
+  • Grupos: Experimental vs. Controle
+
+MEDIDAS PRÉ/PÓS:
+  • BRIEF-2 (Funções Executivas)
+  • Vineland-3 (Comportamento Adaptativo)
+  • SRS-2 (Responsividade Social)
+  • SUS (Usabilidade)
+
+ANÁLISE:
+  • Teste t pareado
+  • ANOVA mista (grupo × tempo)
+  • Tamanho de efeito (Cohen's d)
+
+CRITÉRIO DE SUCESSO:
+  ✅ Melhoria significativa (p < 0.05) em ≥ 2 medidas
+  ✅ Tamanho de efeito médio/grande (d > 0.5)
+  ✅ SUS > 70
+  ✅ Taxa de abandono < 20%
+
+
+📚 PRINCIPAIS REFERÊNCIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Frontiers in Pediatrics (2025) - Meta-análise GBI para TEA
+2. Nature Scientific Reports (2021) - Jogos adaptativos
+3. BMC Psychiatry (2022) - Revisão de jogos cognitivos
+4. MDPI (2024) - Feedback e recompensas
+5. FastCapital (2024) - Personalização sensorial
+
+
+✅ PRÓXIMOS PASSOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ☐ Revisar documento completo: NEUROPLAY_2.0_MELHORIAS_CIENTIFICAS.md
+2. ☐ Priorizar implementações: Começar pela Fase 1
+3. ☐ Alocar recursos: Definir equipe e timeline
+4. ☐ Implementar melhorias: Seguir roadmap
+5. ☐ Testar com usuários: Validar cada melhoria
+6. ☐ Preparar estudo piloto: Protocolo de pesquisa
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  Documento criado: 10 de Fevereiro de 2026                                   ║
+║  Versão: 1.0                                                                 ║
+║  Status: Completo - Pronto para Implementação                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝

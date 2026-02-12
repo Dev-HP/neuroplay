@@ -1,0 +1,49 @@
+.cyber-runner-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%);
+}
+
+.cyber-runner-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Animações de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cyber-runner-container {
+    touch-action: none;
+  }
+}
