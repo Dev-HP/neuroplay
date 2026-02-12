@@ -30,7 +30,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Executar testes unitários
         working-directory: ./frontend
@@ -126,7 +126,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Run E2E tests (placeholder)
         working-directory: ./frontend
@@ -165,7 +165,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Run ESLint
         working-directory: ./frontend
