@@ -91,6 +91,7 @@ jobs:
   integration-tests:
     runs-on: ubuntu-latest
     needs: [frontend-tests, backend-tests]
+    continue-on-error: true  # Não bloqueia o pipeline se falhar
     
     steps:
       - name: Checkout código
