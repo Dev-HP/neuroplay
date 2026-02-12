@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import audioManager from '../utils/audioManager';
-import aiAdaptation from '../utils/aiAdaptation';
-import ParticleSystem from '../components/ParticleSystem';
-import EmergencyStop from '../components/EmergencyStop';
-import errorCascadeDetector from '../utils/errorCascadeDetector';
+import audioManager from '../shared/utils/audioManager';
+import aiAdaptation from '../shared/utils/aiAdaptation';
+import ParticleSystem from '../shared/components/ParticleSystem';
+import EmergencyStop from '../shared/components/EmergencyStop';
+import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
 import useGameStore from '../store/gameStore';
 import './JogoCacadorAlvos.css';
 
@@ -275,6 +275,9 @@ function JogoCacadorAlvos({ user }) {
       accuracy: ((prev.collected + 1) / (prev.collected + prev.missed + 1)) * 100
     }));
 
+    // Registrar acerto no detector de cascata
+    errorCascadeDetector.addAttempt(true);
+
     // Remover alvo coletado
     setTargets(prev => prev.filter(t => t.id !== id));
 
@@ -308,6 +311,16 @@ function JogoCacadorAlvos({ user }) {
       collisions: prev.collisions + 1,
       accuracy: (prev.collected / (prev.collected + prev.missed + prev.collisions + 1)) * 100
     }));
+
+    // Detectar cascata de erros
+    const cascadeResult = errorCascadeDetector.addAttempt(false);
+    if (cascadeResult.cascade) {
+      console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+      // Reduzir dificuldade automaticamente
+      if (level > 1) {
+        setLevel(prev => Math.max(1, prev - 1));
+      }
+    }
 
     // Remover obstáculo
     setObstacles(prev => prev.filter(o => o.id !== id));

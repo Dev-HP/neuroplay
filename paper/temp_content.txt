@@ -1,0 +1,46 @@
+﻿\begin{itemize}
+    \item \textbf{MemÃ³ria de Trabalho:} DÃ©ficits tanto em MT verbal quanto espacial sÃ£o bem documentados em populaÃ§Ãµes com TEA, afetando a capacidade de manter e manipular informaÃ§Ãµes temporariamente \cite{Barendse2013}.
+    \item \textbf{Controle InibitÃ³rio:} Dificuldades em suprimir respostas prepotentes contribuem para rigidez comportamental e perseveraÃ§Ã£o \cite{Geurts2014}.
+    \item \textbf{Flexibilidade Cognitiva:} Habilidades prejudicadas de mudanÃ§a de conjunto manifestam-se como dificuldade em adaptar-se a regras ou contextos em mudanÃ§a, contribuindo para a necessidade caracterÃ­stica de mesmice no TEA \cite{Leung2016}.
+\end{itemize}
+
+Meta-anÃ¡lises recentes indicam que dÃ©ficits de FE no TEA nÃ£o sÃ£o meramente secundÃ¡rios a outros sintomas, mas representam uma caracterÃ­stica central da condiÃ§Ã£o \cite{Lai2017}. Importante, esses dÃ©ficits sÃ£o passÃ­veis de intervenÃ§Ã£o, com tamanhos de efeito variando de mÃ©dio a grande (d de Cohen = 0,45-0,59) para programas de treinamento direcionados \cite{Frontiers2025}.
+
+\subsection{IntervenÃ§Ãµes Digitais para Autismo}
+
+A Ãºltima dÃ©cada testemunhou uma proliferaÃ§Ã£o de intervenÃ§Ãµes baseadas em tecnologia para TEA, impulsionadas por vÃ¡rias vantagens sobre abordagens tradicionais:
+
+\begin{enumerate}
+    \item \textbf{Escalabilidade:} Plataformas digitais podem alcanÃ§ar populaÃ§Ãµes carentes com acesso limitado a serviÃ§os especializados.
+    \item \textbf{ConsistÃªncia:} Tarefas computadorizadas fornecem protocolos de treinamento padronizados e replicÃ¡veis.
+    \item \textbf{Engajamento:} Elementos de gamificaÃ§Ã£o aumentam a motivaÃ§Ã£o e adesÃ£o, particularmente para crianÃ§as e adolescentes.
+    \item \textbf{Coleta de Dados:} Rastreamento automatizado de desempenho permite monitoramento preciso de progresso e resultados.
+\end{enumerate}
+
+Uma revisÃ£o sistemÃ¡tica de 2025 com 1.801 pacientes com TEA descobriu que jogos terapÃªuticos digitais produziram melhorias significativas em habilidades sociais, capacidades cognitivas e resultados comportamentais \cite{Frontiers2025Pediatrics}. Notavelmente, sistemas adaptativos que ajustam a dificuldade em tempo real com base no desempenho do usuÃ¡rio demonstraram eficÃ¡cia superior em comparaÃ§Ã£o com intervenÃ§Ãµes estÃ¡ticas \cite{Restack2024}.
+
+\subsection{Neurodiversidade e Design AcessÃ­vel}
+
+O paradigma da neurodiversidade reformula o autismo como uma variaÃ§Ã£o natural na cogniÃ§Ã£o humana, em vez de um dÃ©ficit a ser corrigido \cite{Singer1998}. Esta perspectiva tem implicaÃ§Ãµes profundas para o design de intervenÃ§Ãµes, enfatizando:
+
+\begin{itemize}
+    \item Respeito por diferenÃ§as individuais no processamento sensorial
+    \item Interfaces customizÃ¡veis que acomodam necessidades diversas
+    \item Abordagens baseadas em forÃ§as que aproveitam as habilidades Ãºnicas de indivÃ­duos autistas
+    \item Design participativo envolvendo stakeholders autistas
+\end{itemize}
+
+As Diretrizes de Acessibilidade para ConteÃºdo Web (WCAG) 2.1 fornecem uma base para design acessÃ­vel, mas consideraÃ§Ãµes especÃ­ficas para neurodiversidade se estendem alÃ©m da conformidade padrÃ£o \cite{WCAG2023}. PrincÃ­pios-chave incluem minimizar sobrecarga sensorial, fornecer estrutura e previsibilidade claras, oferecer mÃºltiplos meios de representaÃ§Ã£o e apoiar a autorregulaÃ§Ã£o \cite{Devqube2025}.
+
+\subsection{Objetivos}
+
+Este artigo apresenta o NeuroPlay, uma plataforma web projetada para abordar as lacunas identificadas nas intervenÃ§Ãµes atuais de treinamento de FE para TEA. Objetivos especÃ­ficos incluem:
+
+\begin{enumerate}
+    \item Desenvolver uma plataforma acessÃ­vel e gamificada direcionada aos domÃ­nios centrais de FE (MT, CI, FC)
+    \item Implementar algoritmos adaptativos de IA para ajuste personalizado de dificuldade
+    \item Integrar princÃ­pios de design informados pela neurodiversidade em toda a experiÃªncia do usuÃ¡rio
+    \item Criar um painel abrangente para educadores/cuidadores para monitoramento de progresso
+    \item Garantir compatibilidade multiplataforma e funcionalidade offline
+\end{enumerate}
+

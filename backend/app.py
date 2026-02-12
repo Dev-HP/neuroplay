@@ -8,7 +8,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'neuroplay-secret-key-2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/neuroplay'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///neuroplay.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -184,3 +184,184 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True, port=5000)
+
+
+# ============================================
+# ENDPOINTS DE TELEMETRIA - NEUROPLAY 2.0
+# ============================================
+
+from telemetry_service import TelemetryService
+import sqlite3
+
+# Inicializa serviço de telemetria
+def get_telemetry_db():
+    """Conexão com banco de telemetria"""
+    conn = sqlite3.connect('telemetry.db')
+    return conn
+
+telemetry_service = TelemetryService(get_telemetry_db())
+
+@app.route('/api/telemetry/batch', methods=['POST'])
+def telemetry_batch():
+    """
+    Recebe lote de eventos de telemetria
+    POST /api/telemetry/batch
+    Body: { "events": [...] }
+    """
+    try:
+        data = request.get_json()
+        events = data.get('events', [])
+        
+        if not events:
+            return jsonify({'error': 'Nenhum evento fornecido'}), 400
+        
+        result = telemetry_service.process_batch(events)
+        
+        return jsonify(result), 200 if result['success'] else 500
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/telemetry/session/<session_id>', methods=['GET'])
+def get_session_summary(session_id):
+    """
+    Retorna resumo de uma sessão específica
+    GET /api/telemetry/session/<session_id>
+    """
+    try:
+        summary = telemetry_service.get_session_summary(session_id)
+        
+        if 'error' in summary:
+            return jsonify(summary), 404
+        
+        return jsonify(summary), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/telemetry/progress/<int:user_id>/<game_module>', methods=['GET'])
+def get_user_progress(user_id, game_module):
+    """
+    Retorna progresso do usuário em um módulo
+    GET /api/telemetry/progress/<user_id>/<game_module>
+    """
+    try:
+        progress = telemetry_service.get_user_progress(user_id, game_module)
+        
+        if 'error' in progress:
+            return jsonify(progress), 404
+        
+        return jsonify(progress), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Inicializa tabela de telemetria se não existir
+def init_telemetry_db():
+    """Cria tabelas de telemetria"""
+    conn = get_telemetry_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cognitive_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            game_module TEXT NOT NULL,
+            event_type TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
+            event_data TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_session_id 
+        ON cognitive_events(session_id)
+    """)
+    
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_game_module 
+        ON cognitive_events(game_module)
+    """)
+    
+    conn.commit()
+    conn.close()
+
+# Inicializa ao startar
+with app.app_context():
+    init_telemetry_db()
+    print("✅ Banco de telemetria inicializado")
+
+# ============================================
+# ENDPOINTS DE JOGOS PYGAME
+# ============================================
+
+from game_launcher import iniciar_jogo, JOGOS_DISPONIVEIS
+
+@app.route('/api/jogos/pygame/iniciar/<nome_jogo>', methods=['POST'])
+@token_required
+def iniciar_jogo_pygame(current_user, nome_jogo):
+    """
+    Inicia um jogo Pygame
+    POST /api/jogos/pygame/iniciar/<nome_jogo>
+    """
+    try:
+        if nome_jogo not in JOGOS_DISPONIVEIS:
+            return jsonify({
+                'error': f'Jogo não encontrado',
+                'jogos_disponiveis': list(JOGOS_DISPONIVEIS.keys())
+            }), 404
+        
+        sucesso = iniciar_jogo(nome_jogo)
+        
+        if sucesso:
+            return jsonify({
+                'message': f'Jogo {nome_jogo} iniciado com sucesso',
+                'jogo': nome_jogo
+            }), 200
+        else:
+            return jsonify({
+                'error': 'Erro ao iniciar jogo'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/jogos/pygame/lista', methods=['GET'])
+def listar_jogos_pygame():
+    """
+    Lista jogos Pygame disponíveis
+    GET /api/jogos/pygame/lista
+    """
+    jogos = [
+        {
+            'id': 'cyber-runner',
+            'nome': 'Cyber-Runner',
+            'descricao': 'Treinamento de Controle Inibitório',
+            'modulo': 'Córtex Pré-Frontal',
+            'disponivel': True
+        },
+        {
+            'id': 'echo-temple',
+            'nome': 'Templo dos Ecos',
+            'descricao': 'Memória Visuoespacial',
+            'modulo': 'Hipocampo',
+            'disponivel': False
+        },
+        {
+            'id': 'sonic-jump',
+            'nome': 'Orquestra das Plataformas',
+            'descricao': 'Processamento Fonológico',
+            'modulo': 'Giro Temporal Superior',
+            'disponivel': False
+        },
+        {
+            'id': 'gravity-lab',
+            'nome': 'Laboratório de Gravidade',
+            'descricao': 'Lógica e Flexibilidade',
+            'modulo': 'Córtex Parietal',
+            'disponivel': False
+        }
+    ]
+    
+    return jsonify(jogos), 200

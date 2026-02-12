@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Logo from '../components/Logo';
+import Logo from '../shared/components/Logo';
 import './Login.css';
 
 function Login({ onLogin }) {

@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@axe-core/cli": "^4.11.1",
+    "lighthouse": "^13.0.2"
+  }
+}

@@ -248,6 +248,23 @@
 .jogo-card.jogo-verde::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
 .jogo-card.jogo-amarelo::before { background: linear-gradient(90deg, #ffd93d, #ffb800); }
 .jogo-card.jogo-roxo::before { background: linear-gradient(90deg, #a8edea, #fed6e3); }
+.jogo-card.jogo-ciano::before { background: linear-gradient(90deg, #00ffff, #00aaff); }
+
+/* Card em destaque (Cyber-Runner) */
+.jogo-card.destaque {
+  border: 3px solid #00ffff;
+  box-shadow: 0 8px 40px rgba(0, 255, 255, 0.3);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 8px 40px rgba(0, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 12px 60px rgba(0, 255, 255, 0.5);
+  }
+}
 
 .jogo-card:hover {
   transform: translateY(-12px) scale(1.02);
@@ -466,5 +483,61 @@
 
   .jogo-card {
     border: 3px solid #fff;
+  }
+}
+
+/* ===== MENSAGEM DE FEEDBACK ===== */
+.mensagem-feedback {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-weight: 600;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== BADGE PYGAME ===== */
+.badge-pygame {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #3776ab 0%, #ffd43b 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(55, 118, 171, 0.3);
+  z-index: 2;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== BADGE INTEGRADO ===== */
+.badge-integrado {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+  z-index: 2;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
   }
 }

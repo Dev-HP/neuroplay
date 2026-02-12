@@ -6,6 +6,12 @@ import PainelEducador from './pages/PainelEducador';
 import JogoMestresSinal from './pages/JogoMestresSinal';
 import JogoCacadorAlvos from './pages/JogoCacadorAlvos';
 import JogoMemoriaDupla from './pages/JogoMemoriaDupla';
+import CyberRunner from './games/CyberRunner/CyberRunner';
+import CyberRunnerCanvas from './games/CyberRunnerCanvas/CyberRunnerCanvas';
+import CyberRunnerEnhanced from './games/CyberRunnerCanvas/CyberRunnerEnhanced';
+import EchoTemple from './games/EchoTemple/EchoTemple';
+import SonicJump from './games/SonicJump/SonicJump';
+import GravityLab from './games/GravityLab/GravityLab';
 import './App.css';
 
 function App() {
@@ -65,6 +71,21 @@ function App() {
           } />
           <Route path="/jogo/memoria-dupla" element={
             user ? <JogoMemoriaDupla user={user} /> : <Navigate to="/login" />
+          } />
+          <Route path="/jogo/cyber-runner" element={
+            user ? <CyberRunner user={user} /> : <Navigate to="/login" />
+          } />
+          <Route path="/jogo/cyber-runner-canvas" element={
+            user ? <CyberRunnerEnhanced user={user} /> : <Navigate to="/login" />
+          } />
+          <Route path="/jogo/echo-temple" element={
+            user ? <EchoTemple user={user} /> : <Navigate to="/login" />
+          } />
+          <Route path="/jogo/sonic-jump" element={
+            user ? <SonicJump user={user} /> : <Navigate to="/login" />
+          } />
+          <Route path="/jogo/gravity-lab" element={
+            user ? <GravityLab user={user} /> : <Navigate to="/login" />
           } />
         </Routes>
       </div>

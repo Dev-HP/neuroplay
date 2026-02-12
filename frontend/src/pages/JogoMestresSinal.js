@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import EmergencyStop from '../components/EmergencyStop';
-import errorCascadeDetector from '../utils/errorCascadeDetector';
+import EmergencyStop from '../shared/components/EmergencyStop';
+import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
 import './JogoMestresSinal.css';
 
 function JogoMestresSinal({ user }) {
@@ -65,9 +65,22 @@ function JogoMestresSinal({ user }) {
     if (sinalAtual === 'go') {
       setAcertos(prev => prev + 1);
       setPontos(prev => prev + 10);
+      
+      // Registrar acerto no detector de cascata
+      errorCascadeDetector.addAttempt(true);
     } else {
       setErros(prev => prev + 1);
       setPontos(prev => Math.max(0, prev - 5));
+      
+      // Detectar cascata de erros
+      const cascadeResult = errorCascadeDetector.addAttempt(false);
+      if (cascadeResult.cascade) {
+        console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+        // Sugerir pausa
+        if (cascadeResult.severity === 'critical') {
+          alert('Que tal fazer uma pausa de 30 segundos? Isso pode ajudar!');
+        }
+      }
     }
 
     if (acertos + erros >= 9) {

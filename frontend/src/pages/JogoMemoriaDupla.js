@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import audioManager from '../utils/audioManager';
-import aiAdaptation from '../utils/aiAdaptation';
-import ParticleSystem from '../components/ParticleSystem';
-import EmergencyStop from '../components/EmergencyStop';
-import errorCascadeDetector from '../utils/errorCascadeDetector';
+import audioManager from '../shared/utils/audioManager';
+import aiAdaptation from '../shared/utils/aiAdaptation';
+import ParticleSystem from '../shared/components/ParticleSystem';
+import EmergencyStop from '../shared/components/EmergencyStop';
+import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
 import useGameStore from '../store/gameStore';
 import './JogoMemoriaDupla.css';
 
@@ -124,6 +124,10 @@ function JogoMemoriaDupla({ user }) {
         ...prev,
         [`${type}Correct`]: prev[`${type}Correct`] + 1
       }));
+      
+      // Registrar acerto no detector de cascata
+      errorCascadeDetector.addAttempt(true);
+      
       audioManager.play('success');
       showFeedback('✓', 'success');
       setParticleType('success');
@@ -134,6 +138,17 @@ function JogoMemoriaDupla({ user }) {
         ...prev,
         [`${type}Wrong`]: prev[`${type}Wrong`] + 1
       }));
+      
+      // Detectar cascata de erros
+      const cascadeResult = errorCascadeDetector.addAttempt(false);
+      if (cascadeResult.cascade) {
+        console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+        // Reduzir dificuldade automaticamente
+        if (nBackLevel > 1) {
+          setNBackLevel(prev => Math.max(1, prev - 1));
+        }
+      }
+      
       audioManager.play('error');
       showFeedback('✗', 'error');
     }

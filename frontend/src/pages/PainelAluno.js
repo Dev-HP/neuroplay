@@ -1,11 +1,55 @@
 import { useNavigate } from 'react-router-dom';
-import Logo from '../components/Logo';
+import Logo from '../shared/components/Logo';
 import './PainelAluno.css';
 
 function PainelAluno({ user, onLogout }) {
   const navigate = useNavigate();
 
   const jogos = [
+    {
+      id: 'cyber-runner-canvas',
+      titulo: 'Cyber-Runner',
+      descricao: 'Endless runner - Controle inibitório + Matemática',
+      icone: '🏃',
+      cor: 'ciano',
+      rota: '/jogo/cyber-runner-canvas',
+      nivel: 'Novo! 🌟',
+      destaque: true,
+      integrado: true
+    },
+    {
+      id: 'echo-temple',
+      titulo: 'Templo dos Ecos',
+      descricao: 'Memória visuoespacial e navegação',
+      icone: '🗺️',
+      cor: 'roxo',
+      rota: '/jogo/echo-temple',
+      nivel: 'Novo! 🌟',
+      destaque: true,
+      integrado: true
+    },
+    {
+      id: 'sonic-jump',
+      titulo: 'Sonic Jump',
+      descricao: 'Processamento fonológico e sons',
+      icone: '🎵',
+      cor: 'coral',
+      rota: '/jogo/sonic-jump',
+      nivel: 'Novo! 🌟',
+      destaque: true,
+      integrado: true
+    },
+    {
+      id: 'gravity-lab',
+      titulo: 'Gravity Lab',
+      descricao: 'Flexibilidade cognitiva e lógica',
+      icone: '🧪',
+      cor: 'azul',
+      rota: '/jogo/gravity-lab',
+      nivel: 'Novo! 🌟',
+      destaque: true,
+      integrado: true
+    },
     {
       id: 'mestres-sinal',
       titulo: 'Mestres do Sinal',
@@ -110,8 +154,11 @@ function PainelAluno({ user, onLogout }) {
           {jogos.map((jogo) => (
             <div
               key={jogo.id}
-              className={`jogo-card jogo-${jogo.cor} ${jogo.emBreve ? 'em-breve' : ''}`}
-              onClick={() => !jogo.emBreve && navigate(jogo.rota)}
+              className={`jogo-card jogo-${jogo.cor} ${jogo.emBreve ? 'em-breve' : ''} ${jogo.destaque ? 'destaque' : ''}`}
+              onClick={() => {
+                if (jogo.emBreve) return;
+                navigate(jogo.rota);
+              }}
               role="button"
               tabIndex={0}
               aria-label={`${jogo.titulo} - ${jogo.descricao}`}
@@ -122,6 +169,7 @@ function PainelAluno({ user, onLogout }) {
               }}
             >
               {jogo.emBreve && <div className="badge-em-breve">Em Breve</div>}
+              {jogo.integrado && <div className="badge-integrado">✨ Integrado</div>}
               
               <div className="jogo-icone">{jogo.icone}</div>
               
