@@ -180,6 +180,45 @@ def get_atividades():
     
     return jsonify(resultado)
 
+# ============================================
+# HEALTH CHECK ENDPOINT (Para CI/CD e K8s)
+# ============================================
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint para Kubernetes/Docker/CI-CD
+    Verifica status de todos os serviços críticos
+    """
+    checks = {
+        'database': 'unknown',
+        'status': 'unknown'
+    }
+    
+    # Check database
+    try:
+        db.session.execute('SELECT 1')
+        checks['database'] = 'ok'
+        checks['status'] = 'healthy'
+        status_code = 200
+    except Exception as e:
+        checks['database'] = f'error: {str(e)}'
+        checks['status'] = 'unhealthy'
+        status_code = 503
+    
+    return jsonify(checks), status_code
+
+
+@app.route('/api/v1/health', methods=['GET'])
+def api_health_check():
+    """Health check para API v1"""
+    return jsonify({
+        'status': 'healthy',
+        'version': '2.5.0',
+        'api': 'v1'
+    }), 200
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

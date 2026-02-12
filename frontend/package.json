@@ -23,7 +23,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run generate-sw",
+    "generate-sw": "workbox generateSW workbox-config.js",
     "test": "react-scripts test --passWithNoTests",
     "test:coverage": "react-scripts test --watchAll=false --coverage",
     "test:ci": "react-scripts test --watchAll=false --coverage --maxWorkers=2",
@@ -40,7 +41,9 @@
     "@testing-library/user-event": "^14.6.1",
     "ajv": "^6.12.6",
     "ajv-keywords": "^3.5.2",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "workbox-cli": "^7.4.0",
+    "workbox-webpack-plugin": "^7.4.0"
   },
   "browserslist": {
     "production": [

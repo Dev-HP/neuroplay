@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: neuroplay-postgres
+    environment:
+      POSTGRES_DB: neuroplay
+      POSTGRES_USER: neuroplay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-neuroplay_prod}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuroplay"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - neuroplay-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: neuroplay-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - neuroplay-network
+    command: redis-server --appendonly yes
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: neuroplay-backend
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://neuroplay:${POSTGRES_PASSWORD:-neuroplay_prod}@postgres:5432/neuroplay
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - neuroplay-network
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: neuroplay-celery
+    environment:
+      DATABASE_URL: postgresql://neuroplay:${POSTGRES_PASSWORD:-neuroplay_prod}@postgres:5432/neuroplay
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+    depends_on:
+      - redis
+      - postgres
+      - backend
+    command: celery -A app.celery worker --loglevel=info --concurrency=4
+    restart: unless-stopped
+    networks:
+      - neuroplay-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: neuroplay-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - neuroplay-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  neuroplay-network:
+    driver: bridge

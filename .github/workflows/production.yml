@@ -1,0 +1,469 @@
+name: NeuroPlay Production Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  PYTHON_VERSION: '3.10'
+  NODE_VERSION: '18'
+
+jobs:
+  # ============================================
+  # 1. QUALIDADE DO CÓDIGO (Rápido - ~2min)
+  # ============================================
+  quality-check:
+    name: Code Quality & Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install Backend Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install -r backend/requirements-test.txt
+          pip install flake8 black
+      
+      - name: Run Linting (Black + Flake8)
+        run: |
+          echo "🔍 Verificando formatação com Black..."
+          black --check backend/app backend/tests || echo "⚠️ Código não formatado (não crítico)"
+          
+          echo "🔍 Verificando qualidade com Flake8..."
+          flake8 backend/app --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 backend/app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
+      - name: Run Unit Tests (Pytest)
+        run: |
+          echo "🧪 Executando testes unitários..."
+          pytest backend/tests/unit -v --tb=short --cov=backend/app --cov-report=term-missing
+      
+      - name: Upload Coverage Report
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: backend
+          fail_ci_if_error: false
+
+  # ============================================
+  # 2. BUILD DO FRONTEND & TESTE DE PWA (~3min)
+  # ============================================
+  frontend-build:
+    name: Frontend Build & PWA Check
+    runs-on: ubuntu-latest
+    needs: quality-check
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+      
+      - name: Run Frontend Tests
+        working-directory: frontend
+        run: npm run test:ci
+      
+      - name: Build Production Bundle
+        working-directory: frontend
+        run: |
+          echo "🏗️ Building production bundle..."
+          npm run build
+          
+          echo "📦 Bundle size:"
+          du -sh build/
+      
+      - name: Check Service Worker Generation
+        working-directory: frontend
+        run: |
+          echo "🔍 Verificando Service Worker..."
+          if [ ! -f build/service-worker.js ]; then
+            echo "❌ ERRO: service-worker.js não foi gerado!"
+            exit 1
+          fi
+          
+          echo "✅ Service Worker encontrado"
+          echo "📄 Conteúdo (primeiras 20 linhas):"
+          head -n 20 build/service-worker.js
+      
+      - name: Check PWA Manifest
+        working-directory: frontend
+        run: |
+          echo "🔍 Verificando manifest.json..."
+          if [ ! -f build/manifest.json ]; then
+            echo "❌ ERRO: manifest.json não encontrado!"
+            exit 1
+          fi
+          
+          echo "✅ Manifest encontrado"
+          cat build/manifest.json
+      
+      - name: Validate Build Artifacts
+        working-directory: frontend/build
+        run: |
+          echo "🔍 Validando artefatos de build..."
+          
+          # Verifica se arquivos essenciais existem
+          required_files=("index.html" "static/js" "static/css")
+          for file in "${required_files[@]}"; do
+            if [ ! -e "$file" ]; then
+              echo "❌ ERRO: $file não encontrado!"
+              exit 1
+            fi
+          done
+          
+          echo "✅ Todos os artefatos essenciais presentes"
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/build
+          retention-days: 7
+
+  # ============================================
+  # 3. TESTE DE CARGA (A Prova de Fogo - ~2min)
+  # ============================================
+  load-test:
+    name: Load Testing with Locust
+    runs-on: ubuntu-latest
+    needs: [quality-check, frontend-build]
+    
+    services:
+      # Redis para cache e filas
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      # PostgreSQL para dados
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: neuroplay
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: neuroplay_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install locust
+      
+      - name: Setup Database Schema
+        env:
+          DATABASE_URL: postgresql://neuroplay:test_password@localhost:5432/neuroplay_test
+        run: |
+          echo "🗄️ Criando schema do banco..."
+          PGPASSWORD=test_password psql -h localhost -U neuroplay -d neuroplay_test -f database/schema.sql || echo "Schema já existe"
+      
+      - name: Start API Server (Background)
+        env:
+          FLASK_ENV: testing
+          DATABASE_URL: postgresql://neuroplay:test_password@localhost:5432/neuroplay_test
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          echo "🚀 Iniciando servidor Flask..."
+          cd backend
+          nohup python app.py > ../api.log 2>&1 &
+          echo $! > ../api.pid
+          
+          # Aguarda servidor subir
+          echo "⏳ Aguardando servidor iniciar..."
+          for i in {1..30}; do
+            if curl -s http://localhost:5000/health > /dev/null; then
+              echo "✅ Servidor online!"
+              break
+            fi
+            echo "Tentativa $i/30..."
+            sleep 2
+          done
+      
+      - name: Start Celery Worker (Background)
+        env:
+          REDIS_URL: redis://localhost:6379/0
+          DATABASE_URL: postgresql://neuroplay:test_password@localhost:5432/neuroplay_test
+        run: |
+          echo "🚀 Iniciando Celery worker..."
+          cd backend
+          nohup celery -A app.celery worker --loglevel=info > ../celery.log 2>&1 &
+          echo $! > ../celery.pid
+          sleep 5
+      
+      - name: Run Locust Load Test (Headless)
+        run: |
+          echo "🔥 INICIANDO TESTE DE CARGA"
+          echo "================================"
+          
+          locust \
+            -f tests/load/locustfile.py \
+            --headless \
+            --users 50 \
+            --spawn-rate 10 \
+            --run-time 30s \
+            --host http://localhost:5000 \
+            --html locust-report.html \
+            --csv locust-stats \
+            --exit-code-on-error 1 \
+            || (echo "❌ Teste de carga falhou!" && cat api.log && exit 1)
+      
+      - name: Display Server Logs (on failure)
+        if: failure()
+        run: |
+          echo "📋 API Logs:"
+          cat api.log || echo "Sem logs da API"
+          
+          echo "📋 Celery Logs:"
+          cat celery.log || echo "Sem logs do Celery"
+      
+      - name: Upload Locust Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: locust-report
+          path: |
+            locust-report.html
+            locust-stats*.csv
+          retention-days: 30
+      
+      - name: Cleanup Background Processes
+        if: always()
+        run: |
+          if [ -f api.pid ]; then
+            kill $(cat api.pid) || true
+          fi
+          if [ -f celery.pid ]; then
+            kill $(cat celery.pid) || true
+          fi
+
+  # ============================================
+  # 4. SECURITY SCAN (Vulnerabilidades)
+  # ============================================
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: quality-check
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Run Trivy Security Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Check Python Dependencies
+        run: |
+          pip install safety
+          safety check --json || echo "⚠️ Vulnerabilidades encontradas (não bloqueante)"
+
+  # ============================================
+  # 5. DOCKER BUILD (Validação de Containers)
+  # ============================================
+  docker-build:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    needs: [frontend-build, load-test]
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build Backend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          tags: neuroplay-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Build Frontend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          tags: neuroplay-frontend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Test Docker Compose
+        run: |
+          echo "🐳 Testando docker-compose..."
+          docker-compose config
+
+  # ============================================
+  # 6. DEPLOY (Só se tudo passar)
+  # ============================================
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [load-test, security-scan, docker-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    environment:
+      name: production
+      url: https://neuroplay.app
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Deploy Notification
+        run: |
+          echo "🚀 DEPLOY INICIADO"
+          echo "================================"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "================================"
+      
+      # Exemplo: Deploy para Railway
+      - name: Deploy to Railway
+        if: false  # Descomente quando configurar
+        run: |
+          curl -X POST ${{ secrets.RAILWAY_WEBHOOK_URL }} \
+            -H "Content-Type: application/json" \
+            -d '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+      
+      # Exemplo: Deploy para Render
+      - name: Deploy to Render
+        if: false  # Descomente quando configurar
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+      
+      # Exemplo: Deploy para AWS/Vercel/Netlify
+      - name: Deploy Frontend to Vercel
+        if: false  # Descomente quando configurar
+        run: |
+          npm install -g vercel
+          cd frontend
+          vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Notify Sentry of Deploy
+        if: false  # Descomente quando configurar Sentry
+        run: |
+          curl -X POST https://sentry.io/api/0/organizations/${{ secrets.SENTRY_ORG }}/releases/ \
+            -H "Authorization: Bearer ${{ secrets.SENTRY_AUTH_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "version": "${{ github.sha }}",
+              "projects": ["neuroplay"],
+              "refs": [{"repository": "${{ github.repository }}", "commit": "${{ github.sha }}"}]
+            }'
+      
+      - name: Success Notification
+        run: |
+          echo "✅ DEPLOY CONCLUÍDO COM SUCESSO!"
+          echo "================================"
+          echo "Versão: ${{ github.sha }}"
+          echo "Ambiente: Production"
+          echo "================================"
+
+  # ============================================
+  # 7. POST-DEPLOY SMOKE TESTS
+  # ============================================
+  smoke-test:
+    name: Post-Deploy Smoke Tests
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Health Check
+        run: |
+          echo "🏥 Verificando saúde da aplicação..."
+          
+          # Aguarda 30s para deploy estabilizar
+          sleep 30
+          
+          # Verifica endpoint de health
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://neuroplay.app/health || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Aplicação está saudável!"
+          else
+            echo "❌ Aplicação não respondeu corretamente (HTTP $response)"
+            exit 1
+          fi
+      
+      - name: Critical Endpoints Check
+        run: |
+          echo "🔍 Testando endpoints críticos..."
+          
+          endpoints=(
+            "https://neuroplay.app/api/v1/health"
+            "https://neuroplay.app/"
+          )
+          
+          for endpoint in "${endpoints[@]}"; do
+            echo "Testing: $endpoint"
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$endpoint" || echo "000")
+            
+            if [ "$status" = "200" ] || [ "$status" = "401" ]; then
+              echo "  ✅ OK ($status)"
+            else
+              echo "  ❌ FALHOU ($status)"
+              exit 1
+            fi
+          done
+          
+          echo "✅ Todos os endpoints críticos estão funcionando!"

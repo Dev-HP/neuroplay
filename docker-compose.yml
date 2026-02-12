@@ -97,3 +97,45 @@ volumes:
 networks:
   neuroplay-network:
     driver: bridge
+
+  # Celery Worker (Background Tasks)
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/neuroplay
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - neuroplay-network
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+    command: celery -A app.infra.tasks.celery_app worker --loglevel=info --concurrency=4
+
+  # Celery Beat (Scheduled Tasks)
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/neuroplay
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - neuroplay-network
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+    command: celery -A app.infra.tasks.celery_app beat --loglevel=info

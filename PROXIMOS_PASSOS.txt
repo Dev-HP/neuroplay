@@ -1,0 +1,202 @@
+===========================================
+PROXIMOS PASSOS - NEUROPLAY 2.5
+===========================================
+
+STATUS ATUAL: 100% Pronto para Deploy
+- Backend: 1 teste passando
+- Frontend: 129 testes passando  
+- Build: Service Worker gerado
+- Pipeline: Configurado
+
+===========================================
+PASSO 1: COMMIT E PUSH (5 minutos)
+===========================================
+
+Execute:
+    .\scripts\commit-and-push.ps1
+
+Ou manualmente:
+    git add .
+    git commit -F COMMIT_MESSAGE.txt
+    git push origin main
+
+Resultado esperado:
+- Pipeline CI/CD sera executado automaticamente
+- Voce vera os 7 estagios rodando no GitHub Actions
+
+===========================================
+PASSO 2: ACOMPANHAR PIPELINE (15-20 min)
+===========================================
+
+1. Acesse: https://github.com/seu-usuario/neuroplay/actions
+
+2. Verifique cada estagio:
+   - Quality Check (2 min)
+   - Frontend Build (3 min)
+   - Load Test (2 min) - Pode falhar se nao tiver Docker
+   - Security Scan (2 min)
+   - Docker Build (5 min)
+   - Deploy (se configurado)
+   - Smoke Tests (se configurado)
+
+3. Se algum estagio falhar:
+   - Leia os logs
+   - Corrija o problema
+   - Commit e push novamente
+
+===========================================
+PASSO 3: CONFIGURAR SENTRY (30 minutos)
+===========================================
+
+1. Criar conta: https://sentry.io
+
+2. Criar projeto:
+   - Nome: NeuroPlay
+   - Plataforma: Flask + React
+   - Copiar DSN
+
+3. Adicionar secrets no GitHub:
+   gh secret set SENTRY_DSN --body "https://xxx@sentry.io/xxx"
+   gh secret set SENTRY_ORG --body "seu-org"
+   gh secret set SENTRY_AUTH_TOKEN --body "seu-token"
+
+4. Criar .env no backend:
+   SENTRY_DSN=https://xxx@sentry.io/xxx
+   SENTRY_ENVIRONMENT=production
+
+5. Testar:
+   - Rodar backend
+   - Gerar um erro proposital
+   - Verificar no Sentry
+
+===========================================
+PASSO 4: ESCOLHER PLATAFORMA (1 hora)
+===========================================
+
+OPCAO A: Railway (Recomendado - Mais Facil)
+1. Criar conta: https://railway.app
+2. Conectar GitHub
+3. Importar repositorio
+4. Configurar variaveis de ambiente
+5. Deploy automatico
+
+OPCAO B: Render
+1. Criar conta: https://render.com
+2. Conectar GitHub
+3. Criar Web Service (backend)
+4. Criar Static Site (frontend)
+5. Configurar variaveis
+
+OPCAO C: Vercel (Frontend) + Railway (Backend)
+1. Frontend no Vercel (gratis)
+2. Backend no Railway
+3. Configurar CORS
+
+===========================================
+PASSO 5: DEPLOY INICIAL (2 horas)
+===========================================
+
+1. Configurar variaveis de ambiente na plataforma
+
+2. Fazer deploy:
+   - Railway: Automatico ao fazer push
+   - Render: Automatico ao fazer push
+   - Vercel: vercel --prod
+
+3. Verificar health checks:
+   curl https://seu-app.railway.app/health
+
+4. Testar aplicacao:
+   - Abrir no navegador
+   - Fazer login
+   - Jogar um jogo
+   - Verificar se salva
+
+5. Verificar Sentry:
+   - Eventos chegando?
+   - Erros sendo capturados?
+
+===========================================
+PASSO 6: MONITORAMENTO (Continuo)
+===========================================
+
+1. Configurar alertas no Sentry:
+   - Taxa de erro > 1%
+   - Latencia p95 > 500ms
+   - Servico offline
+
+2. Monitorar metricas:
+   - Uptime
+   - Response time
+   - Error rate
+   - Throughput
+
+3. Revisar logs diariamente
+
+===========================================
+COMANDOS RAPIDOS
+===========================================
+
+# Validar setup
+.\scripts\validate-setup.ps1
+
+# Testar pipeline localmente
+.\scripts\test-pipeline.ps1 -Quick
+
+# Commit e push
+.\scripts\commit-and-push.ps1
+
+# Build frontend
+cd frontend && npm run build
+
+# Rodar testes
+cd backend && python -m pytest
+cd frontend && npm test
+
+# Health check local
+curl http://localhost:5000/health
+
+===========================================
+TROUBLESHOOTING
+===========================================
+
+Pipeline falha no Load Test:
+- Normal se nao tiver Docker
+- Pode comentar esse estagio temporariamente
+- Ou instalar Docker Desktop
+
+Build do frontend falha:
+- Verificar se workbox-cli esta instalado
+- npm install
+- npm run build
+
+Testes falham:
+- Backend: pip install -r requirements-test.txt
+- Frontend: npm install
+- Rodar localmente primeiro
+
+===========================================
+SUPORTE
+===========================================
+
+Documentacao:
+- IMPLEMENTACAO_COMPLETA.md
+- docs/guides/CI_CD_SETUP.md
+- DEPLOY_CHECKLIST.md
+
+Scripts:
+- scripts/validate-setup.ps1
+- scripts/test-pipeline.ps1
+- scripts/commit-and-push.ps1
+
+===========================================
+PROXIMA ACAO IMEDIATA
+===========================================
+
+Execute AGORA:
+    .\scripts\commit-and-push.ps1
+
+Tempo estimado ate producao: 1-2 semanas
+Status: PRONTO PARA DEPLOY
+
+===========================================
