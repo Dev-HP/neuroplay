@@ -90,14 +90,6 @@ services:
       - neuroplay-network
     restart: unless-stopped
 
-volumes:
-  postgres-data:
-  redis-data:
-
-networks:
-  neuroplay-network:
-    driver: bridge
-
   # Celery Worker (Background Tasks)
   celery_worker:
     build:
@@ -139,3 +131,11 @@ networks:
     volumes:
       - ./backend:/app
     command: celery -A app.infra.tasks.celery_app beat --loglevel=info
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  neuroplay-network:
+    driver: bridge
