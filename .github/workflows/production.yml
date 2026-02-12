@@ -353,7 +353,7 @@ jobs:
       - name: Test Docker Compose
         run: |
           echo "🐳 Testando docker-compose..."
-          docker-compose config
+          docker compose config
 
   # ============================================
   # 6. DEPLOY (Só se tudo passar)

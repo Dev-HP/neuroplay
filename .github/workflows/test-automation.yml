@@ -101,15 +101,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker images
-        run: docker-compose build
+        run: docker compose build
 
       - name: Run integration tests
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 30
-          docker-compose ps
-          docker-compose logs
-          docker-compose down
+          docker compose ps
+          docker compose logs
+          docker compose down
 
   # Job 4: E2E Tests (Opcional)
   e2e-tests:
