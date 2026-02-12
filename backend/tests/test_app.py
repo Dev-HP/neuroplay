@@ -9,12 +9,14 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app import app as flask_app
+# Import from app.py (not app package)
+import app as app_module
 
 
 @pytest.fixture
 def app():
     """Create application for testing"""
+    flask_app = app_module.app
     flask_app.config.update({
         "TESTING": True,
     })
@@ -41,10 +43,11 @@ class TestApp:
     def test_health_endpoint(self, client):
         """Test health check endpoint"""
         response = client.get('/health')
-        assert response.status_code in [200, 404]  # May not exist yet
+        assert response.status_code == 200
     
-    def test_api_endpoints_exist(self, client):
-        """Test that API endpoints are registered"""
-        # This will depend on your actual endpoints
-        response = client.get('/api')
-        assert response.status_code in [200, 404, 405]
+    def test_api_health_endpoint(self, client):
+        """Test API health check endpoint"""
+        response = client.get('/api/v1/health')
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['status'] == 'healthy'
