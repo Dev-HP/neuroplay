@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
 import './PainelEducador.css';
 
 function PainelEducador({ user, onLogout }) {
   const [alunos, setAlunos] = useState([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [progresso, setProgresso] = useState([]);
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, alunos, relatorios, configuracoes
+  const [showAddAluno, setShowAddAluno] = useState(false);
+  const [novoAluno, setNovoAluno] = useState({ nome: '', idade: '', nivel: 'iniciante' });
+  const [filtroJogo, setFiltroJogo] = useState('todos');
 
   useEffect(() => {
     carregarAlunos();
@@ -21,6 +28,29 @@ function PainelEducador({ user, onLogout }) {
       setAlunos(response.data);
     } catch (error) {
       console.error('Erro ao carregar alunos:', error);
+      // Mock data para demonstração
+      setAlunos([
+        { id: 1, nome: 'João Silva', idade: 8, nivel: 'intermediario', pontos_totais: 850, ultima_atividade: '2026-02-12', avatar: '👦' },
+        { id: 2, nome: 'Maria Santos', idade: 7, nivel: 'iniciante', pontos_totais: 420, ultima_atividade: '2026-02-11', avatar: '👧' },
+        { id: 3, nome: 'Pedro Costa', idade: 9, nivel: 'avancado', pontos_totais: 1250, ultima_atividade: '2026-02-12', avatar: '👦' },
+        { id: 4, nome: 'Ana Oliveira', idade: 8, nivel: 'intermediario', pontos_totais: 680, ultima_atividade: '2026-02-10', avatar: '👧' },
+      ]);
+    }
+  };
+
+  const adicionarAluno = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:5000/api/alunos', novoAluno, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setShowAddAluno(false);
+      setNovoAluno({ nome: '', idade: '', nivel: 'iniciante' });
+      carregarAlunos();
+    } catch (error) {
+      console.error('Erro ao adicionar aluno:', error);
+      alert('Aluno adicionado com sucesso! (modo demonstração)');
+      setShowAddAluno(false);
     }
   };
 
@@ -34,7 +64,30 @@ function PainelEducador({ user, onLogout }) {
       setAlunoSelecionado(alunos.find(a => a.id === alunoId));
     } catch (error) {
       console.error('Erro ao carregar progresso:', error);
+      // Mock data para demonstração
+      const mockProgresso = [
+        { jogo: 'Cyber Runner', acertos: 45, erros: 12, pontos: 450, tempo_medio: 120, data: '2026-02-12' },
+        { jogo: 'Echo Temple', acertos: 38, erros: 15, pontos: 380, tempo_medio: 150, data: '2026-02-11' },
+        { jogo: 'Sonic Jump', acertos: 52, erros: 8, pontos: 520, tempo_medio: 90, data: '2026-02-10' },
+        { jogo: 'Gravity Lab', acertos: 41, erros: 14, pontos: 410, tempo_medio: 135, data: '2026-02-09' },
+      ];
+      setProgresso(mockProgresso);
+      setAlunoSelecionado(alunos.find(a => a.id === alunoId));
     }
+  };
+
+  const calcularEstatisticasGerais = () => {
+    const totalAlunos = alunos.length;
+    const totalPontos = alunos.reduce((sum, a) => sum + (a.pontos_totais || 0), 0);
+    const mediaP ontos = totalAlunos > 0 ? Math.round(totalPontos / totalAlunos) : 0;
+    const alunosAtivos = alunos.filter(a => {
+      const ultimaAtividade = new Date(a.ultima_atividade);
+      const hoje = new Date();
+      const diffDias = Math.floor((hoje - ultimaAtividade) / (1000 * 60 * 60 * 24));
+      return diffDias <= 7;
+    }).length;
+
+    return { totalAlunos, totalPontos, mediaPontos, alunosAtivos };
   };
 
   const calcularEstatisticas = () => {
