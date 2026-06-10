@@ -28,6 +28,8 @@ function JogoMemoriaDupla({ user }) {
   const [showParticles, setShowParticles] = useState(false);
   const [particleType, setParticleType] = useState('success');
   const [feedback, setFeedback] = useState(null);
+  const [cascadeMessage, setCascadeMessage] = useState(null);
+  const [showCascadeModal, setShowCascadeModal] = useState(false);
   
   const gameStartTime = useRef(null);
   const addPoints = useGameStore(state => state.addPoints);
@@ -54,6 +56,9 @@ function JogoMemoriaDupla({ user }) {
     setRound(0);
     setStats({ visualCorrect: 0, audioCorrect: 0, visualWrong: 0, audioWrong: 0 });
     gameStartTime.current = Date.now();
+    errorCascadeDetector.reset();
+    setCascadeMessage(null);
+    setShowCascadeModal(false);
     generateSequence();
   };
 
@@ -117,6 +122,9 @@ function JogoMemoriaDupla({ user }) {
     const current = sequence[currentIndex];
     const isCorrect = type === 'visual' ? current.visualMatch : current.audioMatch;
 
+    // Registrar tentativa no detector de cascata
+    const cascadeResult = errorCascadeDetector.addAttempt(isCorrect);
+
     // Feedback visual e sonoro
     if (isCorrect) {
       setScore(prev => prev + 10 * nBackLevel);
@@ -124,9 +132,6 @@ function JogoMemoriaDupla({ user }) {
         ...prev,
         [`${type}Correct`]: prev[`${type}Correct`] + 1
       }));
-      
-      // Registrar acerto no detector de cascata
-      errorCascadeDetector.addAttempt(true);
       
       audioManager.play('success');
       showFeedback('✓', 'success');
@@ -139,19 +144,39 @@ function JogoMemoriaDupla({ user }) {
         [`${type}Wrong`]: prev[`${type}Wrong`] + 1
       }));
       
-      // Detectar cascata de erros
-      const cascadeResult = errorCascadeDetector.addAttempt(false);
-      if (cascadeResult.cascade) {
-        console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
-        // Reduzir dificuldade automaticamente
-        if (nBackLevel > 1) {
-          setNBackLevel(prev => Math.max(1, prev - 1));
-        }
-      }
-      
       audioManager.play('error');
       showFeedback('✗', 'error');
     }
+
+    // Verificar cascata de erros
+    if (cascadeResult.cascade && !cascadeResult.cooldown) {
+      console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+      
+      // Reduzir dificuldade automaticamente
+      if (nBackLevel > 1 && cascadeResult.severity === 'critical') {
+        setNBackLevel(prev => Math.max(1, prev - 1));
+        setCascadeMessage('Vamos facilitar um pouco! Você consegue! 💪');
+      } else {
+        setCascadeMessage(cascadeResult.suggestion);
+      }
+      
+      // Se crítico, pausar o jogo
+      if (cascadeResult.severity === 'critical') {
+        setGameState('paused');
+        setShowCascadeModal(true);
+      }
+    }
+  };
+
+  const handleContinueAfterPause = () => {
+    setShowCascadeModal(false);
+    setCascadeMessage(null);
+    setGameState('playing');
+  };
+
+  const handleTakePause = () => {
+    setShowCascadeModal(false);
+    navigate('/aluno');
   };
 
   const showFeedback = (symbol, type) => {
@@ -337,6 +362,14 @@ function JogoMemoriaDupla({ user }) {
             )}
           </AnimatePresence>
 
+          {/* Mensagem de encorajamento durante cascata */}
+          {cascadeMessage && !showCascadeModal && (
+            <div className="cascade-warning">
+              <div className="cascade-icon">💪</div>
+              <p>{cascadeMessage}</p>
+            </div>
+          )}
+
           <div className="progress-indicator">
             <div 
               className="progress-bar"
@@ -380,6 +413,26 @@ function JogoMemoriaDupla({ user }) {
             </button>
           </div>
         </motion.div>
+      )}
+
+      {/* Modal de pausa sugerida */}
+      {showCascadeModal && (
+        <div className="cascade-modal-overlay">
+          <div className="cascade-modal">
+            <div className="cascade-modal-icon">😊</div>
+            <h2>Vamos fazer uma pausa?</h2>
+            <p>Você está indo muito bem! Que tal descansar um pouquinho?</p>
+            <p className="cascade-modal-subtitle">Descansar ajuda a concentração e melhora o desempenho!</p>
+            <div className="cascade-modal-actions">
+              <button onClick={handleTakePause} className="btn btn-primary">
+                Fazer Pausa
+              </button>
+              <button onClick={handleContinueAfterPause} className="btn btn-secondary">
+                Continuar Jogando
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

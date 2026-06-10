@@ -15,6 +15,8 @@ function JogoMestresSinal({ user }) {
   const [tempoInicio, setTempoInicio] = useState(null);
   const [stimulusTimestamp, setStimulusTimestamp] = useState(null); // ← TIMESTAMP DO ESTÍMULO
   const [reactionTimes, setReactionTimes] = useState([]); // ← ARRAY DE TEMPOS DE REAÇÃO
+  const [cascadeMessage, setCascadeMessage] = useState(null); // Mensagem de cascata
+  const [showCascadeModal, setShowCascadeModal] = useState(false); // Modal de pausa
 
   const iniciarJogo = () => {
     setPontos(0);
@@ -22,6 +24,9 @@ function JogoMestresSinal({ user }) {
     setErros(0);
     setGameState('playing');
     setTempoInicio(Date.now());
+    errorCascadeDetector.reset(); // Resetar detector ao iniciar
+    setCascadeMessage(null);
+    setShowCascadeModal(false);
   };
 
   const iniciarRodada = useCallback(() => {
@@ -31,7 +36,7 @@ function JogoMestresSinal({ user }) {
     setStimulusTimestamp(performance.now());
 
     setTimeout(() => {
-      if (gameState !== 'ready') {
+      if (gameState === 'playing' || gameState === 'waiting') {
         iniciarRodada();
       }
     }, 2000 + Math.random() * 2000);
@@ -49,12 +54,10 @@ function JogoMestresSinal({ user }) {
     const reactionTime = performance.now() - stimulusTimestamp;
     const isCorrect = sinalAtual === 'go';
 
+    // Registrar tentativa no detector de cascata
     const cascadeResult = errorCascadeDetector.addAttempt(isCorrect);
-    
-    if (cascadeResult.cascade) {
-      console.warn('Cascata de erros detectada!', cascadeResult);
-    }
 
+    // Salvar tempo de reação
     setReactionTimes(prev => [...prev, {
       timestamp: Date.now(),
       reactionTime: Math.round(reactionTime),
@@ -62,30 +65,43 @@ function JogoMestresSinal({ user }) {
       stimulusType: sinalAtual
     }]);
 
-    if (sinalAtual === 'go') {
+    // Atualizar pontuação
+    if (isCorrect) {
       setAcertos(prev => prev + 1);
       setPontos(prev => prev + 10);
-      
-      // Registrar acerto no detector de cascata
-      errorCascadeDetector.addAttempt(true);
     } else {
       setErros(prev => prev + 1);
       setPontos(prev => Math.max(0, prev - 5));
+    }
+
+    // Verificar cascata de erros
+    if (cascadeResult.cascade && !cascadeResult.cooldown) {
+      console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
       
-      // Detectar cascata de erros
-      const cascadeResult = errorCascadeDetector.addAttempt(false);
-      if (cascadeResult.cascade) {
-        console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
-        // Sugerir pausa
-        if (cascadeResult.severity === 'critical') {
-          alert('Que tal fazer uma pausa de 30 segundos? Isso pode ajudar!');
-        }
+      // Mostrar mensagem encorajadora
+      setCascadeMessage(cascadeResult.suggestion);
+      
+      // Se crítico, pausar o jogo e sugerir descanso
+      if (cascadeResult.severity === 'critical') {
+        setGameState('paused');
+        setShowCascadeModal(true);
       }
     }
 
     if (acertos + erros >= 9) {
       finalizarJogo();
     }
+  };
+
+  const handleContinueAfterPause = () => {
+    setShowCascadeModal(false);
+    setCascadeMessage(null);
+    setGameState('playing');
+  };
+
+  const handleTakePause = () => {
+    setShowCascadeModal(false);
+    navigate('/aluno');
   };
 
   const finalizarJogo = async () => {
@@ -164,9 +180,37 @@ function JogoMestresSinal({ user }) {
                 <span className="stat-value">{erros}</span>
               </div>
             </div>
+
+            {/* Mensagem de encorajamento durante cascata */}
+            {cascadeMessage && !showCascadeModal && (
+              <div className="cascade-warning">
+                <div className="cascade-icon">💪</div>
+                <p>{cascadeMessage}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Modal de pausa sugerida */}
+      {showCascadeModal && (
+        <div className="cascade-modal-overlay">
+          <div className="cascade-modal">
+            <div className="cascade-modal-icon">😊</div>
+            <h2>Vamos fazer uma pausa?</h2>
+            <p>Você está indo muito bem! Que tal descansar um pouquinho?</p>
+            <p className="cascade-modal-subtitle">Descansar ajuda a concentração e melhora o desempenho!</p>
+            <div className="cascade-modal-actions">
+              <button onClick={handleTakePause} className="btn btn-primary">
+                Fazer Pausa
+              </button>
+              <button onClick={handleContinueAfterPause} className="btn btn-secondary">
+                Continuar Jogando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

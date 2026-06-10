@@ -134,6 +134,8 @@ function JogoCacadorAlvos({ user }) {
   const [shipPosition] = useState([0, 0, 0]);
   const [targetTimestamps, setTargetTimestamps] = useState({});
   const [reactionTimes, setReactionTimes] = useState([]);
+  const [cascadeMessage, setCascadeMessage] = useState(null);
+  const [showCascadeModal, setShowCascadeModal] = useState(false);
   const gameStartTime = useRef(null);
   const addPoints = useGameStore(state => state.addPoints);
 
@@ -201,6 +203,9 @@ function JogoCacadorAlvos({ user }) {
     setTimeLeft(60);
     setStats({ collected: 0, missed: 0, collisions: 0, accuracy: 100 });
     gameStartTime.current = Date.now();
+    errorCascadeDetector.reset();
+    setCascadeMessage(null);
+    setShowCascadeModal(false);
     spawnTargets();
     spawnObstacles();
     audioManager.playMelody([
@@ -312,13 +317,25 @@ function JogoCacadorAlvos({ user }) {
       accuracy: (prev.collected / (prev.collected + prev.missed + prev.collisions + 1)) * 100
     }));
 
-    // Detectar cascata de erros
+    // Registrar erro no detector de cascata
     const cascadeResult = errorCascadeDetector.addAttempt(false);
-    if (cascadeResult.cascade) {
+
+    // Verificar cascata de erros
+    if (cascadeResult.cascade && !cascadeResult.cooldown) {
       console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+      
       // Reduzir dificuldade automaticamente
-      if (level > 1) {
+      if (level > 1 && cascadeResult.severity === 'critical') {
         setLevel(prev => Math.max(1, prev - 1));
+        setCascadeMessage('Vamos facilitar um pouco! Você consegue! 💪');
+      } else {
+        setCascadeMessage(cascadeResult.suggestion);
+      }
+      
+      // Se crítico, pausar o jogo
+      if (cascadeResult.severity === 'critical') {
+        setGameState('paused');
+        setShowCascadeModal(true);
       }
     }
 
@@ -329,6 +346,17 @@ function JogoCacadorAlvos({ user }) {
     setParticleType('error');
     setShowParticles(true);
     setTimeout(() => setShowParticles(false), 300);
+  };
+
+  const handleContinueAfterPause = () => {
+    setShowCascadeModal(false);
+    setCascadeMessage(null);
+    setGameState('playing');
+  };
+
+  const handleTakePause = () => {
+    setShowCascadeModal(false);
+    navigate('/aluno');
   };
 
   const levelUp = () => {
@@ -375,6 +403,14 @@ function JogoCacadorAlvos({ user }) {
             >
               🔥 Combo x{combo}
             </motion.div>
+          )}
+
+          {/* Mensagem de encorajamento durante cascata */}
+          {cascadeMessage && !showCascadeModal && (
+            <div className="cascade-warning">
+              <div className="cascade-icon">💪</div>
+              <p>{cascadeMessage}</p>
+            </div>
           )}
         </div>
       </div>
@@ -428,6 +464,26 @@ function JogoCacadorAlvos({ user }) {
             </button>
           </div>
         </motion.div>
+      )}
+
+      {/* Modal de pausa sugerida */}
+      {showCascadeModal && (
+        <div className="cascade-modal-overlay">
+          <div className="cascade-modal">
+            <div className="cascade-modal-icon">😊</div>
+            <h2>Vamos fazer uma pausa?</h2>
+            <p>Você está indo muito bem! Que tal descansar um pouquinho?</p>
+            <p className="cascade-modal-subtitle">Descansar ajuda a concentração e melhora o desempenho!</p>
+            <div className="cascade-modal-actions">
+              <button onClick={handleTakePause} className="btn btn-primary">
+                Fazer Pausa
+              </button>
+              <button onClick={handleContinueAfterPause} className="btn btn-secondary">
+                Continuar Jogando
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Canvas className="game-canvas">
