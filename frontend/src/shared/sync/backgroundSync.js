@@ -4,8 +4,7 @@
  */
 
 import { getDB } from '../db/indexedDB';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+import { apiUrl, isApiConfigured } from '../config/api';
 
 class BackgroundSyncService {
   constructor() {
@@ -49,6 +48,12 @@ class BackgroundSyncService {
     // Don't sync if offline
     if (!navigator.onLine) {
       console.log('[BackgroundSync] Offline, skipping sync');
+      return;
+    }
+
+    // A demo/local frontend não deve criar retries contra uma URL inexistente.
+    if (!isApiConfigured()) {
+      console.log('[BackgroundSync] API não configurada, mantendo dados locais.');
       return;
     }
 
@@ -96,7 +101,7 @@ class BackgroundSyncService {
    * Sync a single session to server
    */
   async syncSession(session) {
-    const response = await fetch(`${API_URL}/api/v1/gameplay/sync`, {
+      const response = await fetch(apiUrl('/api/v1/gameplay/sync'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +179,7 @@ class BackgroundSyncService {
    * Sync profile update
    */
   async syncProfileUpdate(data) {
-    const response = await fetch(`${API_URL}/api/v1/students/${data.student_id}`, {
+    const response = await fetch(apiUrl(`/api/v1/students/${data.student_id}`), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -194,7 +199,7 @@ class BackgroundSyncService {
    * Sync achievement unlock
    */
   async syncAchievementUnlock(data) {
-    const response = await fetch(`${API_URL}/api/v1/achievements/unlock`, {
+    const response = await fetch(apiUrl('/api/v1/achievements/unlock'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -211,10 +216,10 @@ class BackgroundSyncService {
   }
 
   /**
-   * Get auth token from localStorage
+   * Get auth token from sessionStorage
    */
   getAuthToken() {
-    return localStorage.getItem('auth_token') || '';
+    return sessionStorage.getItem('token') || sessionStorage.getItem('auth_token') || '';
   }
 
   /**

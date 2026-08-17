@@ -19,24 +19,22 @@ function App() {
   const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = sessionStorage.getItem('token');
+    const userData = sessionStorage.getItem('user');
     if (token && userData) {
       setUser(JSON.parse(userData));
     }
   }, []);
 
   const handleLogin = (userData, token) => {
-    console.log('🎯 App.js handleLogin chamado com:', userData);
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
-    console.log('✅ User state atualizado:', userData);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     setUser(null);
   };
 

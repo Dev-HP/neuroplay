@@ -876,3 +876,16 @@
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
+.aluno-card {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.aluno-card:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 3px;
+}

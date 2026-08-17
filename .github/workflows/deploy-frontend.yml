@@ -21,10 +21,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Job de Testes (executar primeiro, mas não bloquear)
+  # Job de testes: falhas impedem a publicação.
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true  # Não bloquear o deploy se testes falharem
     
     steps:
       - name: Checkout código
@@ -47,23 +46,22 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Executar testes
         working-directory: ./frontend
         run: npm test -- --passWithNoTests --watchAll=false
         env:
           CI: true
-        continue-on-error: true
 
-      - name: Lint do código
+      - name: Lint do código (quando configurado)
         working-directory: ./frontend
-        run: npm run lint || echo "Lint não configurado, continuando..."
-        continue-on-error: true
+        run: npm run lint --if-present
 
   # Job de Build
   build:
     runs-on: ubuntu-latest
+    needs: test
     
     steps:
       - name: Checkout código
@@ -93,20 +91,28 @@ jobs:
 
       - name: Instalar dependências
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Build do projeto
         working-directory: ./frontend
-        run: npm run build
+        run: |
+          npm run build
+          # GitHub Pages precisa de um shell SPA para deep links.
+          cp build/index.html build/404.html
         env:
           CI: false
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL || 'http://localhost:5000' }}
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_DEMO_MODE: true
           GENERATE_SOURCEMAP: false
 
       - name: Verificar build
         run: |
-          echo "Verificando se a pasta build foi criada..."
-          ls -la frontend/build/ || echo "Pasta build não encontrada!"
+          echo "Verificando artefatos do build..."
+          test -f frontend/build/index.html
+          test -f frontend/build/404.html
+          test -d frontend/build/static/js
+          test -d frontend/build/static/css
+          ls -la frontend/build/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

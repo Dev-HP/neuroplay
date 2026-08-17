@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import EmergencyStop from '../shared/components/EmergencyStop';
 import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
+import { apiUrl } from '../shared/config/api';
 import './JogoMestresSinal.css';
 
 function JogoMestresSinal({ user }) {
@@ -113,8 +114,8 @@ function JogoMestresSinal({ user }) {
       : 0;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/progresso', {
+      const token = sessionStorage.getItem('token');
+      await axios.post(apiUrl('/api/progresso'), {
         aluno_id: user.id,
         atividade_id: 1,
         pontos: pontos,
@@ -154,11 +155,21 @@ function JogoMestresSinal({ user }) {
           </div>
         ) : (
           <div className="game-screen">
-            <div className={`sinal ${sinalAtual}`}>
+            <div
+              className={`sinal ${sinalAtual}`}
+              role="img"
+              aria-label={sinalAtual === 'no-go' ? 'Sinal vermelho: não clique' : 'Sinal verde: clique'}
+            >
               {sinalAtual === 'no-go' ? (
-                <div className="no-go-icon">🚫</div>
+                <>
+                  <div className="no-go-icon" aria-hidden="true">🚫</div>
+                  <span className="sinal-label">Vermelho — não clique</span>
+                </>
               ) : (
-                <div className="go-icon">✓</div>
+                <>
+                  <div className="go-icon" aria-hidden="true">✓</div>
+                  <span className="sinal-label">Verde — clique</span>
+                </>
               )}
             </div>
 

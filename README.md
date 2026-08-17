@@ -1,12 +1,12 @@
 # Neuroplay
 
-> Plataforma web gamificada para apoiar atividades de inclusão digital e treinamento cognitivo de crianças com TEA e TDAH, combinando jogos interativos, adaptação de dificuldade e visualização de progresso.
+> Protótipo web gamificado para atividades lúdicas e inclusão digital, com jogos interativos, adaptação experimental de dificuldade e visualização de progresso.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Status
 
-**Protótipo acadêmico em evolução.** A aplicação demonstra uma arquitetura full stack e experiências de jogos terapêuticos inspiradas em tarefas cognitivas conhecidas. Ela não substitui avaliação clínica, diagnóstico ou tratamento profissional.
+**Protótipo acadêmico em evolução.** A aplicação demonstra uma arquitetura full stack e atividades lúdicas inspiradas em tarefas cognitivas conhecidas. O Neuroplay não é dispositivo médico, não fornece diagnóstico, não promete tratamento ou melhora clínica e não substitui avaliação profissional.
 
 ## O que o projeto demonstra
 
@@ -16,7 +16,7 @@ O Neuroplay explora como uma aplicação web pode oferecer experiências interat
 
 | Área | Implementação |
 |---|---|
-| Jogos | Mestres do Sinal, Caçador de Alvos e Memória Dupla disponíveis no protótipo. |
+| Jogos | Mestres do Sinal, Caçador de Alvos e Memória Dupla disponíveis no protótipo; os resultados são apenas indicadores de interação. |
 | Adaptação | TensorFlow.js e Scikit-learn para experimentar ajuste de dificuldade e análise de desempenho. |
 | Interface | React, Three.js, Framer Motion e componentes responsivos. |
 | Áudio | Web Audio API, Tone.js e Howler.js. |
@@ -80,7 +80,8 @@ As atividades usam ideias de tarefas como Go/No-Go, Stroop, Flanker e Dual N-Bac
 ## Documentação
 
 - [Arquitetura](docs/architecture/ARQUITETURA.md)
-- [Jogos terapêuticos](docs/PAINEL_EDUCADOR_SPEC.md)
+- [Posicionamento e limites](docs/PRODUCT_POSITIONING.md)
+- [Painel do educador](docs/PAINEL_EDUCADOR_SPEC.md)
 - [Tecnologias](docs/architecture/TECNOLOGIAS.md)
 - [Instalação](docs/guides/INSTALACAO.md)
 - [Deploy](docs/guides/DEPLOY.md)

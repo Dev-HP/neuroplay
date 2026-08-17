@@ -417,3 +417,56 @@
     max-width: 100%;
   }
 }
+
+/* Estados explícitos e acessíveis para a experiência de demonstração. */
+.demo-notice,
+.status-banner {
+  width: min(100% - 2rem, 960px);
+  margin: var(--space-4) auto 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--primary-200);
+  border-radius: var(--radius-lg);
+  background: var(--primary-50);
+  color: var(--primary-800);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.login-disclaimer {
+  max-width: 28rem;
+  margin: var(--space-2) auto 0;
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+[role="button"]:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--primary-500);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-inline: var(--space-4);
+  }
+
+  .btn {
+    min-height: 44px;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

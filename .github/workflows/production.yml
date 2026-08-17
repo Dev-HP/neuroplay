@@ -48,7 +48,6 @@ jobs:
         run: |
           echo "🧪 Executando testes unitários..."
           pytest backend/tests/unit -v --tb=short --cov=backend/app --cov-report=term-missing
-        continue-on-error: true
       
       - name: Upload Coverage Report
         uses: codecov/codecov-action@v4
@@ -78,7 +77,7 @@ jobs:
       
       - name: Install Dependencies
         working-directory: frontend
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
       
       - name: Run Frontend Tests
         working-directory: frontend
@@ -89,8 +88,12 @@ jobs:
         run: |
           echo "🏗️ Building production bundle..."
           npm run build
+          # GitHub Pages precisa de um shell SPA para deep links.
+          cp build/index.html build/404.html
         env:
           CI: false
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_DEMO_MODE: true
       
       - name: Check Service Worker Generation
         working-directory: frontend
@@ -126,7 +129,7 @@ jobs:
           echo "🔍 Validando artefatos de build..."
           
           # Verifica se arquivos essenciais existem
-          required_files=("index.html" "static/js" "static/css")
+          required_files=("index.html" "404.html" "static/js" "static/css")
           for file in "${required_files[@]}"; do
             if [ ! -e "$file" ]; then
               echo "❌ ERRO: $file não encontrado!"
@@ -366,8 +369,8 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     environment:
-      name: production
-      url: https://neuroplay.app
+      name: github-pages
+      url: https://dev-hp.github.io/neuroplay/
     
     steps:
       - name: Checkout Code
@@ -382,30 +385,40 @@ jobs:
           echo "Author: ${{ github.actor }}"
           echo "================================"
       
+      # O backend não possui um provedor público configurado neste repositório.
+      # Este job registra o handoff sem alegar que houve um deploy de API.
+      - name: Configured provider status
+        run: |
+          if [ -n "${{ vars.PRODUCTION_URL }}" ]; then
+            echo "✅ Backend de produção configurado em ${{ vars.PRODUCTION_URL }}"
+          else
+            echo "ℹ️ Nenhum provedor de backend configurado; release validado sem smoke test externo."
+          fi
+
       # Exemplo: Deploy para Railway
-      - name: Deploy to Railway
-        if: false  # Descomente quando configurar
+      - name: Deploy to Railway (disabled until configured)
+        if: ${{ vars.DEPLOY_RAILWAY == 'true' }}
         run: |
           curl -X POST ${{ secrets.RAILWAY_WEBHOOK_URL }} \
             -H "Content-Type: application/json" \
             -d '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
       
       # Exemplo: Deploy para Render
-      - name: Deploy to Render
-        if: false  # Descomente quando configurar
+      - name: Deploy to Render (disabled until configured)
+        if: ${{ vars.DEPLOY_RENDER == 'true' }}
         run: |
           curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
       
       # Exemplo: Deploy para AWS/Vercel/Netlify
-      - name: Deploy Frontend to Vercel
-        if: false  # Descomente quando configurar
+      - name: Deploy Frontend to Vercel (disabled until configured)
+        if: ${{ vars.DEPLOY_VERCEL == 'true' }}
         run: |
           npm install -g vercel
           cd frontend
           vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
       
-      - name: Notify Sentry of Deploy
-        if: false  # Descomente quando configurar Sentry
+      - name: Notify Sentry of Deploy (disabled until configured)
+        if: ${{ vars.NOTIFY_SENTRY == 'true' }}
         run: |
           curl -X POST https://sentry.io/api/0/organizations/${{ secrets.SENTRY_ORG }}/releases/ \
             -H "Authorization: Bearer ${{ secrets.SENTRY_AUTH_TOKEN }}" \
@@ -431,45 +444,32 @@ jobs:
     name: Post-Deploy Smoke Tests
     runs-on: ubuntu-latest
     needs: deploy
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+    # Ativa somente quando o backend tiver uma URL pública configurada.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.PRODUCTION_URL != ''
+    env:
+      PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+
     steps:
       - name: Health Check
         run: |
-          echo "🏥 Verificando saúde da aplicação..."
-          
-          # Aguarda 30s para deploy estabilizar
-          sleep 30
-          
-          # Verifica endpoint de health
-          response=$(curl -s -o /dev/null -w "%{http_code}" https://neuroplay.app/health || echo "000")
-          
-          if [ "$response" = "200" ]; then
-            echo "✅ Aplicação está saudável!"
-          else
-            echo "❌ Aplicação não respondeu corretamente (HTTP $response)"
+          set -euo pipefail
+          echo "🏥 Verificando saúde de ${PRODUCTION_URL}..."
+          response=$(curl --fail-with-body --silent --show-error --location --max-time 20 \
+            -o /tmp/health-response.txt -w "%{http_code}" "${PRODUCTION_URL%/}/health")
+          if [ "$response" != "200" ]; then
+            echo "❌ Health check falhou (HTTP $response)"
+            cat /tmp/health-response.txt
             exit 1
           fi
-      
-      - name: Critical Endpoints Check
+          echo "✅ Aplicação está saudável (HTTP $response)."
+
+      - name: Critical Root Check
         run: |
-          echo "🔍 Testando endpoints críticos..."
-          
-          endpoints=(
-            "https://neuroplay.app/api/v1/health"
-            "https://neuroplay.app/"
-          )
-          
-          for endpoint in "${endpoints[@]}"; do
-            echo "Testing: $endpoint"
-            status=$(curl -s -o /dev/null -w "%{http_code}" "$endpoint" || echo "000")
-            
-            if [ "$status" = "200" ] || [ "$status" = "401" ]; then
-              echo "  ✅ OK ($status)"
-            else
-              echo "  ❌ FALHOU ($status)"
-              exit 1
-            fi
-          done
-          
-          echo "✅ Todos os endpoints críticos estão funcionando!"
+          set -euo pipefail
+          status=$(curl --silent --show-error --location --max-time 20 \
+            -o /dev/null -w "%{http_code}" "${PRODUCTION_URL%/}/")
+          if [ "$status" != "200" ] && [ "$status" != "401" ]; then
+            echo "❌ Raiz da API falhou (HTTP $status)"
+            exit 1
+          fi
+          echo "✅ Raiz da API respondeu (HTTP $status)."

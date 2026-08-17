@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import Logo from '../shared/components/Logo';
 import './PainelAluno.css';
 
+const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
+
 function PainelAluno({ user, onLogout }) {
   const navigate = useNavigate();
 
@@ -119,6 +121,12 @@ function PainelAluno({ user, onLogout }) {
         </div>
       </header>
 
+      {DEMO_MODE && (
+        <div className="demo-notice" role="note">
+          Modo demonstração: a pontuação é local e ilustrativa; nenhum dado real é salvo.
+        </div>
+      )}
+
       {/* Seção de progresso */}
       <section className="progress-section">
         <div className="progress-card">
@@ -152,21 +160,15 @@ function PainelAluno({ user, onLogout }) {
         
         <div className="jogos-grid">
           {jogos.map((jogo) => (
-            <div
+            <button
+              type="button"
               key={jogo.id}
               className={`jogo-card jogo-${jogo.cor} ${jogo.emBreve ? 'em-breve' : ''} ${jogo.destaque ? 'destaque' : ''}`}
               onClick={() => {
-                if (jogo.emBreve) return;
-                navigate(jogo.rota);
+                if (!jogo.emBreve) navigate(jogo.rota);
               }}
-              role="button"
-              tabIndex={0}
               aria-label={`${jogo.titulo} - ${jogo.descricao}`}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !jogo.emBreve) {
-                  navigate(jogo.rota);
-                }
-              }}
+              disabled={jogo.emBreve}
             >
               {jogo.emBreve && <div className="badge-em-breve">Em Breve</div>}
               {jogo.integrado && <div className="badge-integrado">✨ Integrado</div>}
@@ -184,7 +186,7 @@ function PainelAluno({ user, onLogout }) {
                   )}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>

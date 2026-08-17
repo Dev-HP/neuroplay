@@ -4,7 +4,10 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
+import { apiUrl, isApiConfigured } from '../shared/config/api';
 import './PainelEducador.css';
+
+const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
 
 function PainelEducador({ user, onLogout }) {
   const [alunos, setAlunos] = useState([]);
@@ -13,21 +16,33 @@ function PainelEducador({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddAluno, setShowAddAluno] = useState(false);
   const [novoAluno, setNovoAluno] = useState({ nome: '', idade: '', nivel: 'iniciante' });
+  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     carregarAlunos();
   }, []);
 
   const carregarAlunos = async () => {
+    if (!isApiConfigured() && !DEMO_MODE) {
+      setAlunos([]);
+      setFeedback('Backend não configurado. Defina REACT_APP_API_URL para carregar dados reais.');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/alunos', {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get(apiUrl('/api/alunos'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAlunos(response.data);
     } catch (error) {
       console.error('Erro ao carregar alunos:', error);
-      // Mock data para demonstração
+      if (!DEMO_MODE) {
+        setAlunos([]);
+        setFeedback('Não foi possível carregar os alunos. Verifique se o backend está disponível.');
+        return;
+      }
+      setFeedback('Modo demonstração: os dados exibidos são fictícios e não serão persistidos.');
       setAlunos([
         { id: 1, nome: 'João Silva', idade: 8, nivel: 'intermediario', pontos_totais: 850, ultima_atividade: '2026-02-12', avatar: '👦' },
         { id: 2, nome: 'Maria Santos', idade: 7, nivel: 'iniciante', pontos_totais: 420, ultima_atividade: '2026-02-11', avatar: '👧' },
@@ -44,9 +59,14 @@ function PainelEducador({ user, onLogout }) {
       return;
     }
 
+    if (!isApiConfigured() && !DEMO_MODE) {
+      setFeedback('Backend não configurado. O aluno não pode ser persistido.');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/alunos', novoAluno, {
+      const token = sessionStorage.getItem('token');
+      await axios.post(apiUrl('/api/alunos'), novoAluno, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShowAddAluno(false);
@@ -54,23 +74,47 @@ function PainelEducador({ user, onLogout }) {
       carregarAlunos();
     } catch (error) {
       console.error('Erro ao adicionar aluno:', error);
-      alert('Aluno adicionado com sucesso! (modo demonstração)');
+      if (!DEMO_MODE) {
+        setFeedback('Não foi possível adicionar o aluno. Verifique o backend e tente novamente.');
+        return;
+      }
+      const demoStudent = {
+        id: `demo-${Date.now()}`,
+        ...novoAluno,
+        idade: Number(novoAluno.idade),
+        pontos_totais: 0,
+        ultima_atividade: new Date().toISOString().slice(0, 10),
+        avatar: '🧒'
+      };
+      setAlunos((current) => [...current, demoStudent]);
+      setFeedback('Aluno adicionado apenas nesta demonstração; o dado não foi persistido.');
       setShowAddAluno(false);
       setNovoAluno({ nome: '', idade: '', nivel: 'iniciante' });
     }
   };
 
   const carregarProgresso = async (alunoId) => {
+    if (!isApiConfigured() && !DEMO_MODE) {
+      setProgresso([]);
+      setFeedback('Backend não configurado. O relatório real ainda não está disponível.');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/progresso/${alunoId}`, {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get(apiUrl(`/api/progresso/${alunoId}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProgresso(response.data);
       setAlunoSelecionado(alunos.find(a => a.id === alunoId));
     } catch (error) {
       console.error('Erro ao carregar progresso:', error);
-      // Mock data
+      if (!DEMO_MODE) {
+        setProgresso([]);
+        setFeedback('Não foi possível carregar o progresso deste aluno.');
+        return;
+      }
+      setFeedback('Modo demonstração: este relatório usa dados fictícios para ilustrar a interface.');
       const mockProgresso = [
         { jogo: 'Cyber Runner', acertos: 45, erros: 12, pontos: 450, tempo_medio: 120, data: '2026-02-12' },
         { jogo: 'Echo Temple', acertos: 38, erros: 15, pontos: 380, tempo_medio: 150, data: '2026-02-11' },
@@ -186,6 +230,12 @@ function PainelEducador({ user, onLogout }) {
           <span>⚙️</span> Configurações
         </button>
       </nav>
+
+      {feedback && (
+        <div className="status-banner" role="status" aria-live="polite">
+          {feedback}
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="educator-main">
@@ -313,11 +363,17 @@ function PainelEducador({ user, onLogout }) {
 
             <div className="alunos-grid">
               {alunos.map(aluno => (
-                <div key={aluno.id} className="aluno-card" onClick={() => {
-                  setAlunoSelecionado(aluno);
-                  carregarProgresso(aluno.id);
-                  setActiveTab('relatorios');
-                }}>
+                <button
+                  type="button"
+                  key={aluno.id}
+                  className="aluno-card"
+                  onClick={() => {
+                    setAlunoSelecionado(aluno);
+                    carregarProgresso(aluno.id);
+                    setActiveTab('relatorios');
+                  }}
+                  aria-label={`Ver relatório de ${aluno.nome}`}
+                >
                   <div className="aluno-card-header">
                     <div className="aluno-avatar-large">{aluno.avatar}</div>
                     <div className={`nivel-badge nivel-${aluno.nivel}`}>
@@ -339,9 +395,9 @@ function PainelEducador({ user, onLogout }) {
                     </div>
                   </div>
                   <div className="aluno-card-footer">
-                    <button className="btn-view">Ver Detalhes →</button>
+                    <span className="btn-view">Ver detalhes →</span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

@@ -7,6 +7,7 @@ import ParticleSystem from '../shared/components/ParticleSystem';
 import EmergencyStop from '../shared/components/EmergencyStop';
 import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
 import useGameStore from '../store/gameStore';
+import { apiUrl } from '../shared/config/api';
 import './JogoMemoriaDupla.css';
 
 // Dual N-Back Game - Treino de memória de trabalho
@@ -229,8 +230,8 @@ function JogoMemoriaDupla({ user }) {
     const gameTime = (Date.now() - gameStartTime.current) / 1000;
     
     try {
-      const token = localStorage.getItem('token');
-      await fetch('http://localhost:5000/api/progresso', {
+      const token = sessionStorage.getItem('token');
+      await fetch(apiUrl('/api/progresso'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
