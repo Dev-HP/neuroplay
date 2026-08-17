@@ -1,8 +1,4 @@
 -- Criação do banco de dados NeuroPlay
-CREATE DATABASE neuroplay;
-
-\c neuroplay;
-
 -- Tabela de Usuários
 CREATE TABLE usuario (
     id SERIAL PRIMARY KEY,
