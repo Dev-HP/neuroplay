@@ -36,8 +36,6 @@ services:
     networks:
       - neuroplay-network
     restart: unless-stopped
-    volumes:
-      - ./backend:/app
 
   # PostgreSQL Database
   db:
@@ -109,8 +107,6 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: true
-    volumes:
-      - ./backend:/app
     command: celery -A app.infra.tasks.celery_app worker --loglevel=info --concurrency=4
 
   # Celery Beat (Scheduled Tasks)
@@ -132,8 +128,6 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: true
-    volumes:
-      - ./backend:/app
     command: celery -A app.infra.tasks.celery_app beat --loglevel=info
 
 volumes:
