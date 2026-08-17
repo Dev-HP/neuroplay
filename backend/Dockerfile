@@ -25,17 +25,16 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar dependências do builder
-COPY --from=builder /root/.local /root/.local
-
-# Adicionar ao PATH
-ENV PATH=/root/.local/bin:$PATH
-
 # Copiar código da aplicação
 COPY . .
 
-# Criar usuário não-root
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Criar usuário não-root e instalar dependências em um caminho acessível por ele.
+RUN useradd -m -u 1000 appuser
+COPY --from=builder /root/.local /home/appuser/.local
+RUN chown -R appuser:appuser /app /home/appuser/.local
+
+# Adicionar dependências Python do usuário ao PATH
+ENV PATH=/home/appuser/.local/bin:$PATH
 USER appuser
 
 # Expor porta
