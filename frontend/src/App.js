@@ -15,6 +15,7 @@ import GravityLab from './games/GravityLab/GravityLab';
 import './App.css';
 
 function App() {
+  const basename = window.location.pathname.startsWith('/neuroplay') ? '/neuroplay' : '';
   const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
@@ -40,7 +41,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router basename={basename}>
       <div className="App">
         <Routes>
           <Route path="/" element={
