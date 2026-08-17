@@ -9,7 +9,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_API_URL=${FRONTEND_API_URL:-http://localhost:5000}
     depends_on:
       - backend
     networks:
@@ -24,10 +24,12 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/neuroplay
-      - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - APP_ENV=${APP_ENV:-production}
+      - FLASK_ENV=${APP_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - SECRET_KEY=${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
     depends_on:
       db:
         condition: service_healthy
@@ -41,14 +43,13 @@ services:
   db:
     image: postgres:14-alpine
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=neuroplay
+      - POSTGRES_USER=${POSTGRES_USER:-neuroplay}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env antes de iniciar}
+      - POSTGRES_DB=${POSTGRES_DB:-neuroplay}
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - neuroplay-network
     healthcheck:
@@ -77,9 +78,10 @@ services:
   # PgAdmin (opcional - para gerenciar banco)
   pgadmin:
     image: dpage/pgadmin4:latest
+    profiles: ["admin"]
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@neuroplay.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:?Defina PGADMIN_DEFAULT_EMAIL ao usar o perfil admin}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:?Defina PGADMIN_DEFAULT_PASSWORD ao usar o perfil admin}
     ports:
       - "5050:80"
     depends_on:
@@ -94,11 +96,14 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - FLASK_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/neuroplay
-      - REDIS_URL=redis://redis:6379
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - APP_ENV=${APP_ENV:-production}
+      - FLASK_ENV=${APP_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      - SECRET_KEY=${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
+      - SKIP_DB_INIT=true
     depends_on:
       - db
       - redis
@@ -115,11 +120,14 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - FLASK_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/neuroplay
-      - REDIS_URL=redis://redis:6379
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - APP_ENV=${APP_ENV:-production}
+      - FLASK_ENV=${APP_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      - SECRET_KEY=${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
+      - SKIP_DB_INIT=true
     depends_on:
       - db
       - redis

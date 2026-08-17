@@ -103,6 +103,13 @@ jobs:
         run: docker compose build
 
       - name: Run integration tests
+        env:
+          APP_ENV: test
+          SECRET_KEY: ci-neuroplay-secret-${{ github.run_id }}-0123456789
+          POSTGRES_USER: neuroplay
+          POSTGRES_PASSWORD: ci-postgres-password
+          POSTGRES_DB: neuroplay
+          DATABASE_URL: postgresql://neuroplay:ci-postgres-password@db:5432/neuroplay
         run: |
           set -euo pipefail
           docker compose up -d

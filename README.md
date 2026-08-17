@@ -1,94 +1,120 @@
-# Neuroplay
+# NeuroPlay
 
-> Protótipo web gamificado para atividades lúdicas e inclusão digital, com jogos interativos, adaptação experimental de dificuldade e visualização de progresso.
+> Plataforma web educacional de atividades lúdicas com jogos interativos e acompanhamento descritivo de sessões autorizadas.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Status
+## Status do produto
 
-**Protótipo acadêmico em evolução.** A aplicação demonstra uma arquitetura full stack e atividades lúdicas inspiradas em tarefas cognitivas conhecidas. O Neuroplay não é dispositivo médico, não fornece diagnóstico, não promete tratamento ou melhora clínica e não substitui avaliação profissional.
+O NeuroPlay possui um **MVP funcional** com API Flask, PostgreSQL, Redis/Celery, autenticação de adultos, organizações, perfis de estudantes pseudonimizados, consentimento versionado, persistência de gameplay, idempotência, isolamento multi-organização, auditoria, exportação e exclusão lógica.
 
-## O que o projeto demonstra
+A publicação do frontend no GitHub Pages não hospeda o backend. Para operar publicamente com dados reais, é necessário configurar uma hospedagem HTTPS para a API, banco PostgreSQL e Redis, além dos secrets descritos em [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md). Sem essa configuração, o frontend informa que a API não está disponível e não usa dados fictícios como fallback.
 
-O Neuroplay explora como uma aplicação web pode oferecer experiências interativas para atenção, memória de trabalho e controle inibitório. O projeto combina frontend React, renderização 3D, áudio no navegador, modelos adaptativos e uma API Python com persistência de dados.
+> **Limite de uso:** o NeuroPlay é software educacional de atividades lúdicas. Não é dispositivo médico, não fornece diagnóstico, não promete tratamento ou melhora clínica e não substitui avaliação profissional.
 
-## Funcionalidades principais
+## O que está implementado
 
-| Área | Implementação |
+| Área | Implementação real |
 |---|---|
-| Jogos | Mestres do Sinal, Caçador de Alvos e Memória Dupla disponíveis no protótipo; os resultados são apenas indicadores de interação. |
-| Adaptação | TensorFlow.js e Scikit-learn para experimentar ajuste de dificuldade e análise de desempenho. |
-| Interface | React, Three.js, Framer Motion e componentes responsivos. |
-| Áudio | Web Audio API, Tone.js e Howler.js. |
-| Backend | Flask, SocketIO, SQLAlchemy, PostgreSQL e Redis. |
-| Operação | Docker Compose e GitHub Actions para automação do ciclo de desenvolvimento. |
+| Autenticação | Cadastro, login, logout, access token curto, refresh token rotacionável e revogação de sessão. |
+| Organizações | Tenant, memberships e papéis `owner`, `admin` e `educador`. |
+| Estudantes | Perfis pseudonimizados criados por adulto autorizado; sem login infantil por e-mail no MVP. |
+| Governança | Consentimento versionado, revogação, auditoria, exportação e exclusão lógica. |
+| Gameplay | Sessões persistidas por atividade, score, duração, acertos, erros, eventos limitados e idempotency key. |
+| Relatórios | Indicadores descritivos por estudante e exportação CSV; nenhum score é interpretado como diagnóstico. |
+| Jogos | Cyber-Runner, Templo dos Ecos, Sonic Jump, Gravity Lab, Mestres do Sinal, Caçador de Alvos e Memória Dupla. |
+| Operação | Docker Compose, healthcheck, WSGI explícito, inicialização do schema, testes automatizados e GitHub Actions. |
 
-## Demonstração visual
+## Pesquisa e posicionamento
 
-![Curva de aprendizado do protótipo](paper/figures/learning_curves.png)
+As atividades são inspiradas em tarefas de atenção, memória de trabalho, controle inibitório e flexibilidade cognitiva. A literatura sobre serious games sugere potencial de engajamento e de melhoria em alguns desfechos, mas também aponta heterogeneidade, amostras pequenas e evidência insuficiente para claims específicos. O NeuroPlay, portanto, registra dados de interação para acompanhamento pedagógico e não para inferência clínica.
 
-A figura acima é um artefato de análise do projeto, não uma validação clínica. Adicione screenshots ou GIFs da interface assim que a experiência pública estiver validada. Enquanto o deploy estiver em manutenção, execute o projeto localmente com Docker para reproduzir a interface.
+Consulte [`docs/PRODUCT_POSITIONING.md`](docs/PRODUCT_POSITIONING.md), [`docs/PRODUCT_ARCHITECTURE.md`](docs/PRODUCT_ARCHITECTURE.md) e [`docs/ACADEMIC_RESEARCH.md`](docs/ACADEMIC_RESEARCH.md) para o posicionamento, modelo de dados, evidência e critérios de evolução do produto.
 
-## Execução local
-
-### Docker
+## Execução local com dados reais de desenvolvimento
 
 ```bash
 git clone https://github.com/Dev-HP/neuroplay.git
 cd neuroplay
-docker compose up -d
+cp .env.example .env
 ```
 
-Depois, acesse o frontend em `http://localhost:3000`, o backend em `http://localhost:5000` e o PgAdmin em `http://localhost:5050`, quando os serviços estiverem disponíveis na configuração local.
-
-### Execução manual
+Edite `.env` e substitua `SECRET_KEY`, `POSTGRES_PASSWORD`, `DATABASE_URL` e demais valores. Em seguida, suba os serviços:
 
 ```bash
-# Backend
+docker compose up -d --build
+```
+
+Acesse o frontend em `http://localhost:3000` e a API em `http://localhost:5000`. O perfil PgAdmin é opcional e deve ser iniciado apenas para administração local:
+
+```bash
+docker compose --profile admin up -d pgadmin
+```
+
+O entrypoint do backend cria as tabelas e publica o catálogo de atividades na primeira inicialização. Em produção, use migrações controladas e backup gerenciado conforme a documentação operacional.
+
+## Execução manual do backend
+
+```bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python app.py
-
-# Em outro terminal, frontend
-cd frontend
-npm install
-npm start
+export APP_ENV=development
+export SECRET_KEY='uma-chave-local-com-pelo-menos-32-caracteres'
+export DATABASE_URL='sqlite:///neuroplay-development.db'
+flask --app wsgi:application init-db
+gunicorn --bind 127.0.0.1:5000 wsgi:application
 ```
 
-No Windows, use o comando equivalente de ativação do ambiente virtual. Consulte os arquivos em `docs/` caso a configuração local tenha requisitos adicionais.
+Para produção, não use SQLite, não use secrets de exemplo e não exponha o servidor sem HTTPS reverso.
 
 ## Arquitetura
 
 ```text
-React + Three.js + TensorFlow.js
-              │
-              ▼
-        Flask + SocketIO
-              │
-              ▼
- PostgreSQL + Redis + serviços analíticos
+React + jogos canvas/Three.js
+            │ HTTPS + Bearer access token
+            ▼
+Flask API v1 + WSGI + RBAC + tenant isolation
+            │
+            ├── PostgreSQL: contas, organizações, consentimentos e sessões
+            ├── Redis/Celery: tarefas assíncronas opcionais
+            └── Auditoria, healthcheck e exportação
 ```
 
-A arquitetura é experimental. O código deve ser avaliado com dados fictícios e sem informações pessoais ou clínicas reais.
+A API principal está em `backend/app.py`, o entrypoint WSGI em `backend/wsgi.py`, os contratos de integração em `backend/tests/test_product_api.py` e o cliente comum dos jogos em `frontend/src/shared/api/gameplay.js`.
 
-## Referências e limites
+## Validação local
 
-As atividades usam ideias de tarefas como Go/No-Go, Stroop, Flanker e Dual N-Back. As referências precisam ser consultadas na documentação do projeto antes de qualquer interpretação clínica. A menção a produtos regulados ou estudos externos não significa aprovação ou validação regulatória do Neuroplay.
+```bash
+cd backend
+pytest -q
+
+cd ../frontend
+CI=true npm test -- --watchAll=false --passWithNoTests
+CI=false GENERATE_SOURCEMAP=false npm run build
+cp build/index.html build/404.html
+```
+
+Os testes de produto verificam cadastro, consentimento, persistência, idempotência e isolamento entre organizações. A suíte existente do frontend cobre 15 suítes e 129 testes.
 
 ## Documentação
 
-- [Arquitetura](docs/architecture/ARQUITETURA.md)
-- [Posicionamento e limites](docs/PRODUCT_POSITIONING.md)
-- [Painel do educador](docs/PAINEL_EDUCADOR_SPEC.md)
-- [Tecnologias](docs/architecture/TECNOLOGIAS.md)
-- [Instalação](docs/guides/INSTALACAO.md)
-- [Deploy](docs/guides/DEPLOY.md)
+| Documento | Conteúdo |
+|---|---|
+| [`docs/PRODUCT_ARCHITECTURE.md`](docs/PRODUCT_ARCHITECTURE.md) | Escopo v1, modelo de dados, API, segurança e critérios de aceite. |
+| [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md) | Deploy HTTPS, variáveis, banco, Redis e configuração do GitHub Pages. |
+| [`docs/PRODUCT_POSITIONING.md`](docs/PRODUCT_POSITIONING.md) | Promessa, limites educacionais e critérios para futuros claims. |
+| [`docs/architecture/ARQUITETURA.md`](docs/architecture/ARQUITETURA.md) | Arquitetura histórica e componentes do projeto. |
+| [`docs/guides/DEPLOY.md`](docs/guides/DEPLOY.md) | Procedimentos existentes de deploy. |
+
+## Privacidade e segurança
+
+Não envie dados pessoais, clínicos ou identificáveis para issues, commits ou fixtures. O MVP foi desenhado para usar identificadores pedagógicos mínimos, consentimento e papéis de acesso, mas uma operação com crianças ainda exige revisão jurídica, política de retenção, DPIA/RIPD, responsáveis definidos, backup, monitoramento e validação institucional antes de uso real.
 
 ## Contribuição e licença
 
-Contribuições são bem-vindas por meio de issues e pull requests. O projeto está sob a licença [MIT](LICENSE). Não envie dados pessoais, clínicos ou identificáveis para este repositório.
+Contribuições são bem-vindas por meio de issues e pull requests. O projeto está sob a licença [MIT](LICENSE). Toda contribuição envolvendo dados de crianças deve usar dados sintéticos e manter a minimização como requisito de revisão.
 
 ## Autor
 

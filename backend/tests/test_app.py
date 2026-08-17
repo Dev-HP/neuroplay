@@ -65,4 +65,4 @@ class TestApp:
         assert response.status_code == 200
         data = response.get_json()
         assert data['status'] == 'healthy'
-        assert data['version'] == '2.5.0'
+        assert data['version'] == '3.0.0'

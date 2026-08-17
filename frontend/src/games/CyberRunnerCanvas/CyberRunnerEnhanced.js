@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './CyberRunnerCanvas.css';
+import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import { apiUrl } from '../../shared/config/api';
 import { AdaptiveDifficulty } from './adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 
 const CyberRunnerEnhanced = () => {
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('student_id');
   const canvasRef = useRef(null);
+  const sessionStartedAtRef = useRef(null);
+  const sessionPersistedRef = useRef(false);
   const [gameState, setGameState] = useState('menu');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -364,6 +371,8 @@ const CyberRunnerEnhanced = () => {
       require('./gameDrawFunctions');
 
     const resetGame = () => {
+      sessionStartedAtRef.current = Date.now();
+      sessionPersistedRef.current = false;
       game.player.y = 570;
       game.player.jumping = false;
       game.player.sliding = false;
@@ -769,6 +778,24 @@ const CyberRunnerEnhanced = () => {
     };
   }, [gameState, score, lives, coins, level, powerUp, combo, stats]);
   
+  useEffect(() => {
+    if (gameState !== 'gameover' || sessionPersistedRef.current || !studentId || !sessionStartedAtRef.current) return;
+    sessionPersistedRef.current = true;
+    const token = sessionStorage.getItem('token');
+    axios.post(apiUrl('/api/v1/gameplay/sync'), {
+      session_id: `cyber-runner-${studentId}-${sessionStartedAtRef.current}`,
+      student_id: Number(studentId),
+      game_type: 'cyber-runner-canvas',
+      score,
+      duration_seconds: Math.max(0, Math.floor((Date.now() - sessionStartedAtRef.current) / 1000)),
+      acertos: stats.acertos,
+      erros: stats.erros,
+      events: [{ type: 'run_completed', data: { lives_remaining: lives, coins, level, combo } }]
+    }, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {
+      sessionPersistedRef.current = false;
+    });
+  }, [gameState, studentId, score, stats, lives, coins, level, combo]);
+
   // Handler para salvar configurações
   const handleSaveSettings = (newSettings) => {
     const canvas = canvasRef.current;

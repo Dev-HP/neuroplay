@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './EchoTemple.css';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
+import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
 
 const EchoTemple = () => {
+  const [searchParams] = useSearchParams();
+  const studentId = getCurrentStudentId(searchParams);
   const canvasRef = useRef(null);
+  const sessionStartedAtRef = useRef(null);
+  const lastPersistedSequenceRef = useRef(0);
   const { trackEvent } = useAchievementSystem();
   const [gameState, setGameState] = useState('menu');
   const [score, setScore] = useState(0);
@@ -460,6 +466,8 @@ const EchoTemple = () => {
     };
 
     const resetGame = () => {
+      sessionStartedAtRef.current = Date.now();
+      lastPersistedSequenceRef.current = 0;
       setScore(0);
       setLevel(1);
       setStats({ acertos: 0, erros: 0 });
@@ -646,6 +654,22 @@ const EchoTemple = () => {
     };
   }, [gameState, score, level, phase, stats]);
   
+  useEffect(() => {
+    if (!studentId || !sessionStartedAtRef.current || sequencesCompleted <= lastPersistedSequenceRef.current) return;
+    lastPersistedSequenceRef.current = sequencesCompleted;
+    persistGameplay({
+      studentId,
+      gameType: 'echo-temple',
+      score,
+      durationSeconds: (Date.now() - sessionStartedAtRef.current) / 1000,
+      acertos: stats.acertos,
+      erros: stats.erros,
+      metadata: { sequence_completed: sequencesCompleted, level, phase }
+    }).catch(() => {
+      lastPersistedSequenceRef.current = Math.max(0, sequencesCompleted - 1);
+    });
+  }, [studentId, sequencesCompleted, score, stats, level, phase]);
+
   // Handler para salvar configurações
   const handleSaveSettings = (newSettings) => {
     const canvas = canvasRef.current;

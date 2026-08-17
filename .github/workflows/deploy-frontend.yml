@@ -102,7 +102,7 @@ jobs:
         env:
           CI: false
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          REACT_APP_DEMO_MODE: true
+          REACT_APP_DEMO_MODE: false
           GENERATE_SOURCEMAP: false
 
       - name: Verificar build

@@ -1,15 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Logo from '../shared/components/Logo';
 import { apiUrl, isApiConfigured } from '../shared/config/api';
 import './Login.css';
-
-const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
-const DEMO_USERS = {
-  'aluno@demo.com': { senha: 'demo123', tipo: 'aluno', nome: 'Aluno Demo' },
-  'educador@demo.com': { senha: 'demo123', tipo: 'educador', nome: 'Educador Demo' }
-};
 
 function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -19,7 +13,7 @@ function Login({ onLogin }) {
     email: '',
     senha: '',
     nome: '',
-    tipo: 'aluno'
+    organizacao_nome: ''
   });
   const [error, setError] = useState('');
 
@@ -27,48 +21,24 @@ function Login({ onLogin }) {
     event.preventDefault();
     setError('');
 
-    if (isRegister && !isApiConfigured()) {
-      setError('O cadastro precisa de um backend configurado. No momento, esta instância está em modo demonstração.');
-      return;
-    }
-
-    if (!isRegister && DEMO_MODE) {
-      const demoUser = DEMO_USERS[formData.email.toLowerCase().trim()];
-      if (demoUser && demoUser.senha === formData.senha) {
-        onLogin(
-          { id: 1, nome: demoUser.nome, email: formData.email, tipo: demoUser.tipo },
-          `demo-session-${Date.now()}`
-        );
-        navigate(demoUser.tipo === 'aluno' ? '/aluno' : '/educador');
-        return;
-      }
-
-      setError('Credenciais de demonstração inválidas. Use um dos acessos exibidos nesta tela.');
-      return;
-    }
-
     if (!isApiConfigured()) {
-      setError('Backend não configurado. Defina REACT_APP_API_URL ou habilite explicitamente o modo demonstração.');
+      setError('Esta publicação ainda não está conectada a um backend. Configure REACT_APP_API_URL no deploy para habilitar o produto.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
-      const response = await axios.post(apiUrl(endpoint), formData);
-
-      if (isRegister) {
-        setIsRegister(false);
-        setFormData((current) => ({ ...current, senha: '' }));
-        setError('Cadastro realizado. Faça login para continuar.');
-      } else {
-        onLogin(response.data.usuario, response.data.token);
-        navigate(response.data.usuario?.tipo === 'educador' ? '/educador' : '/aluno');
-      }
+      const endpoint = isRegister ? '/api/v1/auth/register' : '/api/v1/auth/login';
+      const response = await axios.post(apiUrl(endpoint), formData, { withCredentials: true });
+      const user = response.data.usuario;
+      onLogin(user, response.data.token);
+      navigate(user?.tipo === 'educador' || user?.role === 'owner' ? '/educador' : '/aluno');
     } catch (requestError) {
+      const payload = requestError.response?.data;
       setError(
-        requestError.response?.data?.message ||
-          'Não foi possível conectar ao backend. Verifique a URL da API e tente novamente.'
+        payload?.error ||
+          payload?.message ||
+          'Não foi possível concluir a operação. Verifique os dados e tente novamente.'
       );
     } finally {
       setIsSubmitting(false);
@@ -83,37 +53,42 @@ function Login({ onLogin }) {
             <Logo size="large" showText={false} animated={true} />
           </div>
           <h1>NeuroPlay</h1>
-          <p>Bem-vindo(a) ao NeuroPlay.</p>
+          <p>{isRegister ? 'Crie o espaço seguro da sua organização.' : 'Entre para acompanhar atividades educacionais.'}</p>
           <p className="login-disclaimer" role="note">
-            Protótipo de atividades lúdicas. Não fornece diagnóstico ou tratamento.
+            Plataforma educacional de atividades lúdicas. Não fornece diagnóstico ou tratamento.
           </p>
-          {DEMO_MODE && (
-            <div className="demo-credentials" role="note" aria-label="Credenciais do modo demonstração">
-              <small>
-                <strong>Modo demonstração ativo</strong><br />
-                Aluno: aluno@demo.com<br />
-                Educador: educador@demo.com<br />
-                Senha: demo123
-              </small>
-            </div>
-          )}
         </div>
 
         <form onSubmit={handleSubmit} className="login-form" noValidate>
           {isRegister && (
-            <div className="form-group">
-              <label htmlFor="nome">Nome</label>
-              <input
-                id="nome"
-                name="nome"
-                type="text"
-                placeholder="Como podemos chamar você?"
-                value={formData.nome}
-                onChange={(event) => setFormData({ ...formData, nome: event.target.value })}
-                autoComplete="name"
-                required
-              />
-            </div>
+            <>
+              <div className="form-group">
+                <label htmlFor="nome">Seu nome</label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  placeholder="Como podemos chamar você?"
+                  value={formData.nome}
+                  onChange={(event) => setFormData({ ...formData, nome: event.target.value })}
+                  autoComplete="name"
+                  minLength={2}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="organizacao_nome">Nome da organização</label>
+                <input
+                  id="organizacao_nome"
+                  name="organizacao_nome"
+                  type="text"
+                  placeholder="Escola, clínica educacional ou projeto"
+                  value={formData.organizacao_nome}
+                  onChange={(event) => setFormData({ ...formData, organizacao_nome: event.target.value })}
+                  required
+                />
+              </div>
+            </>
           )}
 
           <div className="form-group">
@@ -136,35 +111,14 @@ function Login({ onLogin }) {
               id="senha"
               name="senha"
               type="password"
-              placeholder="Digite sua senha"
+              placeholder="Mínimo de 10 caracteres"
               value={formData.senha}
               onChange={(event) => setFormData({ ...formData, senha: event.target.value })}
               autoComplete={isRegister ? 'new-password' : 'current-password'}
+              minLength={isRegister ? 10 : undefined}
               required
             />
           </div>
-
-          {isRegister && (
-            <fieldset className="form-group tipo-selector">
-              <legend>Perfil</legend>
-              <button
-                type="button"
-                className={`tipo-btn ${formData.tipo === 'educador' ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, tipo: 'educador' })}
-                aria-pressed={formData.tipo === 'educador'}
-              >
-                Sou educador
-              </button>
-              <button
-                type="button"
-                className={`tipo-btn ${formData.tipo === 'aluno' ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, tipo: 'aluno' })}
-                aria-pressed={formData.tipo === 'aluno'}
-              >
-                Sou aluno
-              </button>
-            </fieldset>
-          )}
 
           {error && (
             <div className="error-message" role="alert" aria-live="polite">
@@ -173,11 +127,11 @@ function Login({ onLogin }) {
           )}
 
           <button type="submit" className="btn btn-primary btn-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Aguarde…' : isRegister ? 'Cadastrar' : 'Entrar'}
+            {isSubmitting ? 'Aguarde…' : isRegister ? 'Criar organização' : 'Entrar'}
           </button>
 
           <div className="toggle-form">
-            {isRegister ? 'Já tem conta?' : 'Não tem conta ainda?'}
+            {isRegister ? 'Já tem conta?' : 'Primeiro acesso?'}
             <button
               type="button"
               className="link-btn"
@@ -186,7 +140,7 @@ function Login({ onLogin }) {
                 setIsRegister(!isRegister);
               }}
             >
-              {isRegister ? 'Fazer login' : 'Cadastre-se'}
+              {isRegister ? 'Fazer login' : 'Criar conta'}
             </button>
           </div>
         </form>

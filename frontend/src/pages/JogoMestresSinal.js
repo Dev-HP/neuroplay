@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import EmergencyStop from '../shared/components/EmergencyStop';
 import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
@@ -8,6 +8,8 @@ import './JogoMestresSinal.css';
 
 function JogoMestresSinal({ user }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('student_id') || user?.student_id || (user?.tipo === 'aluno' ? user.id : null);
   const [gameState, setGameState] = useState('ready'); // ready, playing, waiting
   const [pontos, setPontos] = useState(0);
   const [acertos, setAcertos] = useState(0);
@@ -109,35 +111,39 @@ function JogoMestresSinal({ user }) {
     setGameState('ready');
     const tempoTotal = Math.floor((Date.now() - tempoInicio) / 1000);
     
-    const avgReactionTime = reactionTimes.length > 0
-      ? reactionTimes.reduce((sum, rt) => sum + rt.reactionTime, 0) / reactionTimes.length
-      : 0;
+    if (!studentId) {
+      setCascadeMessage('Selecione um perfil de estudante autorizado antes de iniciar uma atividade.');
+      return;
+    }
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.post(apiUrl('/api/progresso'), {
-        aluno_id: user.id,
-        atividade_id: 1,
-        pontos: pontos,
+      await axios.post(apiUrl('/api/v1/gameplay/sync'), {
+        session_id: `mestres-sinal-${studentId}-${Date.now()}`,
+        student_id: Number(studentId),
+        game_type: 'mestres-sinal',
+        pontos,
+        score: pontos,
         tempo_gasto: tempoTotal,
+        duration_seconds: tempoTotal,
         acertos: acertos + 1,
-        erros: erros,
-        reaction_times: reactionTimes,
-        avg_reaction_time: Math.round(avgReactionTime)
+        erros,
+        events: reactionTimes.map((event) => ({ type: 'reaction', data: event }))
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      alert(`Jogo finalizado!\nPontos: ${pontos}\nAcertos: ${acertos + 1}\nErros: ${erros}`);
-      navigate('/aluno');
+      alert(`Atividade finalizada!\nPontos: ${pontos}\nAcertos: ${acertos + 1}\nErros: ${erros}`);
+      navigate(`/aluno?student_id=${studentId}`);
     } catch (error) {
-      console.error('Erro ao salvar progresso:', error);
+      setCascadeMessage(error.response?.data?.error || 'Não foi possível salvar a sessão. Verifique o consentimento e tente novamente.');
     }
   };
 
   return (
     <div className="jogo-container">
       <EmergencyStop onStop={() => setGameState('ready')} />
+      {!studentId && <div className="status-banner" role="status">Selecione um perfil autorizado no painel do educador.</div>}
       <header className="jogo-header">
         <button onClick={() => navigate('/aluno')} className="btn-voltar">← Voltar</button>
         <div className="pontos-display">Pontos: {pontos}</div>

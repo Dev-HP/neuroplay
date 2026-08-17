@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import audioManager from '../shared/utils/audioManager';
 import aiAdaptation from '../shared/utils/aiAdaptation';
@@ -13,6 +13,8 @@ import './JogoMemoriaDupla.css';
 // Dual N-Back Game - Treino de memória de trabalho
 function JogoMemoriaDupla({ user }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('student_id') || user?.student_id || (user?.tipo === 'aluno' ? user.id : null);
   const [gameState, setGameState] = useState('ready');
   const [nBackLevel, setNBackLevel] = useState(1); // 1-back, 2-back, 3-back
   const [score, setScore] = useState(0);
@@ -229,33 +231,40 @@ function JogoMemoriaDupla({ user }) {
 
     const gameTime = (Date.now() - gameStartTime.current) / 1000;
     
+    if (!studentId) {
+      setGameState('ready');
+      return;
+    }
+
     try {
       const token = sessionStorage.getItem('token');
-      await fetch(apiUrl('/api/progresso'), {
+      await fetch(apiUrl('/api/v1/gameplay/sync'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          aluno_id: user.id,
-          atividade_id: 3,
-          pontos: score,
-          tempo_gasto: Math.floor(gameTime),
+          session_id: `memoria-dupla-${studentId}-${Date.now()}`,
+          student_id: Number(studentId),
+          game_type: 'memoria-dupla',
+          score,
+          duration_seconds: Math.floor(gameTime),
           acertos: stats.visualCorrect + stats.audioCorrect,
           erros: stats.visualWrong + stats.audioWrong
         })
       });
     } catch (error) {
-      console.error('Erro ao salvar progresso:', error);
+      setGameState('ready');
     }
-  }, [score, stats, user.id, addPoints]);
+  }, [score, stats, studentId, addPoints]);
 
   const currentStimulus = sequence[currentIndex];
 
   return (
     <div className="jogo-memoria-dupla-container">
       <EmergencyStop onStop={() => setGameState('ready')} />
+      {!studentId && <div className="status-banner" role="status">Selecione um perfil autorizado no painel do educador.</div>}
       <ParticleSystem type={particleType} active={showParticles} />
 
       <div className="game-header">

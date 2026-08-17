@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './GravityLab.css';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
+import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
 
 const GravityLab = () => {
+  const [searchParams] = useSearchParams();
+  const studentId = getCurrentStudentId(searchParams);
   const canvasRef = useRef(null);
+  const sessionStartedAtRef = useRef(null);
+  const sessionPersistedRef = useRef(false);
   const { trackEvent } = useAchievementSystem();
   const [gameState, setGameState] = useState('menu');
   const [score, setScore] = useState(0);
@@ -602,6 +608,8 @@ const GravityLab = () => {
     window.addEventListener('keydown', handleKeyDown);
 
     const resetGame = () => {
+      sessionStartedAtRef.current = Date.now();
+      sessionPersistedRef.current = false;
       setScore(0);
       setLevel(1);
       setRuleChanges(0);
@@ -771,6 +779,22 @@ const GravityLab = () => {
     };
   }, [gameState, score, level, currentRule, ruleChanges, stats]);
   
+  useEffect(() => {
+    if (gameState !== 'gameover' || sessionPersistedRef.current || !studentId || !sessionStartedAtRef.current) return;
+    sessionPersistedRef.current = true;
+    persistGameplay({
+      studentId,
+      gameType: 'gravity-lab',
+      score,
+      durationSeconds: (Date.now() - sessionStartedAtRef.current) / 1000,
+      acertos: stats.acertos,
+      erros: stats.erros,
+      metadata: { level, rule: currentRule, rule_changes: ruleChanges }
+    }).catch(() => {
+      sessionPersistedRef.current = false;
+    });
+  }, [gameState, studentId, score, stats, level, currentRule, ruleChanges]);
+
   // Handler para salvar configurações
   const handleSaveSettings = (newSettings) => {
     const canvas = canvasRef.current;

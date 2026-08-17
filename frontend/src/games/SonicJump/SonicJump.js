@@ -1,13 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './SonicJump.css';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { getPhonemeSynthesizer } from '../../shared/utils/phonemeSynthesizer';
 import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
+import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
 
 const SonicJump = () => {
+  const [searchParams] = useSearchParams();
+  const studentId = getCurrentStudentId(searchParams);
   const canvasRef = useRef(null);
+  const sessionStartedAtRef = useRef(null);
+  const sessionPersistedRef = useRef(false);
   const { trackEvent } = useAchievementSystem();
   const [gameState, setGameState] = useState('menu');
   const [score, setScore] = useState(0);
@@ -575,6 +581,8 @@ const SonicJump = () => {
     };
 
     const resetGame = () => {
+      sessionStartedAtRef.current = Date.now();
+      sessionPersistedRef.current = false;
       setScore(0);
       setLevel(1);
       setLives(3);
@@ -752,6 +760,22 @@ const SonicJump = () => {
     };
   }, [gameState, score, level, lives, stats]);
   
+  useEffect(() => {
+    if (gameState !== 'gameover' || sessionPersistedRef.current || !studentId || !sessionStartedAtRef.current) return;
+    sessionPersistedRef.current = true;
+    persistGameplay({
+      studentId,
+      gameType: 'sonic-jump',
+      score,
+      durationSeconds: (Date.now() - sessionStartedAtRef.current) / 1000,
+      acertos: stats.acertos,
+      erros: stats.erros,
+      metadata: { lives_remaining: lives, level }
+    }).catch(() => {
+      sessionPersistedRef.current = false;
+    });
+  }, [gameState, studentId, score, stats, lives, level]);
+
   // Handler para salvar configurações
   const handleSaveSettings = (newSettings) => {
     const canvas = canvasRef.current;

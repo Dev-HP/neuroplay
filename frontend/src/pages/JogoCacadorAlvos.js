@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei';
 import { motion } from 'framer-motion';
@@ -117,6 +117,8 @@ function Obstacle({ position, onCollision, id }) {
 // Componente principal do jogo
 function JogoCacadorAlvos({ user }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('student_id') || user?.student_id || (user?.tipo === 'aluno' ? user.id : null);
   const [gameState, setGameState] = useState('ready'); // ready, playing, paused, finished
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -150,36 +152,38 @@ function JogoCacadorAlvos({ user }) {
     addPoints(score);
 
     const gameTime = (Date.now() - gameStartTime.current) / 1000;
-    const avgReactionTime = reactionTimes.length > 0
-      ? reactionTimes.reduce((sum, rt) => sum + rt.reactionTime, 0) / reactionTimes.length
-      : 0;
-    
+    if (!studentId) {
+      setCascadeMessage('Selecione um perfil de estudante autorizado antes de iniciar uma atividade.');
+      return;
+    }
+
     try {
       const token = sessionStorage.getItem('token');
-      await fetch(apiUrl('/api/progresso'), {
+      await fetch(apiUrl('/api/v1/gameplay/sync'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          aluno_id: user.id,
-          atividade_id: 2,
+          session_id: `cacador-alvos-${studentId}-${Date.now()}`,
+          student_id: Number(studentId),
+          game_type: 'cacador-alvos',
+          score,
           pontos: score,
+          duration_seconds: Math.floor(gameTime),
           tempo_gasto: Math.floor(gameTime),
           acertos: stats.collected,
           erros: stats.collisions,
-          reaction_times: reactionTimes,
-          avg_reaction_time: Math.round(avgReactionTime)
+          events: reactionTimes.map((event) => ({ type: 'reaction', data: event }))
         })
       });
     } catch (error) {
-      console.error('Erro ao salvar progresso:', error);
+      setCascadeMessage(error.response?.data?.error || 'Não foi possível salvar a sessão. Verifique o consentimento e tente novamente.');
     }
 
-    const insights = aiAdaptation.generateInsights();
-    console.log('Insights da IA:', insights);
-  }, [score, stats, user.id, addPoints, reactionTimes]);
+    aiAdaptation.generateInsights();
+  }, [score, stats, studentId, addPoints, reactionTimes]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -376,6 +380,7 @@ function JogoCacadorAlvos({ user }) {
   return (
     <div className="jogo-cacador-container">
       <EmergencyStop onStop={() => setGameState('ready')} />
+      {!studentId && <div className="status-banner" role="status">Selecione um perfil autorizado no painel do educador.</div>}
       <ParticleSystem type={particleType} active={showParticles} />
       
       <div className="game-header">

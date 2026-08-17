@@ -35,14 +35,16 @@ RUN chown -R appuser:appuser /app /home/appuser/.local
 
 # Adicionar dependências Python do usuário ao PATH
 ENV PATH=/home/appuser/.local/bin:$PATH
+RUN chmod +x /app/entrypoint.sh
 USER appuser
 
 # Expor porta
 EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:5000/health')" || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request; response=urllib.request.urlopen('http://localhost:5000/health', timeout=2); raise SystemExit(0 if response.status == 200 else 1)"
 
-# Comando para iniciar aplicação
+# Inicializa o schema real e então inicia a aplicação.
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "wsgi:application"]
