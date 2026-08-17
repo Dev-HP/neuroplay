@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
@@ -197,7 +198,7 @@ def health_check():
     
     # Check database
     try:
-        db.session.execute('SELECT 1')
+        db.session.execute(text('SELECT 1'))
         checks['database'] = 'ok'
         checks['status'] = 'healthy'
         status_code = 200
