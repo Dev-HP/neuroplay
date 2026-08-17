@@ -1,146 +1,94 @@
-# 🧠 NeuroPlay - Plataforma Adaptativa para Inclusão Digital
+# Neuroplay
 
-[![Deploy Frontend](https://github.com/Dev-HP/neuroplay/workflows/Deploy%20Frontend/badge.svg)](https://github.com/Dev-HP/neuroplay/actions)
-[![Backend CI](https://github.com/Dev-HP/neuroplay/workflows/Backend%20CI/badge.svg)](https://github.com/Dev-HP/neuroplay/actions)
-[![Docker Build](https://github.com/Dev-HP/neuroplay/workflows/Docker%20Build/badge.svg)](https://github.com/Dev-HP/neuroplay/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+> Plataforma web gamificada para apoiar atividades de inclusão digital e treinamento cognitivo de crianças com TEA e TDAH, combinando jogos interativos, adaptação de dificuldade e visualização de progresso.
 
-> Plataforma web gamificada de **primeira linha** com jogos terapêuticos baseados em evidências científicas para crianças com TEA e TDAH.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-🌐 **Demo:** https://dev-hp.github.io/neuroplay
+## Status
 
-## 🌟 Destaques
+**Protótipo acadêmico em evolução.** A aplicação demonstra uma arquitetura full stack e experiências de jogos terapêuticos inspiradas em tarefas cognitivas conhecidas. Ela não substitui avaliação clínica, diagnóstico ou tratamento profissional.
 
-- 🎮 **8 Jogos Terapêuticos** baseados em pesquisas FDA-approved
-- 🤖 **IA Adaptativa** com TensorFlow.js e Scikit-learn
-- 🎨 **Renderização 3D** com Three.js
-- 🔊 **Áudio Procedural** com Web Audio API e Tone.js
-- 📊 **Analytics Avançado** com insights personalizados
-- 🚀 **CI/CD Completo** com GitHub Actions
-- 🐳 **Docker Ready** para deploy rápido
+## O que o projeto demonstra
 
-## 🎯 Jogos Implementados
+O Neuroplay explora como uma aplicação web pode oferecer experiências interativas para atenção, memória de trabalho e controle inibitório. O projeto combina frontend React, renderização 3D, áudio no navegador, modelos adaptativos e uma API Python com persistência de dados.
 
-### ✅ Disponíveis
-1. **Mestres do Sinal** - Controle inibitório (Go/No-Go)
-2. **Caçador de Alvos** - Jogo 3D espacial (inspirado em EndeavorRx FDA-approved)
-3. **Memória Dupla** - Dual N-Back para memória de trabalho
+## Funcionalidades principais
 
-### 🔨 Em Desenvolvimento
-4. Cores em Conflito (Stroop Task)
-5. Foco no Alvo (Flanker Task)
-6. Quebra-cabeça Adaptativo
-7. Jogo da Memória Plus
-8. Ritmo e Sequência
+| Área | Implementação |
+|---|---|
+| Jogos | Mestres do Sinal, Caçador de Alvos e Memória Dupla disponíveis no protótipo. |
+| Adaptação | TensorFlow.js e Scikit-learn para experimentar ajuste de dificuldade e análise de desempenho. |
+| Interface | React, Three.js, Framer Motion e componentes responsivos. |
+| Áudio | Web Audio API, Tone.js e Howler.js. |
+| Backend | Flask, SocketIO, SQLAlchemy, PostgreSQL e Redis. |
+| Operação | Docker Compose e GitHub Actions para automação do ciclo de desenvolvimento. |
 
-## 🚀 Stack Tecnológico
+## Demonstração visual
 
-### Frontend
-- **React 18** + **Three.js** + **Framer Motion**
-- **TensorFlow.js** + **Tone.js** + **Howler.js**
-- **Zustand** + **Axios** + **Recharts**
+![Curva de aprendizado do protótipo](paper/figures/learning_curves.png)
 
-### Backend
-- **Flask 3.0** + **SocketIO** + **SQLAlchemy**
-- **Scikit-learn** + **NumPy** + **Pandas**
-- **PostgreSQL** + **Redis**
+A figura acima é um artefato de análise do projeto, não uma validação clínica. Adicione screenshots ou GIFs da interface assim que a experiência pública estiver validada. Enquanto o deploy estiver em manutenção, execute o projeto localmente com Docker para reproduzir a interface.
 
-### DevOps
-- **Docker** + **Docker Compose**
-- **GitHub Actions** (CI/CD)
-- **Nginx** (Reverse Proxy)
+## Execução local
 
-## 📦 Instalação
-
-### Opção 1: Docker (Recomendado)
+### Docker
 
 ```bash
-# Clone o repositório
 git clone https://github.com/Dev-HP/neuroplay.git
 cd neuroplay
-
-# Inicie todos os serviços
-docker-compose up -d
-
-# Acesse:
-# Frontend: http://localhost:3000
-# Backend: http://localhost:5000
-# PgAdmin: http://localhost:5050
+docker compose up -d
 ```
 
-### Opção 2: Manual
+Depois, acesse o frontend em `http://localhost:3000`, o backend em `http://localhost:5000` e o PgAdmin em `http://localhost:5050`, quando os serviços estiverem disponíveis na configuração local.
+
+### Execução manual
 
 ```bash
 # Backend
 cd backend
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 
-# Frontend (em outro terminal)
+# Em outro terminal, frontend
 cd frontend
-npm install --legacy-peer-deps
+npm install
 npm start
 ```
 
-## 🌐 Deploy
+No Windows, use o comando equivalente de ativação do ambiente virtual. Consulte os arquivos em `docs/` caso a configuração local tenha requisitos adicionais.
 
-### GitHub Pages (Automático)
+## Arquitetura
 
-1. Faça push para `main`:
-```bash
-git add .
-git commit -m "Deploy"
-git push origin main
+```text
+React + Three.js + TensorFlow.js
+              │
+              ▼
+        Flask + SocketIO
+              │
+              ▼
+ PostgreSQL + Redis + serviços analíticos
 ```
 
-2. Acesse: `https://dev-hp.github.io/neuroplay`
+A arquitetura é experimental. O código deve ser avaliado com dados fictícios e sem informações pessoais ou clínicas reais.
 
-### Outras Plataformas
+## Referências e limites
 
-- **Vercel**: `vercel --prod`
-- **Heroku**: `git push heroku main`
-- **Railway**: Conecte o repositório
-- **AWS**: Veja `docs/DEPLOY.md`
+As atividades usam ideias de tarefas como Go/No-Go, Stroop, Flanker e Dual N-Back. As referências precisam ser consultadas na documentação do projeto antes de qualquer interpretação clínica. A menção a produtos regulados ou estudos externos não significa aprovação ou validação regulatória do Neuroplay.
 
-## 📚 Documentação
+## Documentação
 
-- [📖 Arquitetura](docs/ARQUITETURA.md)
-- [🎮 Jogos Terapêuticos](docs/JOGOS_TERAPEUTICOS.md)
-- [💻 Tecnologias](docs/TECNOLOGIAS.md)
-- [🚀 Deploy](docs/DEPLOY.md)
-- [⚙️ Instalação](docs/INSTALACAO.md)
+- [Arquitetura](docs/architecture/ARQUITETURA.md)
+- [Jogos terapêuticos](docs/PAINEL_EDUCADOR_SPEC.md)
+- [Tecnologias](docs/architecture/TECNOLOGIAS.md)
+- [Instalação](docs/guides/INSTALACAO.md)
+- [Deploy](docs/guides/DEPLOY.md)
 
-## 🎨 Screenshots
+## Contribuição e licença
 
-```
-[Adicionar screenshots aqui]
-```
+Contribuições são bem-vindas por meio de issues e pull requests. O projeto está sob a licença [MIT](LICENSE). Não envie dados pessoais, clínicos ou identificáveis para este repositório.
 
-## 🤝 Contribuindo
+## Autor
 
-Contribuições são bem-vindas! Veja nosso [guia de contribuição](CONTRIBUTING.md).
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhes.
-
-## 👥 Autores
-
-- **Hélio Paulo Leite de Lima** - RU: 4505463
-
-## 🙏 Agradecimentos
-
-- Pesquisas baseadas em EndeavorRx (FDA-approved)
-- Dual N-Back Training (Jaeggi et al.)
-- Stroop & Flanker Tasks (Neuropsychology)
-- UNINTER - Centro Universitário Internacional
-
-## 📞 Contato
-
-- GitHub: [@Dev-HP](https://github.com/Dev-HP)
-- Projeto: [NeuroPlay](https://github.com/Dev-HP/neuroplay)
-- Demo: [https://dev-hp.github.io/neuroplay](https://dev-hp.github.io/neuroplay)
-
----
-
-**NeuroPlay** - Tecnologia de ponta para inclusão digital! 🚀🧠✨
+**Hélio Paulo Leite de Lima** — [GitHub](https://github.com/Dev-HP)
