@@ -2,19 +2,19 @@
 
 ## Promessa atual
 
-O Neuroplay é um **protótipo de atividades digitais lúdicas** para explorar interação, atenção, memória de trabalho e controle inibitório em experiências de navegador. O projeto pode apoiar demonstrações educacionais e estudos de usabilidade, mas ainda não constitui um produto clínico, terapêutico ou diagnóstico.
+O Neuroplay é um **MVP educacional de atividades digitais lúdicas** para registrar indicadores descritivos de interação, atenção, memória de trabalho e controle inibitório em experiências de navegador autorizadas. O sistema possui autenticação adulta, organizações, perfis de estudantes pseudonimizados, consentimento versionado, persistência de sessões e auditoria. Ele pode apoiar acompanhamento pedagógico e estudos de usabilidade, mas não constitui produto clínico, terapêutico ou diagnóstico.
 
 > A pontuação de um jogo descreve apenas o desempenho naquela sessão e naquela tarefa. Ela não mede inteligência, não identifica transtornos, não confirma evolução clínica e não deve orientar decisões de saúde ou educação sem avaliação profissional independente.
 
 ## O que o Neuroplay não faz
 
-O protótipo não fornece diagnóstico, tratamento, cura, prescrição ou recomendação clínica. Também não substitui avaliação de psicólogo, médico, terapeuta, professor ou responsável. Referências a tarefas cognitivas, literatura acadêmica ou produtos regulados servem apenas para contextualização e não representam validação do Neuroplay.
+O produto não fornece diagnóstico, tratamento, cura, prescrição ou recomendação clínica. Também não substitui avaliação de psicólogo, médico, terapeuta, professor ou responsável. Referências a tarefas cognitivas, literatura acadêmica ou produtos regulados servem para contextualização e não representam validação clínica do Neuroplay.
 
-## Modo demonstração
+## Estado da publicação e do backend
 
-A publicação do GitHub Pages é construída com `REACT_APP_DEMO_MODE=true`. Nesse modo, as credenciais de teste são exibidas na própria tela, os registros de alunos e progresso são fictícios e as ações não devem ser interpretadas como persistência real. A demo não deve receber nomes reais, dados de crianças, dados clínicos, tokens de produção ou informações identificáveis.
+O build de produção é gerado com `REACT_APP_DEMO_MODE=false`; não há credenciais de demonstração, arrays de alunos ou progresso fictício no fluxo de runtime. O frontend consulta a API e bloqueia operações identificáveis quando não existe estudante selecionado ou consentimento válido. Os sete jogos enviam sessões autorizadas ao endpoint real `/api/v1/gameplay/sync`.
 
-O modo demo é separado do fluxo real por uma flag de build. A configuração de produção deve usar `REACT_APP_DEMO_MODE=false`, uma `REACT_APP_API_URL` HTTPS e autenticação emitida e validada pelo backend. O frontend não possui autoridade para decidir permissões, organização, consentimento, retenção ou exportação de dados.
+O GitHub Pages hospeda apenas o frontend estático. Para operar com dados reais, o secret `REACT_APP_API_URL` precisa apontar para uma API Flask pública com HTTPS, PostgreSQL e Redis gerenciados, CORS restrito e secrets configurados no provedor. Sem essa infraestrutura e sem a governança institucional descrita no guia de deploy, a publicação deve ser usada somente com dados sintéticos.
 
 ## Critérios para futuros resultados
 
@@ -22,4 +22,6 @@ Qualquer afirmação quantitativa deverá informar, no mínimo, a métrica, unid
 
 ## Dados e privacidade
 
-Até que exista um backend de produção com autorização por organização e papel, consentimento de responsável, retenção, exclusão, auditoria e exportação controlada, o sistema deve ser usado somente com dados sintéticos. Issues, logs, screenshots e arquivos CSV não podem conter nomes, idades, e-mails ou qualquer outro dado de menor real.
+O MVP implementa minimização, pseudonimização, controle adulto, isolamento por organização, consentimento versionado e revogável, exportação, exclusão lógica e eventos de auditoria. Ainda assim, a entrada em produção com dados de crianças depende de DPIA/RIPD, política de retenção e descarte, backup e restauração testados, revisão de segurança, responsabilidades institucionais, contratos de processamento e operação HTTPS efetivamente configurada.
+
+Issues, logs, screenshots e arquivos CSV de testes não podem conter nomes, idades, e-mails ou qualquer outro dado de menor real. Caso o produto venha a receber finalidade de prevenção, diagnóstico, tratamento, reabilitação ou monitoramento clínico, será necessária avaliação regulatória e clínica específica antes de comercializar ou disponibilizar essa funcionalidade.

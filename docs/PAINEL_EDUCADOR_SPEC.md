@@ -194,52 +194,32 @@ color: white;
 - Tooltips informativos
 - Confirmações de ações
 
-## Dados Mock (Desenvolvimento)
+## Fonte de dados do painel
 
-```javascript
-const mockAlunos = [
-  {
-    id: 1,
-    nome: 'João Silva',
-    idade: 8,
-    nivel: 'intermediario',
-    pontos_totais: 850,
-    ultima_atividade: '2026-02-12',
-    avatar: '👦'
-  },
-  // ... mais alunos
-];
+Os arrays de alunos e progresso usados em versões demonstrativas foram removidos do runtime e não devem ser reintroduzidos. O painel consulta exclusivamente a API autenticada, com `X-Organization-ID`, escopo por organização e estados explícitos de carregamento, vazio e erro. O estudante é criado por adulto autorizado e aparece de forma pseudonimizada.
 
-const mockProgresso = [
-  {
-    jogo: 'Cyber Runner',
-    acertos: 45,
-    erros: 12,
-    pontos: 450,
-    tempo_medio: 120,
-    data: '2026-02-12'
-  },
-  // ... mais dados
-];
+## API Endpoints implementados
+
+```text
+POST   /api/v1/auth/register                    - Cadastra o adulto e a organização inicial
+POST   /api/v1/auth/login                       - Autentica o adulto
+POST   /api/v1/auth/refresh                     - Rotaciona o refresh token
+POST   /api/v1/auth/logout                      - Revoga a sessão atual
+GET    /api/v1/me                               - Identidade e organizações autorizadas
+GET    /api/v1/students                         - Lista estudantes do tenant atual
+POST   /api/v1/students                         - Cria perfil pseudonimizado
+GET    /api/v1/students/{id}/progress           - Progresso descritivo autorizado
+GET    /api/v1/consents                         - Consulta consentimentos
+POST   /api/v1/consents                         - Registra consentimento versionado
+POST   /api/v1/consents/{id}/revoke             - Revoga consentimento
+GET    /api/v1/activities                       - Catálogo de atividades
+POST   /api/v1/gameplay/sync                    - Persiste sessão idempotente
+GET    /api/v1/students/{id}/export             - Exporta dados autorizados
+DELETE /api/v1/students/{id}                    - Solicita exclusão lógica
+GET    /api/v1/audit-events                     - Auditoria para papel autorizado
 ```
 
-## API Endpoints (Futuros)
-
-```
-GET    /api/alunos                    - Lista todos alunos
-POST   /api/alunos                    - Adiciona novo aluno
-GET    /api/alunos/:id                - Detalhes de um aluno
-PUT    /api/alunos/:id                - Atualiza aluno
-DELETE /api/alunos/:id                - Remove aluno
-
-GET    /api/progresso/:alunoId        - Progresso de um aluno
-GET    /api/progresso/:alunoId/:jogo  - Progresso em jogo específico
-
-GET    /api/estatisticas/geral        - Estatísticas gerais
-GET    /api/estatisticas/:alunoId     - Estatísticas de um aluno
-
-POST   /api/relatorios/exportar       - Exporta relatório CSV
-```
+O Painel Educador usa esses contratos para registrar consentimento, acompanhar estudantes reais do tenant, exportar CSV derivado da resposta autorizada e impedir o início de gameplay identificável sem perfil e consentimento válidos.
 
 ## Testes
 
