@@ -96,7 +96,7 @@ CI=false GENERATE_SOURCEMAP=false npm run build
 cp build/index.html build/404.html
 ```
 
-Os testes de produto verificam cadastro, consentimento, persistência, idempotência e isolamento entre organizações. A suíte existente do frontend cobre 15 suítes e 129 testes.
+Os testes de produto verificam cadastro, consentimento, persistência, idempotência e isolamento entre organizações. A suíte do frontend cobre 17 suítes e 141 testes, incluindo a política local de adaptação e o motor compartilhado dos jogos.
 
 ## Documentação
 
@@ -104,6 +104,7 @@ Os testes de produto verificam cadastro, consentimento, persistência, idempotê
 |---|---|
 | [`docs/PRODUCT_ARCHITECTURE.md`](docs/PRODUCT_ARCHITECTURE.md) | Escopo v1, modelo de dados, API, segurança e critérios de aceite. |
 | [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md) | Deploy HTTPS, variáveis, banco, Redis e configuração do GitHub Pages. |
+| [`docs/LOCAL_ADAPTATION.md`](docs/LOCAL_ADAPTATION.md) | Política local de adaptação de dificuldade, limites, segurança e evolução futura. |
 | [`docs/PRODUCT_POSITIONING.md`](docs/PRODUCT_POSITIONING.md) | Promessa, limites educacionais e critérios para futuros claims. |
 | [`docs/architecture/ARQUITETURA.md`](docs/architecture/ARQUITETURA.md) | Arquitetura histórica e componentes do projeto. |
 | [`docs/guides/DEPLOY.md`](docs/guides/DEPLOY.md) | Procedimentos existentes de deploy. |

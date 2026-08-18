@@ -4,7 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import audioManager from '../shared/utils/audioManager';
-import aiAdaptation from '../shared/utils/aiAdaptation';
+import localAdaptation from '../shared/utils/localAdaptation';
 import ParticleSystem from '../shared/components/ParticleSystem';
 import EmergencyStop from '../shared/components/EmergencyStop';
 import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
@@ -144,7 +144,7 @@ function JogoCacadorAlvos({ user }) {
 
   useEffect(() => {
     audioManager.init();
-    aiAdaptation.init();
+    localAdaptation.init();
   }, []);
 
   const finishGame = useCallback(async () => {
@@ -182,7 +182,7 @@ function JogoCacadorAlvos({ user }) {
       setCascadeMessage(error.response?.data?.error || 'Não foi possível salvar a sessão. Verifique o consentimento e tente novamente.');
     }
 
-    aiAdaptation.generateInsights();
+    localAdaptation.generateInsights();
   }, [score, stats, studentId, addPoints, reactionTimes]);
 
   useEffect(() => {
@@ -303,7 +303,7 @@ function JogoCacadorAlvos({ user }) {
     }
 
     // Analisar performance com IA
-    aiAdaptation.analyzePerformance({
+    localAdaptation.analyzePerformance({
       accuracy: stats.accuracy,
       reactionTime: 500,
       errorsCount: stats.collisions,

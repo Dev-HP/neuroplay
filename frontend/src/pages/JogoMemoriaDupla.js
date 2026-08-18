@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import audioManager from '../shared/utils/audioManager';
-import aiAdaptation from '../shared/utils/aiAdaptation';
+import localAdaptation from '../shared/utils/localAdaptation';
 import ParticleSystem from '../shared/components/ParticleSystem';
 import EmergencyStop from '../shared/components/EmergencyStop';
 import errorCascadeDetector from '../shared/utils/errorCascadeDetector';
@@ -50,7 +50,7 @@ function JogoMemoriaDupla({ user }) {
 
   useEffect(() => {
     audioManager.init();
-    aiAdaptation.init();
+    localAdaptation.init();
   }, []);
 
   const startGame = () => {
@@ -198,8 +198,8 @@ function JogoMemoriaDupla({ user }) {
     const audioAccuracy = totalAudio > 0 ? (stats.audioCorrect / totalAudio) * 100 : 0;
     const overallAccuracy = (visualAccuracy + audioAccuracy) / 2;
 
-    // IA adapta dificuldade
-    aiAdaptation.analyzePerformance({
+    // Adaptação local calcula métricas da rodada
+    localAdaptation.analyzePerformance({
       accuracy: overallAccuracy,
       reactionTime: 1000,
       errorsCount: stats.visualWrong + stats.audioWrong,

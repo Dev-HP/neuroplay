@@ -1,12 +1,17 @@
-/**
- * Sistema de Adaptação Dinâmica de Dificuldade
- * Baseado em evidências científicas (Nature, 2021)
- * Mantém jogador na "zona de desenvolvimento proximal" (60-85% acerto)
- */
+import {
+  DEFAULT_ADAPTATION_LIMITS,
+  evaluateAdaptation
+} from '../../shared/utils/adaptationPolicy';
 
+/**
+ * Adaptação local e determinística de dificuldade.
+ *
+ * O motor ajusta apenas parâmetros de desafio do jogo. Ele não faz diagnóstico,
+ * não estima capacidade cognitiva e não substitui consentimento ou autorização.
+ */
 export class AdaptiveDifficulty {
-  constructor() {
-    this.windowSize = 10; // Últimas 10 tentativas
+  constructor(options = {}) {
+    this.windowSize = options.windowSize || DEFAULT_ADAPTATION_LIMITS.minAttempts;
     this.attemptHistory = [];
     this.currentParams = {
       speed: 5,
@@ -15,151 +20,142 @@ export class AdaptiveDifficulty {
       gravity: 0.8,
       jumpVelocity: -12
     };
-    
     this.adjustmentCount = 0;
     this.lastAdjustment = null;
   }
-  
-  /**
-   * Registra tentativa do jogador
-   */
-  recordAttempt(attempt) {
+
+  recordAttempt(attempt = {}) {
     this.attemptHistory.push({
-      correct: attempt.correct,
-      reactionTime: attempt.reactionTime,
+      correct: Boolean(attempt.correct),
+      reactionTime: Math.max(0, Number(attempt.reactionTime) || 0),
       timestamp: Date.now(),
-      type: attempt.type // 'obstacle', 'challenge', etc
+      type: attempt.type || 'generic'
     });
-    
-    // Mantém apenas últimas N tentativas
+
     if (this.attemptHistory.length > this.windowSize * 2) {
       this.attemptHistory.shift();
     }
-    
-    // Ajusta a cada 10 tentativas
-    if (this.attemptHistory.length >= this.windowSize && 
-        this.attemptHistory.length % this.windowSize === 0) {
+
+    if (
+      this.attemptHistory.length >= this.windowSize
+      && this.attemptHistory.length % this.windowSize === 0
+    ) {
       return this.adjustDifficulty();
     }
-    
+
     return null;
   }
-  
-  /**
-   * Analisa performance recente
-   */
+
   analyzePerformance() {
     const recentAttempts = this.attemptHistory.slice(-this.windowSize);
-    
+    const reactionTimes = recentAttempts
+      .map(attempt => attempt.reactionTime)
+      .filter(reactionTime => reactionTime > 0);
+
     if (recentAttempts.length === 0) {
-      return { accuracy: 1.0, avgReactionTime: 1000, rtVariability: 0 };
+      return {
+        accuracy: 0,
+        avgReactionTime: 1000,
+        rtVariability: 0,
+        sampleSize: 0
+      };
     }
-    
-    const accuracy = recentAttempts.filter(a => a.correct).length / recentAttempts.length;
-    const reactionTimes = recentAttempts.map(a => a.reactionTime).filter(rt => rt > 0);
-    
+
+    const accuracy = recentAttempts.filter(attempt => attempt.correct).length / recentAttempts.length;
     const avgReactionTime = reactionTimes.length > 0
-      ? reactionTimes.reduce((sum, rt) => sum + rt, 0) / reactionTimes.length
+      ? reactionTimes.reduce((sum, value) => sum + value, 0) / reactionTimes.length
       : 1000;
-    
-    const rtVariability = this.calculateStdDev(reactionTimes);
-    
-    return { accuracy, avgReactionTime, rtVariability };
-  }
-  
-  /**
-   * Ajusta dificuldade baseado em performance
-   * Zona de Desenvolvimento Proximal (Vygotsky): 60-85% acerto
-   */
-  adjustDifficulty() {
-    const { accuracy, avgReactionTime, rtVariability } = this.analyzePerformance();
-    
-    let adjustment = null;
-    let message = null;
-    
-    // Muito fácil - aumenta dificuldade
-    if (accuracy > 0.85 && avgReactionTime < 800) {
-      this.currentParams.speed = Math.min(this.currentParams.speed * 1.1, 15);
-      this.currentParams.challengeFrequency = Math.min(this.currentParams.challengeFrequency * 1.2, 0.003);
-      this.currentParams.obstacleSpeed = Math.min(this.currentParams.obstacleSpeed * 1.05, 12);
-      
-      adjustment = 'increase';
-      message = '📈 Dificuldade aumentada! Você está indo muito bem!';
-      
-    // Muito difícil - reduz dificuldade
-    } else if (accuracy < 0.60 || avgReactionTime > 2000 || rtVariability > 500) {
-      this.currentParams.speed = Math.max(this.currentParams.speed * 0.9, 3);
-      this.currentParams.challengeFrequency = Math.max(this.currentParams.challengeFrequency * 0.8, 0.0003);
-      this.currentParams.obstacleSpeed = Math.max(this.currentParams.obstacleSpeed * 0.95, 3);
-      this.currentParams.gravity = Math.max(this.currentParams.gravity * 0.95, 0.6);
-      
-      adjustment = 'decrease';
-      message = '📉 Dificuldade ajustada para melhor experiência';
-      
-    // Zona ideal - mantém
-    } else {
-      adjustment = 'maintain';
-      message = '✅ Você está na zona ideal de aprendizado!';
-    }
-    
-    this.adjustmentCount++;
-    this.lastAdjustment = {
-      timestamp: Date.now(),
-      type: adjustment,
+
+    return {
       accuracy,
       avgReactionTime,
-      rtVariability
+      rtVariability: this.calculateStdDev(reactionTimes),
+      sampleSize: recentAttempts.length
     };
-    
-    console.log(`[Adaptive] ${message}`, {
-      accuracy: `${(accuracy * 100).toFixed(1)}%`,
-      avgRT: `${avgReactionTime.toFixed(0)}ms`,
-      params: this.currentParams
-    });
-    
-    return { adjustment, message, params: this.getParams() };
   }
-  
-  /**
-   * Calcula desvio padrão
-   */
+
+  adjustDifficulty() {
+    const metrics = this.analyzePerformance();
+    const decision = evaluateAdaptation(metrics, {
+      minAttempts: this.windowSize,
+      maxStep: 1
+    });
+
+    if (decision.action === 'increase') {
+      this.currentParams.speed = Math.min(this.currentParams.speed * 1.1, 15);
+      this.currentParams.challengeFrequency = Math.min(
+        this.currentParams.challengeFrequency * 1.2,
+        0.003
+      );
+      this.currentParams.obstacleSpeed = Math.min(this.currentParams.obstacleSpeed * 1.05, 12);
+      this.currentParams.gravity = Math.min(this.currentParams.gravity * 1.02, 1.2);
+    } else if (decision.action === 'decrease') {
+      this.currentParams.speed = Math.max(this.currentParams.speed * 0.9, 3);
+      this.currentParams.challengeFrequency = Math.max(
+        this.currentParams.challengeFrequency * 0.8,
+        0.0003
+      );
+      this.currentParams.obstacleSpeed = Math.max(this.currentParams.obstacleSpeed * 0.95, 3);
+      this.currentParams.gravity = Math.max(this.currentParams.gravity * 0.95, 0.6);
+    }
+
+    const messageByAction = {
+      increase: 'Dificuldade aumentada gradualmente com base no desempenho recente.',
+      decrease: 'Dificuldade reduzida gradualmente para manter uma experiência confortável.',
+      maintain: 'Dificuldade mantida dentro da faixa de estabilidade configurada.',
+      insufficient_data: 'Mais tentativas são necessárias antes de ajustar a dificuldade.'
+    };
+
+    this.adjustmentCount += 1;
+    this.lastAdjustment = {
+      timestamp: Date.now(),
+      type: decision.action,
+      accuracy: metrics.accuracy,
+      avgReactionTime: metrics.avgReactionTime,
+      rtVariability: metrics.rtVariability,
+      sampleSize: metrics.sampleSize,
+      confidence: decision.confidence,
+      reason: decision.reason,
+      policyVersion: decision.policyVersion
+    };
+
+    return {
+      adjustment: decision.action,
+      message: messageByAction[decision.action] || messageByAction.maintain,
+      reason: decision.reason,
+      confidence: decision.confidence,
+      params: this.getParams(),
+      policyVersion: decision.policyVersion
+    };
+  }
+
   calculateStdDev(values) {
     if (values.length === 0) return 0;
-    
-    const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
-    const squareDiffs = values.map(v => Math.pow(v - avg, 2));
-    const avgSquareDiff = squareDiffs.reduce((sum, v) => sum + v, 0) / values.length;
-    
-    return Math.sqrt(avgSquareDiff);
+
+    const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const squaredDifferences = values.map(value => Math.pow(value - average, 2));
+    const averageSquaredDifference = squaredDifferences.reduce((sum, value) => sum + value, 0) / values.length;
+    return Math.sqrt(averageSquaredDifference);
   }
-  
-  /**
-   * Retorna parâmetros atuais
-   */
+
   getParams() {
     return { ...this.currentParams };
   }
-  
-  /**
-   * Retorna estatísticas
-   */
+
   getStats() {
-    const { accuracy, avgReactionTime, rtVariability } = this.analyzePerformance();
-    
+    const metrics = this.analyzePerformance();
     return {
       totalAttempts: this.attemptHistory.length,
-      recentAccuracy: accuracy,
-      avgReactionTime,
-      rtVariability,
+      recentAccuracy: metrics.accuracy,
+      avgReactionTime: metrics.avgReactionTime,
+      rtVariability: metrics.rtVariability,
+      sampleSize: metrics.sampleSize,
       adjustmentCount: this.adjustmentCount,
       lastAdjustment: this.lastAdjustment,
-      currentParams: this.currentParams
+      currentParams: this.getParams()
     };
   }
-  
-  /**
-   * Reseta sistema
-   */
+
   reset() {
     this.attemptHistory = [];
     this.adjustmentCount = 0;
