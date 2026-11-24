@@ -35,9 +35,9 @@ const AchievementNotification = ({ achievement, onClose, duration = 4000 }) => {
   };
 
   const rarityColors = {
-    common: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    rare: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    epic: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    common: 'linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%)',
+    rare: 'linear-gradient(135deg, #4a7fc0 0%, #2f8a7c 100%)',
+    epic: 'linear-gradient(135deg, #c9744f 0%, #d4a63f 100%)',
     legendary: 'linear-gradient(135deg, #ffd89b 0%, #19547b 100%)'
   };
 

@@ -41,8 +41,8 @@ const ParticleSystem = ({ type = 'success', active = false }) => {
       const colors = {
         success: ['#6BCB77', '#4CAF50', '#FFD93D'],
         error: ['#FF6B6B', '#d32f2f', '#FF9B9B'],
-        achievement: ['#FFD93D', '#FFC107', '#FF9B9B', '#667eea'],
-        combo: ['#667eea', '#764ba2', '#6BCB77']
+        achievement: ['#FFD93D', '#FFC107', '#FF9B9B', '#3f6fb5'],
+        combo: ['#3f6fb5', '#2a4a7c', '#6BCB77']
       };
       const colorArray = colors[type] || colors.success;
       return colorArray[Math.floor(Math.random() * colorArray.length)];

@@ -26,9 +26,9 @@ const AchievementCard = ({ achievement, onClick }) => {
   } = achievement;
 
   const rarityColors = {
-    common: '#667eea',
-    rare: '#4facfe',
-    epic: '#fa709a',
+    common: '#3f6fb5',
+    rare: '#4a7fc0',
+    epic: '#c9744f',
     legendary: '#ffd89b'
   };
 

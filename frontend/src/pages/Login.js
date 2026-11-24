@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Logo from '../shared/components/Logo';
-import { apiUrl, isApiConfigured } from '../shared/config/api';
+import { apiUrl, isApiConfigured, isDemoMode } from '../shared/config/api';
+import { DEMO_EMAIL, DEMO_PASSWORD } from '../shared/demo/localBackend';
 import './Login.css';
 
 function Login({ onLogin }) {
@@ -16,6 +17,20 @@ function Login({ onLogin }) {
     organizacao_nome: ''
   });
   const [error, setError] = useState('');
+
+  const enterDemo = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post(apiUrl('/api/v1/auth/login'), { email: DEMO_EMAIL, senha: DEMO_PASSWORD });
+      onLogin(response.data.usuario, response.data.token);
+      navigate('/educador');
+    } catch (_error) {
+      setError('Não foi possível abrir o modo demonstração.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -58,6 +73,15 @@ function Login({ onLogin }) {
             Plataforma educacional de atividades lúdicas. Não fornece diagnóstico ou tratamento.
           </p>
         </div>
+
+        {isDemoMode() && (
+          <div className="demo-notice" role="note">
+            <strong>Modo demonstração.</strong> Os dados ficam salvos apenas neste navegador.
+            <button type="button" className="btn btn-primary btn-full demo-btn" onClick={enterDemo} disabled={isSubmitting}>
+              Entrar como educador demonstração
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="login-form" noValidate>
           {isRegister && (

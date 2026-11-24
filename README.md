@@ -1,4 +1,8 @@
+<p align="center"><img src="docs/brand/neuroplay-icon.svg" width="120" alt="Logo NeuroPlay"></p>
+
 # NeuroPlay
+
+**Acesse:** https://dev-hp.github.io/neuroplay — clique em **"Entrar como educador demonstração"**.
 
 > Plataforma web educacional de atividades lúdicas com jogos interativos e acompanhamento descritivo de sessões autorizadas.
 
@@ -8,7 +12,9 @@
 
 O NeuroPlay possui um **MVP funcional** com API Flask, PostgreSQL, Redis/Celery, autenticação de adultos, organizações, perfis de estudantes pseudonimizados, consentimento versionado, persistência de gameplay, idempotência, isolamento multi-organização, auditoria, exportação e exclusão lógica.
 
-A publicação do frontend no GitHub Pages não hospeda o backend. Para operar publicamente com dados reais, é necessário configurar uma hospedagem HTTPS para a API, banco PostgreSQL e Redis, além dos secrets descritos em [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md). Sem essa configuração, o frontend informa que a API não está disponível e não usa dados fictícios como fallback.
+A publicação do frontend no GitHub Pages não hospeda o backend. Para operar publicamente com dados reais, é necessário configurar uma hospedagem HTTPS para a API, banco PostgreSQL e Redis, além dos secrets descritos em [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md). Sem essa configuração, a publicação roda em **modo demonstração**: as mesmas rotas da API (login, estudantes, consentimento, sessões e relatórios) são atendidas no próprio navegador e os dados ficam só naquele dispositivo. Nenhum dado é enviado a servidores. Ao configurar o secret `REACT_APP_API_URL`, o modo demonstração é desligado automaticamente.
+
+A auditoria de design, usabilidade e código, com os testes práticos dos jogos, está em [`docs/auditoria/`](docs/auditoria/AUDITORIA_UX_E_CODIGO.md).
 
 > **Limite de uso:** o NeuroPlay é software educacional de atividades lúdicas. Não é dispositivo médico, não fornece diagnóstico, não promete tratamento ou melhora clínica e não substitui avaliação profissional.
 

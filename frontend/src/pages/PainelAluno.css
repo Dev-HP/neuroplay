@@ -22,7 +22,7 @@
 }
 
 /* ===== HEADER ===== */
-.painel-header {
+.painel-aluno .painel-header {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-lg);
@@ -43,7 +43,7 @@
   }
 }
 
-.header-content {
+.painel-aluno .header-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-6) var(--space-8);
@@ -53,30 +53,30 @@
   gap: var(--space-8);
 }
 
-.user-section {
+.painel-aluno .user-section {
   display: flex;
   align-items: center;
   gap: var(--space-8);
 }
 
-.user-greeting {
+.painel-aluno .user-greeting {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-.greeting-text {
+.painel-aluno .greeting-text {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--gray-900);
 }
 
-.greeting-subtitle {
+.painel-aluno .greeting-subtitle {
   font-size: 0.875rem;
   color: var(--gray-600);
 }
 
-.btn-logout {
+.painel-aluno .btn-logout {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -92,21 +92,21 @@
   box-shadow: var(--shadow-md);
 }
 
-.btn-logout:hover {
+.painel-aluno .btn-logout:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.btn-logout:active {
+.painel-aluno .btn-logout:active {
   transform: translateY(0);
 }
 
-.logout-icon {
+.painel-aluno .logout-icon {
   font-size: 1.25rem;
 }
 
 /* ===== PROGRESS SECTION ===== */
-.progress-section {
+.painel-aluno .progress-section {
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-8);
@@ -114,7 +114,7 @@
   z-index: 1;
 }
 
-.progress-card {
+.painel-aluno .progress-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-2xl);
@@ -137,7 +137,7 @@
   }
 }
 
-.progress-icon {
+.painel-aluno .progress-icon {
   font-size: 4rem;
   animation: rotate 3s ease-in-out infinite;
 }
@@ -151,24 +151,24 @@
   }
 }
 
-.progress-info h3 {
+.painel-aluno .progress-info h3 {
   font-size: 1.5rem;
   color: var(--gray-900);
   margin-bottom: var(--space-6);
 }
 
-.progress-stats {
+.painel-aluno .progress-stats {
   display: flex;
   gap: var(--space-12);
 }
 
-.stat {
+.painel-aluno .stat {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.stat-value {
+.painel-aluno .stat-value {
   font-size: 2rem;
   font-weight: 800;
   background: var(--gradient-primary);
@@ -177,14 +177,14 @@
   background-clip: text;
 }
 
-.stat-label {
+.painel-aluno .stat-label {
   font-size: 0.875rem;
   color: var(--gray-600);
   margin-top: var(--space-2);
 }
 
 /* ===== JOGOS SECTION ===== */
-.jogos-section {
+.painel-aluno .jogos-section {
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-8);
@@ -192,7 +192,7 @@
   z-index: 1;
 }
 
-.section-title {
+.painel-aluno .section-title {
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -204,18 +204,18 @@
   animation: fadeInUp var(--transition-slow) ease-out 0.3s both;
 }
 
-.title-icon {
+.painel-aluno .title-icon {
   font-size: 2.5rem;
 }
 
-.jogos-grid {
+.painel-aluno .jogos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--space-8);
 }
 
 /* ===== JOGO CARDS ===== */
-.jogo-card {
+.painel-aluno .jogo-card {
   background: var(--white);
   border-radius: var(--radius-2xl);
   padding: var(--space-8);
@@ -227,13 +227,13 @@
   animation: fadeInUp var(--transition-slow) ease-out both;
 }
 
-.jogo-card:nth-child(1) { animation-delay: 0.4s; }
-.jogo-card:nth-child(2) { animation-delay: 0.5s; }
-.jogo-card:nth-child(3) { animation-delay: 0.6s; }
-.jogo-card:nth-child(4) { animation-delay: 0.7s; }
-.jogo-card:nth-child(5) { animation-delay: 0.8s; }
+.painel-aluno .jogo-card:nth-child(1) { animation-delay: 0.4s; }
+.painel-aluno .jogo-card:nth-child(2) { animation-delay: 0.5s; }
+.painel-aluno .jogo-card:nth-child(3) { animation-delay: 0.6s; }
+.painel-aluno .jogo-card:nth-child(4) { animation-delay: 0.7s; }
+.painel-aluno .jogo-card:nth-child(5) { animation-delay: 0.8s; }
 
-.jogo-card::before {
+.painel-aluno .jogo-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -243,15 +243,15 @@
   transition: height var(--transition-base);
 }
 
-.jogo-card.jogo-coral::before { background: var(--gradient-warning); }
-.jogo-card.jogo-azul::before { background: var(--gradient-info); }
-.jogo-card.jogo-verde::before { background: var(--gradient-success); }
-.jogo-card.jogo-amarelo::before { background: linear-gradient(90deg, var(--accent-yellow), var(--accent-coral)); }
-.jogo-card.jogo-roxo::before { background: var(--gradient-calm); }
-.jogo-card.jogo-ciano::before { background: linear-gradient(90deg, var(--secondary-400), var(--secondary-600)); }
+.painel-aluno .jogo-card.jogo-coral::before { background: var(--gradient-warning); }
+.painel-aluno .jogo-card.jogo-azul::before { background: var(--gradient-info); }
+.painel-aluno .jogo-card.jogo-verde::before { background: var(--gradient-success); }
+.painel-aluno .jogo-card.jogo-amarelo::before { background: linear-gradient(90deg, var(--accent-yellow), var(--accent-coral)); }
+.painel-aluno .jogo-card.jogo-roxo::before { background: var(--gradient-calm); }
+.painel-aluno .jogo-card.jogo-ciano::before { background: linear-gradient(90deg, var(--secondary-400), var(--secondary-600)); }
 
 /* Card em destaque (Cyber-Runner) */
-.jogo-card.destaque {
+.painel-aluno .jogo-card.destaque {
   border: 3px solid var(--secondary-400);
   box-shadow: 0 8px 40px rgba(6, 182, 212, 0.3);
   animation: pulseGlow 2s ease-in-out infinite;
@@ -262,30 +262,30 @@
   50% { box-shadow: 0 12px 60px rgba(6, 182, 212, 0.5); }
 }
 
-.jogo-card:hover {
+.painel-aluno .jogo-card:hover {
   transform: translateY(-12px) scale(1.02);
   box-shadow: var(--shadow-2xl);
 }
 
-.jogo-card:hover::before {
+.painel-aluno .jogo-card:hover::before {
   height: 100%;
   opacity: 0.1;
 }
 
-.jogo-card:active {
+.painel-aluno .jogo-card:active {
   transform: translateY(-8px) scale(1);
 }
 
-.jogo-card.em-breve {
+.painel-aluno .jogo-card.em-breve {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.jogo-card.em-breve:hover {
+.painel-aluno .jogo-card.em-breve:hover {
   transform: none;
 }
 
-.badge-em-breve {
+.painel-aluno .badge-em-breve {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
@@ -300,38 +300,38 @@
   box-shadow: var(--shadow-md);
 }
 
-.jogo-icone {
+.painel-aluno .jogo-icone {
   font-size: 4rem;
   margin-bottom: var(--space-6);
   display: inline-block;
   transition: transform var(--transition-base);
 }
 
-.jogo-card:hover .jogo-icone {
+.painel-aluno .jogo-card:hover .jogo-icone {
   transform: scale(1.2) rotate(5deg);
 }
 
-.jogo-content {
+.painel-aluno .jogo-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.jogo-titulo {
+.painel-aluno .jogo-titulo {
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--gray-900);
   margin: 0;
 }
 
-.jogo-descricao {
+.painel-aluno .jogo-descricao {
   font-size: 1rem;
   color: var(--gray-600);
   line-height: 1.6;
   margin: 0;
 }
 
-.jogo-footer {
+.painel-aluno .jogo-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -340,7 +340,7 @@
   border-top: 2px solid var(--gray-200);
 }
 
-.jogo-nivel {
+.painel-aluno .jogo-nivel {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--primary-600);
@@ -349,19 +349,19 @@
   border-radius: var(--radius-md);
 }
 
-.jogo-cta {
+.painel-aluno .jogo-cta {
   font-size: 1rem;
   font-weight: 700;
   color: var(--primary-600);
   transition: transform var(--transition-base);
 }
 
-.jogo-card:hover .jogo-cta {
+.painel-aluno .jogo-card:hover .jogo-cta {
   transform: translateX(5px);
 }
 
 /* ===== TIPS SECTION ===== */
-.tips-section {
+.painel-aluno .tips-section {
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-8);
@@ -369,7 +369,7 @@
   z-index: 1;
 }
 
-.tip-card {
+.painel-aluno .tip-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-2xl);
@@ -381,7 +381,7 @@
   animation: fadeInUp var(--transition-slow) ease-out 0.9s both;
 }
 
-.tip-icon {
+.painel-aluno .tip-icon {
   font-size: 3rem;
   animation: bounce 2s ease-in-out infinite;
 }
@@ -395,13 +395,13 @@
   }
 }
 
-.tip-content h3 {
+.painel-aluno .tip-content h3 {
   font-size: 1.25rem;
   color: #2d3748;
   margin-bottom: 0.75rem;
 }
 
-.tip-content p {
+.painel-aluno .tip-content p {
   font-size: 1rem;
   color: #718096;
   line-height: 1.6;
@@ -410,56 +410,56 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .header-content {
+  .painel-aluno .header-content {
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
   }
 
-  .user-section {
+  .painel-aluno .user-section {
     flex-direction: column;
     gap: 1rem;
     width: 100%;
   }
 
-  .user-greeting {
+  .painel-aluno .user-greeting {
     align-items: center;
     text-align: center;
   }
 
-  .btn-logout {
+  .painel-aluno .btn-logout {
     width: 100%;
     justify-content: center;
   }
 
-  .progress-card {
+  .painel-aluno .progress-card {
     flex-direction: column;
     text-align: center;
   }
 
-  .progress-stats {
+  .painel-aluno .progress-stats {
     flex-direction: column;
     gap: 1.5rem;
   }
 
-  .jogos-grid {
+  .painel-aluno .jogos-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
-  .section-title {
+  .painel-aluno .section-title {
     font-size: 1.5rem;
   }
 
-  .tip-card {
+  .painel-aluno .tip-card {
     flex-direction: column;
     text-align: center;
   }
 }
 
 /* ===== ACESSIBILIDADE ===== */
-.jogo-card:focus {
-  outline: 4px solid #667eea;
+.painel-aluno .jogo-card:focus {
+  outline: 4px solid #3f6fb5;
   outline-offset: 4px;
 }
 
@@ -477,14 +477,14 @@
     background: #1a202c;
   }
 
-  .jogo-card {
+  .painel-aluno .jogo-card {
     border: 3px solid #fff;
   }
 }
 
 /* ===== MENSAGEM DE FEEDBACK ===== */
-.mensagem-feedback {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.painel-aluno .mensagem-feedback {
+  background: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);
   color: white;
   padding: 1rem 2rem;
   text-align: center;
@@ -494,7 +494,7 @@
 }
 
 /* ===== BADGE PYGAME ===== */
-.badge-pygame {
+.painel-aluno .badge-pygame {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -512,11 +512,11 @@
 }
 
 /* ===== BADGE INTEGRADO ===== */
-.badge-integrado {
+.painel-aluno .badge-integrado {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);
   color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
@@ -524,7 +524,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 2px 8px rgba(63, 111, 181, 0.5);
   z-index: 2;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -539,7 +539,7 @@
 }
 
 /* Card semântico: botão nativo com a mesma linguagem visual do catálogo. */
-.jogo-card {
+.painel-aluno .jogo-card {
   width: 100%;
   border: 0;
   color: inherit;
@@ -547,7 +547,7 @@
   text-align: left;
 }
 
-.jogo-card:disabled {
+.painel-aluno .jogo-card:disabled {
   cursor: not-allowed;
   opacity: 0.86;
 }

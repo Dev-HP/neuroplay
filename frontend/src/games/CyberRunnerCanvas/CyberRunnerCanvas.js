@@ -120,7 +120,7 @@ const CyberRunnerCanvas = () => {
         width: 60,
         height: type === 'go' ? 80 : 40,
         type: type,
-        color: type === 'go' ? '#00ff00' : '#ff0000'
+        color: type === 'go' ? '#5cc98a' : '#e06b68'
       };
       game.obstacles.push(obstacle);
     };
@@ -171,7 +171,7 @@ const CyberRunnerCanvas = () => {
       ctx.fillStyle = '#0a0e27';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('CYBER-RUNNER', 640, 150);
@@ -184,7 +184,7 @@ const CyberRunnerCanvas = () => {
       ctx.fillText('VERDE = PULAR (ESPAÇO)', 640, 350);
       ctx.fillText('VERMELHO = DESLIZAR (↓)', 640, 400);
       ctx.fillText('', 640, 450);
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.fillText('Pressione ESPAÇO para começar', 640, 500);
     };
 
@@ -215,7 +215,7 @@ const CyberRunnerCanvas = () => {
 
       // Jogador
       const playerHeight = game.player.sliding ? game.player.height / 2 : game.player.height;
-      ctx.fillStyle = game.player.jumping || game.player.sliding ? '#ffff00' : '#00ffff';
+      ctx.fillStyle = game.player.jumping || game.player.sliding ? '#e6c768' : '#8cc9d6';
       ctx.fillRect(game.player.x, game.player.y, game.player.width, playerHeight);
       ctx.strokeStyle = 'white';
       ctx.lineWidth = 2;
@@ -236,16 +236,16 @@ const CyberRunnerCanvas = () => {
 
       // HUD
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffff00';
+      ctx.fillStyle = '#e6c768';
       ctx.font = 'bold 20px Arial';
       ctx.fillText(`PONTOS: ${score}`, 20, 30);
 
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#ff0000';
+      ctx.fillStyle = '#e06b68';
       ctx.fillText(`VIDAS: ${'❤️'.repeat(lives)}`, 1260, 30);
 
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       const total = stats.acertos + stats.erros;
       const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
       ctx.fillText(`PRECISÃO: ${precisao}%`, 640, 30);
@@ -262,7 +262,7 @@ const CyberRunnerCanvas = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Caixa
-      ctx.strokeStyle = '#00ffff';
+      ctx.strokeStyle = '#8cc9d6';
       ctx.lineWidth = 3;
       ctx.strokeRect(340, 160, 600, 400);
       ctx.fillStyle = '#0a0e27';
@@ -284,7 +284,7 @@ const CyberRunnerCanvas = () => {
 
         ctx.fillStyle = '#00aaff';
         ctx.fillRect(x, y, width, height);
-        ctx.strokeStyle = '#00ffff';
+        ctx.strokeStyle = '#8cc9d6';
         ctx.lineWidth = 2;
         ctx.strokeRect(x, y, width, height);
 
@@ -300,7 +300,7 @@ const CyberRunnerCanvas = () => {
       ctx.fillStyle = '#0a0e27';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = '#ff0000';
+      ctx.fillStyle = '#e06b68';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', 640, 150);
@@ -310,13 +310,13 @@ const CyberRunnerCanvas = () => {
       const total = stats.acertos + stats.erros;
       const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
 
-      ctx.fillStyle = '#ffff00';
+      ctx.fillStyle = '#e6c768';
       ctx.fillText(`Pontuação Final: ${score}`, 640, 300);
       ctx.fillStyle = 'white';
       ctx.fillText(`Acertos: ${stats.acertos}`, 640, 350);
       ctx.fillText(`Erros: ${stats.erros}`, 640, 400);
       ctx.fillText(`Precisão: ${precisao}%`, 640, 450);
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.fillText('Pressione ESPAÇO para jogar novamente', 640, 550);
     };
 

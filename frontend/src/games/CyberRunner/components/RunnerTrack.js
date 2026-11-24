@@ -42,7 +42,7 @@ export default function RunnerTrack({ speed, difficulty }) {
 
       {/* Grid visual (efeito cyberpunk) */}
       <gridHelper
-        args={[trackLength * 2, 50, '#00ffff', '#003366']}
+        args={[trackLength * 2, 50, '#8cc9d6', '#003366']}
         position={[0, 0.01, 0]}
       />
 

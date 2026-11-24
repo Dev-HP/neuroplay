@@ -40,14 +40,14 @@
 }
 
 /* Header */
-.achievement-card-header {
+.achievement-card .achievement-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
 }
 
-.achievement-icon {
+.achievement-card .achievement-icon {
   font-size: 48px;
   line-height: 1;
   transition: transform 0.3s ease;
@@ -57,12 +57,12 @@
   transform: scale(1.1) rotate(5deg);
 }
 
-.achievement-icon.locked-icon {
+.achievement-card .achievement-icon.locked-icon {
   opacity: 0.5;
   filter: grayscale(1);
 }
 
-.achievement-rarity {
+.achievement-card .achievement-rarity {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -73,12 +73,12 @@
 }
 
 /* Body */
-.achievement-card-body {
+.achievement-card .achievement-card-body {
   flex: 1;
   margin-bottom: 16px;
 }
 
-.achievement-name {
+.achievement-card .achievement-name {
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -90,7 +90,7 @@
   color: #888;
 }
 
-.achievement-description {
+.achievement-card .achievement-description {
   font-size: 14px;
   color: #b0b0b0;
   margin: 0;
@@ -103,11 +103,11 @@
 }
 
 /* Progress */
-.achievement-progress {
+.achievement-card .achievement-progress {
   margin-top: 12px;
 }
 
-.progress-bar {
+.achievement-card .progress-bar {
   height: 6px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
@@ -115,20 +115,20 @@
   margin-bottom: 4px;
 }
 
-.progress-fill {
+.achievement-card .progress-fill {
   height: 100%;
   background: var(--rarity-color);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
 
-.progress-text {
+.achievement-card .progress-text {
   font-size: 11px;
   color: #888;
 }
 
 /* Footer */
-.achievement-card-footer {
+.achievement-card .achievement-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -136,19 +136,19 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.achievement-points {
+.achievement-card .achievement-points {
   font-size: 13px;
   font-weight: 600;
   color: #ffd700;
 }
 
-.achievement-date {
+.achievement-card .achievement-date {
   font-size: 11px;
   color: #888;
 }
 
 /* Unlocked Badge */
-.achievement-unlocked-badge {
+.achievement-card .achievement-unlocked-badge {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -177,7 +177,7 @@
 
 /* Rarity Specific Styles */
 .achievement-card.rarity-common {
-  --rarity-glow: rgba(102, 126, 234, 0.2);
+  --rarity-glow: rgba(63, 111, 181, 0.2);
 }
 
 .achievement-card.rarity-rare {
@@ -203,15 +203,15 @@
     min-height: 180px;
   }
 
-  .achievement-icon {
+  .achievement-card .achievement-icon {
     font-size: 40px;
   }
 
-  .achievement-name {
+  .achievement-card .achievement-name {
     font-size: 16px;
   }
 
-  .achievement-description {
+  .achievement-card .achievement-description {
     font-size: 13px;
   }
 }

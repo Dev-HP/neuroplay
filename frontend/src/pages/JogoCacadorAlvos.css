@@ -8,12 +8,12 @@
   overflow: hidden;
 }
 
-.game-canvas {
+.jogo-cacador-container .game-canvas {
   width: 100%;
   height: 100%;
 }
 
-.game-header {
+.jogo-cacador-container .game-header {
   position: absolute;
   top: 0;
   left: 0;
@@ -23,10 +23,11 @@
   align-items: center;
   padding: var(--space-5);
   background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-  z-index: var(--z-fixed);
+  z-index: calc(var(--z-modal) + 1);
+  gap: var(--space-3);
 }
 
-.btn-voltar {
+.jogo-cacador-container .btn-voltar {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   color: var(--white);
@@ -39,18 +40,18 @@
   transition: all var(--transition-base);
 }
 
-.btn-voltar:hover {
+.jogo-cacador-container .btn-voltar:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateX(-4px);
 }
 
-.game-stats {
+.jogo-cacador-container .game-stats {
   display: flex;
   gap: var(--space-6);
   align-items: center;
 }
 
-.stat-item {
+.jogo-cacador-container .stat-item {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   padding: var(--space-3) var(--space-5);
@@ -58,19 +59,19 @@
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.stat-label {
+.jogo-cacador-container .stat-label {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.875rem;
   margin-right: var(--space-2);
 }
 
-.stat-value {
+.jogo-cacador-container .stat-value {
   color: var(--white);
   font-size: 1.5rem;
   font-weight: 700;
 }
 
-.combo-display {
+.jogo-cacador-container .combo-display {
   background: var(--gradient-warning);
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-lg);
@@ -86,8 +87,8 @@
   to { transform: scale(1.05); }
 }
 
-.start-overlay,
-.finish-overlay {
+.jogo-cacador-container .start-overlay,
+.jogo-cacador-container .finish-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -105,20 +106,20 @@
   padding: var(--space-10);
 }
 
-.start-overlay h1,
-.finish-overlay h1 {
+.jogo-cacador-container .start-overlay h1,
+.jogo-cacador-container .finish-overlay h1 {
   font-size: 4rem;
   margin-bottom: var(--space-6);
-  text-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+  text-shadow: 0 0 20px rgba(63, 111, 181, 0.8);
 }
 
-.start-overlay p {
+.jogo-cacador-container .start-overlay p {
   font-size: 1.5rem;
   margin-bottom: var(--space-4);
   opacity: 0.9;
 }
 
-.btn-large {
+.jogo-cacador-container .btn-large {
   font-size: 1.75rem;
   padding: var(--space-5) var(--space-16);
   margin-top: var(--space-8);
@@ -132,12 +133,12 @@
   box-shadow: var(--shadow-glow);
 }
 
-.btn-large:hover {
+.jogo-cacador-container .btn-large:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-2xl);
 }
 
-.final-stats {
+.jogo-cacador-container .final-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-6);
@@ -145,7 +146,7 @@
   max-width: 600px;
 }
 
-.final-stat {
+.jogo-cacador-container .final-stat {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   padding: var(--space-6);
@@ -153,14 +154,14 @@
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.final-label {
+.jogo-cacador-container .final-label {
   display: block;
   font-size: 1rem;
   opacity: 0.8;
   margin-bottom: var(--space-2);
 }
 
-.final-value {
+.jogo-cacador-container .final-value {
   display: block;
   font-size: 3rem;
   font-weight: 700;
@@ -170,13 +171,13 @@
   background-clip: text;
 }
 
-.final-buttons {
+.jogo-cacador-container .final-buttons {
   display: flex;
   gap: var(--space-5);
   margin-top: var(--space-8);
 }
 
-.btn-secondary {
+.jogo-cacador-container .btn-secondary {
   font-size: 1.25rem;
   padding: var(--space-4) var(--space-10);
   border-radius: var(--radius-lg);
@@ -189,7 +190,7 @@
   transition: all var(--transition-base);
 }
 
-.btn-secondary:hover {
+.jogo-cacador-container .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
@@ -206,16 +207,16 @@
   }
 }
 
-.stat-item {
+.jogo-cacador-container .stat-item {
   animation: fadeInUp 0.5s ease;
 }
 
-.stat-item:nth-child(1) { animation-delay: 0.1s; }
-.stat-item:nth-child(2) { animation-delay: 0.2s; }
-.stat-item:nth-child(3) { animation-delay: 0.3s; }
+.jogo-cacador-container .stat-item:nth-child(1) { animation-delay: 0.1s; }
+.jogo-cacador-container .stat-item:nth-child(2) { animation-delay: 0.2s; }
+.jogo-cacador-container .stat-item:nth-child(3) { animation-delay: 0.3s; }
 
 /* Efeito de brilho nos botões */
-.btn-large::before {
+.jogo-cacador-container .btn-large::before {
   content: '';
   position: absolute;
   top: 0;
@@ -226,18 +227,18 @@
   transition: left 0.5s;
 }
 
-.btn-large:hover::before {
+.jogo-cacador-container .btn-large:hover::before {
   left: 100%;
 }
 
 /* ===== CASCADE DETECTION UI ===== */
 
-.cascade-warning {
+.jogo-cacador-container .cascade-warning {
   position: fixed;
   top: 100px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #FFD93D 0%, #FFA500 100%);
+  background: linear-gradient(135deg, #d4a63f 0%, #d18b3a 100%);
   color: var(--gray-900);
   padding: var(--space-4) var(--space-6);
   border-radius: var(--radius-lg);
@@ -251,18 +252,18 @@
   text-align: center;
 }
 
-.cascade-warning .cascade-icon {
+.jogo-cacador-container .cascade-warning .cascade-icon {
   font-size: 2rem;
   animation: pulse 1s ease-in-out infinite;
 }
 
-.cascade-warning p {
+.jogo-cacador-container .cascade-warning p {
   margin: 0;
   font-weight: 600;
   font-size: 1rem;
 }
 
-.cascade-modal-overlay {
+.jogo-cacador-container .cascade-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -277,7 +278,7 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-.cascade-modal {
+.jogo-cacador-container .cascade-modal {
   background: linear-gradient(135deg, var(--white) 0%, #f8f9fa 100%);
   border-radius: var(--radius-xl);
   padding: var(--space-10);
@@ -288,40 +289,40 @@
   animation: scaleIn 0.3s ease-out;
 }
 
-.cascade-modal-icon {
+.jogo-cacador-container .cascade-modal-icon {
   font-size: 4rem;
   margin-bottom: var(--space-4);
   animation: bounce 1s ease-in-out infinite;
 }
 
-.cascade-modal h2 {
+.jogo-cacador-container .cascade-modal h2 {
   color: var(--gray-900);
   font-size: 2rem;
   margin-bottom: var(--space-4);
   font-weight: 700;
 }
 
-.cascade-modal p {
+.jogo-cacador-container .cascade-modal p {
   color: var(--gray-700);
   font-size: 1.125rem;
   margin-bottom: var(--space-3);
   line-height: 1.6;
 }
 
-.cascade-modal-subtitle {
+.jogo-cacador-container .cascade-modal-subtitle {
   font-size: 1rem !important;
   color: var(--gray-600) !important;
   font-style: italic;
 }
 
-.cascade-modal-actions {
+.jogo-cacador-container .cascade-modal-actions {
   display: flex;
   gap: var(--space-4);
   margin-top: var(--space-8);
   justify-content: center;
 }
 
-.cascade-modal-actions .btn {
+.jogo-cacador-container .cascade-modal-actions .btn {
   padding: var(--space-4) var(--space-8);
   font-size: 1.125rem;
   font-weight: 600;
@@ -332,22 +333,22 @@
   min-width: 180px;
 }
 
-.cascade-modal-actions .btn-primary {
+.jogo-cacador-container .cascade-modal-actions .btn-primary {
   background: var(--gradient-success);
   color: var(--white);
 }
 
-.cascade-modal-actions .btn-primary:hover {
+.jogo-cacador-container .cascade-modal-actions .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.cascade-modal-actions .btn-secondary {
+.jogo-cacador-container .cascade-modal-actions .btn-secondary {
   background: var(--gray-200);
   color: var(--gray-900);
 }
 
-.cascade-modal-actions .btn-secondary:hover {
+.jogo-cacador-container .cascade-modal-actions .btn-secondary:hover {
   background: var(--gray-300);
   transform: translateY(-2px);
 }
@@ -395,24 +396,48 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .cascade-warning {
+  .jogo-cacador-container .game-header {
+    padding: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .jogo-cacador-container .game-stats {
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .jogo-cacador-container .stat-item {
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .jogo-cacador-container .start-overlay h1,
+  .jogo-cacador-container .finish-overlay h1 {
+    font-size: 2.25rem;
+  }
+
+  .jogo-cacador-container .start-overlay {
+    padding-top: 96px;
+  }
+
+  .jogo-cacador-container .cascade-warning {
     max-width: 90%;
     padding: var(--space-3) var(--space-4);
   }
 
-  .cascade-modal {
+  .jogo-cacador-container .cascade-modal {
     padding: var(--space-6);
   }
 
-  .cascade-modal h2 {
+  .jogo-cacador-container .cascade-modal h2 {
     font-size: 1.5rem;
   }
 
-  .cascade-modal-actions {
+  .jogo-cacador-container .cascade-modal-actions {
     flex-direction: column;
   }
 
-  .cascade-modal-actions .btn {
+  .jogo-cacador-container .cascade-modal-actions .btn {
     width: 100%;
   }
 }

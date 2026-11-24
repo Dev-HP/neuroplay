@@ -11,52 +11,52 @@
 :root {
   /* === CORES PRIMÁRIAS === */
   /* Gradiente roxo vibrante - identidade visual */
-  --primary-50: #f5f3ff;
-  --primary-100: #ede9fe;
-  --primary-200: #ddd6fe;
-  --primary-300: #c4b5fd;
-  --primary-400: #a78bfa;
-  --primary-500: #8b5cf6;
-  --primary-600: #7c3aed;
-  --primary-700: #6d28d9;
-  --primary-800: #5b21b6;
-  --primary-900: #4c1d95;
+  --primary-50: #eef3fa;
+  --primary-100: #dce6f4;
+  --primary-200: #b9cde8;
+  --primary-300: #8eadd8;
+  --primary-400: #628cc6;
+  --primary-500: #3f6fb5;
+  --primary-600: #335c99;
+  --primary-700: #2a4a7c;
+  --primary-800: #223c63;
+  --primary-900: #1b304f;
   
   /* === CORES SECUNDÁRIAS === */
   /* Azul ciano - calma e foco */
-  --secondary-50: #ecfeff;
-  --secondary-100: #cffafe;
-  --secondary-200: #a5f3fc;
-  --secondary-300: #67e8f9;
-  --secondary-400: #22d3ee;
-  --secondary-500: #06b6d4;
-  --secondary-600: #0891b2;
-  --secondary-700: #0e7490;
-  --secondary-800: #155e75;
-  --secondary-900: #164e63;
+  --secondary-50: #eef7f5;
+  --secondary-100: #d6ece7;
+  --secondary-200: #b0d9cf;
+  --secondary-300: #82c0b2;
+  --secondary-400: #55a596;
+  --secondary-500: #2f8a7c;
+  --secondary-600: #277366;
+  --secondary-700: #205c52;
+  --secondary-800: #1a4a42;
+  --secondary-900: #153b35;
   
   /* === CORES DE ACENTO === */
   /* Cores vibrantes para feedback e gamificação */
-  --accent-pink: #ec4899;
-  --accent-pink-light: #fbcfe8;
-  --accent-coral: #f97316;
-  --accent-coral-light: #fed7aa;
-  --accent-blue: #3b82f6;
-  --accent-blue-light: #bfdbfe;
-  --accent-green: #10b981;
-  --accent-green-light: #a7f3d0;
-  --accent-yellow: #fbbf24;
-  --accent-yellow-light: #fef3c7;
-  --accent-purple: #a855f7;
-  --accent-purple-light: #e9d5ff;
+  --accent-pink: #b96b86;
+  --accent-pink-light: #f1dde4;
+  --accent-coral: #c9744f;
+  --accent-coral-light: #f4ddd2;
+  --accent-blue: #4a7fc0;
+  --accent-blue-light: #d6e3f3;
+  --accent-green: #4c9468;
+  --accent-green-light: #d5eadc;
+  --accent-yellow: #d4a63f;
+  --accent-yellow-light: #f6ebcf;
+  --accent-purple: #6f68a8;
+  --accent-purple-light: #e1dff0;
   
   /* === GRADIENTES === */
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --gradient-game: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-calm: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  --gradient-primary: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);
+  --gradient-success: linear-gradient(135deg, #4c9468 0%, #2f8a7c 100%);
+  --gradient-warning: linear-gradient(135deg, #d4a63f 0%, #c9744f 100%);
+  --gradient-info: linear-gradient(135deg, #4a7fc0 0%, #2f8a7c 100%);
+  --gradient-game: linear-gradient(135deg, #2f8a7c 0%, #3f6fb5 100%);
+  --gradient-calm: linear-gradient(135deg, #eef3fa 0%, #eef7f5 100%);
   
   /* === NEUTROS === */
   --white: #ffffff;
@@ -73,18 +73,18 @@
   --black: #000000;
   
   /* === CORES SEMÂNTICAS === */
-  --success: #10b981;
-  --success-light: #d1fae5;
-  --success-dark: #047857;
-  --warning: #f59e0b;
-  --warning-light: #fef3c7;
-  --warning-dark: #d97706;
-  --error: #ef4444;
-  --error-light: #fee2e2;
-  --error-dark: #dc2626;
-  --info: #3b82f6;
-  --info-light: #dbeafe;
-  --info-dark: #1d4ed8;
+  --success: #3f8a5c;
+  --success-light: #dcefe3;
+  --success-dark: #2f6c47;
+  --warning: #c8962f;
+  --warning-light: #f6ebcf;
+  --warning-dark: #a3771f;
+  --error: #c0504d;
+  --error-light: #f6dedd;
+  --error-dark: #9e3b39;
+  --info: #3f6fb5;
+  --info-light: #dce6f4;
+  --info-dark: #2a4a7c;
   
   /* === SOMBRAS === */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -94,8 +94,8 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
-  --shadow-glow-success: 0 0 20px rgba(16, 185, 129, 0.3);
+  --shadow-glow: 0 0 16px rgba(63, 111, 181, 0.25);
+  --shadow-glow-success: 0 0 16px rgba(63, 138, 92, 0.25);
   
   /* === BORDAS === */
   --radius-sm: 0.375rem;

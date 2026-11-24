@@ -86,7 +86,7 @@ export default function PlayerCharacter({ onCollision, gameState }) {
       <mesh castShadow>
         <boxGeometry args={[0.8, characterHeight, 0.8]} />
         <meshStandardMaterial
-          color={isJumping ? '#00ff00' : isSliding ? '#ffff00' : '#00aaff'}
+          color={isJumping ? '#5cc98a' : isSliding ? '#e6c768' : '#00aaff'}
           emissive={isJumping || isSliding ? '#ffffff' : '#000000'}
           emissiveIntensity={isJumping || isSliding ? 0.3 : 0}
         />

@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './GravityLab.css';
+import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
 import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
+
+const EXPERIMENTOS_POR_SESSAO = 3;
 
 const GravityLab = () => {
   const [searchParams] = useSearchParams();
@@ -14,6 +17,7 @@ const GravityLab = () => {
   const sessionStartedAtRef = useRef(null);
   const sessionPersistedRef = useRef(false);
   const { trackEvent } = useAchievementSystem();
+  const experimentsRef = useRef(0);
   const [gameState, setGameState] = useState('menu');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -51,7 +55,10 @@ const GravityLab = () => {
     ];
 
     // Estado do jogo
-    const game = {
+    // O estado do jogo vive em gameRef e é criado uma única vez: este efeito roda
+    // de novo sempre que pontuação/fase mudam, e recriar o objeto apagava a
+    // partida em andamento (sequência, posição do jogador, obstáculos).
+    const game = gameRef.current || {
       objects: [],
       targetZones: [],
       selectedObject: null,
@@ -379,7 +386,7 @@ const GravityLab = () => {
       // Precisão
       const total = stats.acertos + stats.erros;
       const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 100;
-      ctx.fillStyle = '#00ff00';
+      ctx.fillStyle = '#5cc98a';
       ctx.font = 'bold 20px Arial';
       ctx.textAlign = 'right';
       ctx.fillText(`PRECISÃO: ${precisao}%`, 1260, 30);
@@ -394,7 +401,7 @@ const GravityLab = () => {
       if (adaptiveMessage) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 620, 600, 50);
-        ctx.fillStyle = '#00ffff';
+        ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(adaptiveMessage, 640, 650);
@@ -428,15 +435,26 @@ const GravityLab = () => {
 
       const newRule = currentRule === 'color' ? '🎨 ORGANIZE POR COR' : '🔷 ORGANIZE POR FORMA';
       ctx.font = 'bold 36px Arial';
-      ctx.fillStyle = '#ffff00';
+      ctx.fillStyle = '#e6c768';
       ctx.fillText(newRule, 640, 430);
     };
 
     // MOUSE EVENTS
-    const handleMouseDown = (e) => {
+    // Converte a posição do ponteiro para as coordenadas internas do canvas
+    // (o canvas tem 1280x720, mas é exibido redimensionado pelo CSS).
+    const toCanvasPoint = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+      };
+    };
+
+    const handleMouseDown = (e) => {
+      const { x, y } = toCanvasPoint(e);
+      if (canvas.setPointerCapture && e.pointerId !== undefined) {
+        try { canvas.setPointerCapture(e.pointerId); } catch (_error) { /* ignorado */ }
+      }
       
       game.mouseX = x;
       game.mouseY = y;
@@ -457,9 +475,9 @@ const GravityLab = () => {
     };
 
     const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      game.mouseX = e.clientX - rect.left;
-      game.mouseY = e.clientY - rect.top;
+      const point = toCanvasPoint(e);
+      game.mouseX = point.x;
+      game.mouseY = point.y;
       
       if (game.dragging && game.selectedObject) {
         game.selectedObject.x = game.mouseX;
@@ -503,7 +521,7 @@ const GravityLab = () => {
               game.selectedObject.y = zone.y + zone.height / 2;
               setScore(s => s + 50 + (level * 10));
               setStats(st => ({ ...st, acertos: st.acertos + 1 }));
-              createParticles(zone.x + zone.width / 2, zone.y + zone.height / 2, '#00ff00', 20);
+              createParticles(zone.x + zone.width / 2, zone.y + zone.height / 2, '#5cc98a', 20);
               
               // Feedback auditivo
               audioRef.current?.onCorrectAnswer();
@@ -527,7 +545,11 @@ const GravityLab = () => {
                   return newCount;
                 });
                 
-                setTimeout(() => {
+                experimentsRef.current += 1;
+                if (experimentsRef.current >= EXPERIMENTOS_POR_SESSAO) {
+                  // Sessão completa: encerra e dispara o salvamento.
+                  setTimeout(() => setGameState('gameover'), 1000);
+                } else setTimeout(() => {
                   setLevel(l => l + 1);
                   
                   // Muda regra baseado em parâmetros adaptativos
@@ -563,7 +585,7 @@ const GravityLab = () => {
               }
               
               setStats(st => ({ ...st, erros: st.erros + 1 }));
-              createParticles(zone.x + zone.width / 2, zone.y + zone.height / 2, '#ff0000', 15);
+              createParticles(zone.x + zone.width / 2, zone.y + zone.height / 2, '#e06b68', 15);
               
               // Feedback auditivo
               audioRef.current?.onIncorrectAnswer();
@@ -587,9 +609,9 @@ const GravityLab = () => {
       game.selectedObject = null;
     };
 
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('pointerdown', handleMouseDown);
+    canvas.addEventListener('pointermove', handleMouseMove);
+    canvas.addEventListener('pointerup', handleMouseUp);
 
     // KEYBOARD
     const handleKeyDown = (e) => {
@@ -600,6 +622,8 @@ const GravityLab = () => {
         } else if (e.key === 'c' || e.key === 'C') {
           setShowSettings(true);
         }
+      } else if (gameState === 'playing' && e.key === 'Escape') {
+        setGameState('gameover');
       } else if (gameState === 'gameover' && e.key === ' ') {
         setGameState('menu');
       }
@@ -608,6 +632,7 @@ const GravityLab = () => {
     window.addEventListener('keydown', handleKeyDown);
 
     const resetGame = () => {
+      experimentsRef.current = 0;
       sessionStartedAtRef.current = Date.now();
       sessionPersistedRef.current = false;
       setScore(0);
@@ -700,7 +725,7 @@ const GravityLab = () => {
 
       let y = 360;
       instructions.forEach(inst => {
-        ctx.fillStyle = inst === '' ? '#00ffff' : 'white';
+        ctx.fillStyle = inst === '' ? '#8cc9d6' : 'white';
         ctx.font = inst.includes('ESPAÇO') ? 'bold 24px Arial' : '20px Arial';
         ctx.fillText(inst, 640, y);
         y += 40;
@@ -754,7 +779,7 @@ const GravityLab = () => {
       ctx.fillText(`Mudanças de Regra: ${ruleChanges}`, 640, 400);
       ctx.fillText(`Precisão: ${precisao}%`, 640, 450);
 
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.fillText('Pressione ESPAÇO para voltar ao menu', 640, 550);
     };
 
@@ -768,9 +793,9 @@ const GravityLab = () => {
     gameLoop();
 
     return () => {
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseup', handleMouseUp);
+      canvas.removeEventListener('pointerdown', handleMouseDown);
+      canvas.removeEventListener('pointermove', handleMouseMove);
+      canvas.removeEventListener('pointerup', handleMouseUp);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('click', initAudio);
       if (game.animationId) {
@@ -805,6 +830,7 @@ const GravityLab = () => {
   return (
     <div className="gravity-lab">
       <canvas ref={canvasRef} />
+      <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       
       {/* Modal de Configurações */}
       {showSettings && (

@@ -38,7 +38,7 @@ export const drawBackground = (ctx, offset, width, height) => {
   ctx.fillRect(0, 620, width, 100);
   
   // Linha da pista
-  ctx.strokeStyle = '#00ffff';
+  ctx.strokeStyle = '#8cc9d6';
   ctx.lineWidth = 2;
   ctx.setLineDash([20, 10]);
   ctx.beginPath();
@@ -69,9 +69,9 @@ export const drawCollectible = (ctx, collectible) => {
     ctx.fill();
   } else if (type === 'star') {
     // Estrela
-    ctx.fillStyle = '#ffff00';
+    ctx.fillStyle = '#e6c768';
     ctx.shadowBlur = 20;
-    ctx.shadowColor = '#ffff00';
+    ctx.shadowColor = '#e6c768';
     ctx.beginPath();
     for (let i = 0; i < 5; i++) {
       const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
@@ -85,9 +85,9 @@ export const drawCollectible = (ctx, collectible) => {
     ctx.fill();
   } else if (type === 'powerup') {
     // Power-up
-    ctx.fillStyle = '#ff00ff';
+    ctx.fillStyle = '#a99ad1';
     ctx.shadowBlur = 25;
-    ctx.shadowColor = '#ff00ff';
+    ctx.shadowColor = '#a99ad1';
     ctx.fillRect(-width / 2, -height / 2, width, height);
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px Arial';
@@ -110,7 +110,7 @@ export const drawParticles = (ctx, particles) => {
 
 export const drawHUD = (ctx, score, lives, coins, level, combo, precisao, powerUp) => {
   // Pontos
-  ctx.fillStyle = '#ffff00';
+  ctx.fillStyle = '#e6c768';
   ctx.font = 'bold 24px Arial';
   ctx.textAlign = 'left';
   ctx.fillText(`PONTOS: ${score}`, 20, 30);
@@ -123,24 +123,24 @@ export const drawHUD = (ctx, score, lives, coins, level, combo, precisao, powerU
 
   // Vidas
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#ff0000';
+  ctx.fillStyle = '#e06b68';
   ctx.fillText(`${'❤️'.repeat(lives)}`, 1260, 30);
 
   // Precisão
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#00ffff';
+  ctx.fillStyle = '#8cc9d6';
   ctx.fillText(`PRECISÃO: ${precisao}%`, 640, 30);
   
   // Combo
   if (combo > 0) {
-    ctx.fillStyle = '#ffff00';
+    ctx.fillStyle = '#e6c768';
     ctx.font = 'bold 32px Arial';
     ctx.fillText(`COMBO x${combo}! 🔥`, 640, 70);
   }
   
   // Power-up ativo
   if (powerUp) {
-    ctx.fillStyle = '#ff00ff';
+    ctx.fillStyle = '#a99ad1';
     ctx.font = 'bold 20px Arial';
     ctx.fillText(`⚡ ${powerUp.toUpperCase()} ATIVO!`, 640, 100);
   }
@@ -152,7 +152,7 @@ export const drawChallenge = (ctx, challenge, buttons) => {
   ctx.fillRect(0, 0, 1280, 720);
 
   // Caixa principal
-  ctx.strokeStyle = '#00ffff';
+  ctx.strokeStyle = '#8cc9d6';
   ctx.lineWidth = 4;
   ctx.strokeRect(290, 140, 700, 440);
   ctx.fillStyle = '#0a0e27';
@@ -185,7 +185,7 @@ export const drawChallenge = (ctx, challenge, buttons) => {
   buttons.forEach((btn, i) => {
     ctx.fillStyle = '#00aaff';
     ctx.fillRect(btn.x, btn.y, btn.width, btn.height);
-    ctx.strokeStyle = '#00ffff';
+    ctx.strokeStyle = '#8cc9d6';
     ctx.lineWidth = 3;
     ctx.strokeRect(btn.x, btn.y, btn.width, btn.height);
 

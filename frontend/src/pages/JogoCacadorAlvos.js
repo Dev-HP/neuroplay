@@ -33,7 +33,7 @@ function Spaceship({ position, onMove }) {
       scale={hovered ? 1.2 : 1}
     >
       <coneGeometry args={[0.5, 1.5, 8]} />
-      <meshStandardMaterial color={hovered ? '#FFD93D' : '#667eea'} emissive="#667eea" emissiveIntensity={0.5} />
+      <meshStandardMaterial color={hovered ? '#d4a63f' : '#3f6fb5'} emissive="#3f6fb5" emissiveIntensity={0.5} />
     </mesh>
   );
 }
@@ -60,7 +60,7 @@ function Target({ position, onCollect, id, type = 'good' }) {
 
   if (collected) return null;
 
-  const color = type === 'good' ? '#6BCB77' : type === 'bonus' ? '#FFD93D' : '#FF6B6B';
+  const color = type === 'good' ? '#4c9468' : type === 'bonus' ? '#d4a63f' : '#c96a67';
 
   return (
     <mesh ref={meshRef} position={position} onClick={handleClick}>
@@ -105,7 +105,7 @@ function Obstacle({ position, onCollision, id }) {
     <mesh ref={meshRef} position={position} onClick={handleClick}>
       <boxGeometry args={[0.6, 0.6, 0.6]} />
       <meshStandardMaterial 
-        color="#FF6B6B" 
+        color="#c96a67" 
         emissive="#d32f2f" 
         emissiveIntensity={0.5}
         wireframe
@@ -361,7 +361,7 @@ function JogoCacadorAlvos({ user }) {
 
   const handleTakePause = () => {
     setShowCascadeModal(false);
-    navigate('/aluno');
+    navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno');
   };
 
   const levelUp = () => {
@@ -384,7 +384,7 @@ function JogoCacadorAlvos({ user }) {
       <ParticleSystem type={particleType} active={showParticles} />
       
       <div className="game-header">
-        <button onClick={() => navigate('/aluno')} className="btn-voltar">
+        <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn-voltar">
           ← Voltar
         </button>
         <div className="game-stats">
@@ -465,7 +465,7 @@ function JogoCacadorAlvos({ user }) {
             <button onClick={startGame} className="btn btn-primary">
               Jogar Novamente
             </button>
-            <button onClick={() => navigate('/aluno')} className="btn btn-secondary">
+            <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn btn-secondary">
               Menu Principal
             </button>
           </div>
@@ -498,7 +498,7 @@ function JogoCacadorAlvos({ user }) {
         
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#667eea" />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3f6fb5" />
         
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
         

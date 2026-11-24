@@ -21,7 +21,7 @@
   }
 }
 
-.sensory-settings-modal {
+.sensory-settings-overlay .sensory-settings-modal {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-radius: 20px;
   padding: 30px;
@@ -44,23 +44,23 @@
   }
 }
 
-.modal-header {
+.sensory-settings-overlay .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #00ffff;
+  border-bottom: 2px solid #8cc9d6;
 }
 
-.modal-header h2 {
-  color: #00ffff;
+.sensory-settings-overlay .modal-header h2 {
+  color: #8cc9d6;
   font-size: 28px;
   margin: 0;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  text-shadow: 0 0 10px rgba(140, 201, 214, 0.5);
 }
 
-.close-btn {
+.sensory-settings-overlay .close-btn {
   background: transparent;
   border: none;
   color: #fff;
@@ -76,30 +76,30 @@
   transition: all 0.3s ease;
 }
 
-.close-btn:hover {
+.sensory-settings-overlay .close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: rotate(90deg);
 }
 
 /* Presets */
-.presets-section {
+.sensory-settings-overlay .presets-section {
   margin-bottom: 25px;
 }
 
-.presets-section h3 {
+.sensory-settings-overlay .presets-section h3 {
   color: #fff;
   font-size: 18px;
   margin-bottom: 15px;
 }
 
-.preset-buttons {
+.sensory-settings-overlay .preset-buttons {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 
-.preset-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.sensory-settings-overlay .preset-btn {
+  background: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);
   border: none;
   color: white;
   padding: 12px 20px;
@@ -108,27 +108,27 @@
   font-size: 14px;
   font-weight: bold;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(63, 111, 181, 0.3);
 }
 
-.preset-btn:hover {
+.sensory-settings-overlay .preset-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 20px rgba(63, 111, 181, 0.5);
 }
 
-.preset-btn:active {
+.sensory-settings-overlay .preset-btn:active {
   transform: translateY(0);
 }
 
 /* Tabs */
-.tabs {
+.sensory-settings-overlay .tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.tabs button {
+.sensory-settings-overlay .tabs button {
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.6);
@@ -141,52 +141,52 @@
   margin-bottom: -2px;
 }
 
-.tabs button:hover {
+.sensory-settings-overlay .tabs button:hover {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.tabs button.active {
-  color: #00ffff;
-  border-bottom-color: #00ffff;
+.sensory-settings-overlay .tabs button.active {
+  color: #8cc9d6;
+  border-bottom-color: #8cc9d6;
 }
 
 /* Tab Content */
-.tab-content {
+.sensory-settings-overlay .tab-content {
   min-height: 300px;
   padding: 20px 0;
 }
 
-.setting-group {
+.sensory-settings-overlay .setting-group {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.setting-item {
+.sensory-settings-overlay .setting-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.setting-item label {
+.sensory-settings-overlay .setting-item label {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.label-text {
+.sensory-settings-overlay .label-text {
   color: #fff;
   font-size: 16px;
   font-weight: 600;
 }
 
-.slider-container {
+.sensory-settings-overlay .slider-container {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.slider-container input[type="range"] {
+.sensory-settings-overlay .slider-container input[type="range"] {
   flex: 1;
   height: 8px;
   border-radius: 5px;
@@ -195,35 +195,35 @@
   -webkit-appearance: none;
 }
 
-.slider-container input[type="range"]::-webkit-slider-thumb {
+.sensory-settings-overlay .slider-container input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #00ffff;
+  background: #8cc9d6;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 10px rgba(140, 201, 214, 0.5);
 }
 
-.slider-container input[type="range"]::-moz-range-thumb {
+.sensory-settings-overlay .slider-container input[type="range"]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #00ffff;
+  background: #8cc9d6;
   cursor: pointer;
   border: none;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 10px rgba(140, 201, 214, 0.5);
 }
 
-.slider-container .value {
-  color: #00ffff;
+.sensory-settings-overlay .slider-container .value {
+  color: #8cc9d6;
   font-weight: bold;
   min-width: 50px;
   text-align: right;
 }
 
-select {
+.sensory-settings-overlay select {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
   color: #fff;
@@ -234,17 +234,17 @@ select {
   transition: all 0.3s ease;
 }
 
-select:hover {
-  border-color: #00ffff;
+.sensory-settings-overlay select:hover {
+  border-color: #8cc9d6;
 }
 
-select:focus {
+.sensory-settings-overlay select:focus {
   outline: none;
-  border-color: #00ffff;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  border-color: #8cc9d6;
+  box-shadow: 0 0 10px rgba(140, 201, 214, 0.3);
 }
 
-input[type="number"] {
+.sensory-settings-overlay input[type="number"] {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
   color: #fff;
@@ -255,18 +255,18 @@ input[type="number"] {
   transition: all 0.3s ease;
 }
 
-input[type="number"]:focus {
+.sensory-settings-overlay input[type="number"]:focus {
   outline: none;
-  border-color: #00ffff;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  border-color: #8cc9d6;
+  box-shadow: 0 0 10px rgba(140, 201, 214, 0.3);
 }
 
 /* Checkbox */
-.checkbox-item {
+.sensory-settings-overlay .checkbox-item {
   padding: 10px 0;
 }
 
-.checkbox-label {
+.sensory-settings-overlay .checkbox-label {
   display: flex !important;
   flex-direction: row !important;
   align-items: center;
@@ -274,20 +274,20 @@ input[type="number"]:focus {
   cursor: pointer;
 }
 
-.checkbox-label input[type="checkbox"] {
+.sensory-settings-overlay .checkbox-label input[type="checkbox"] {
   width: 24px;
   height: 24px;
   cursor: pointer;
-  accent-color: #00ffff;
+  accent-color: #8cc9d6;
 }
 
-.checkbox-label span {
+.sensory-settings-overlay .checkbox-label span {
   color: #fff;
   font-size: 16px;
 }
 
 /* Modal Actions */
-.modal-actions {
+.sensory-settings-overlay .modal-actions {
   display: flex;
   gap: 15px;
   margin-top: 30px;
@@ -295,8 +295,8 @@ input[type="number"]:focus {
   border-top: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-primary,
-.btn-secondary {
+.sensory-settings-overlay .btn-primary,
+.sensory-settings-overlay .btn-secondary {
   flex: 1;
   padding: 15px 30px;
   border: none;
@@ -307,71 +307,71 @@ input[type="number"]:focus {
   transition: all 0.3s ease;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #00ffff 0%, #00cccc 100%);
+.sensory-settings-overlay .btn-primary {
+  background: linear-gradient(135deg, #8cc9d6 0%, #6fb3c2 100%);
   color: #000;
-  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(140, 201, 214, 0.3);
 }
 
-.btn-primary:hover {
+.sensory-settings-overlay .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 6px 20px rgba(140, 201, 214, 0.5);
 }
 
-.btn-secondary {
+.sensory-settings-overlay .btn-secondary {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
   border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.btn-secondary:hover {
+.sensory-settings-overlay .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Scrollbar */
-.sensory-settings-modal::-webkit-scrollbar {
+.sensory-settings-overlay .sensory-settings-modal::-webkit-scrollbar {
   width: 10px;
 }
 
-.sensory-settings-modal::-webkit-scrollbar-track {
+.sensory-settings-overlay .sensory-settings-modal::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
 }
 
-.sensory-settings-modal::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.3);
+.sensory-settings-overlay .sensory-settings-modal::-webkit-scrollbar-thumb {
+  background: rgba(140, 201, 214, 0.3);
   border-radius: 10px;
 }
 
-.sensory-settings-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 0.5);
+.sensory-settings-overlay .sensory-settings-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 201, 214, 0.5);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sensory-settings-modal {
+  .sensory-settings-overlay .sensory-settings-modal {
     padding: 20px;
     width: 95%;
   }
   
-  .modal-header h2 {
+  .sensory-settings-overlay .modal-header h2 {
     font-size: 22px;
   }
   
-  .preset-buttons {
+  .sensory-settings-overlay .preset-buttons {
     grid-template-columns: 1fr;
   }
   
-  .tabs {
+  .sensory-settings-overlay .tabs {
     flex-direction: column;
   }
   
-  .tabs button {
+  .sensory-settings-overlay .tabs button {
     text-align: left;
   }
   
-  .modal-actions {
+  .sensory-settings-overlay .modal-actions {
     flex-direction: column;
   }
 }

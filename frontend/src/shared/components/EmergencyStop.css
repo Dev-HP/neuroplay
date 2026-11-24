@@ -1,14 +1,14 @@
 .emergency-stop-button {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   right: 20px;
   z-index: 9999;
-  background: #FF6B6B;
+  background: #c0504d;
   color: white;
-  border: 3px solid #d32f2f;
+  border: 3px solid #ffffff;
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -22,11 +22,11 @@
 
 .emergency-stop-button:hover {
   transform: scale(1.1);
-  background: #d32f2f;
+  background: #9e3b39;
 }
 
 .emergency-stop-button:focus {
-  outline: 4px solid #FFD93D;
+  outline: 4px solid #d4a63f;
   outline-offset: 4px;
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './CyberRunnerCanvas.css';
+import GameControls from '../../shared/components/GameControls';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { apiUrl } from '../../shared/config/api';
@@ -46,7 +47,10 @@ const CyberRunnerEnhanced = () => {
     const adaptiveSystem = adaptiveSystemRef.current;
 
     // Estado do jogo
-    const game = {
+    // O estado do jogo vive em gameRef e é criado uma única vez: este efeito roda
+    // de novo sempre que pontuação/fase mudam, e recriar o objeto apagava a
+    // partida em andamento (sequência, posição do jogador, obstáculos).
+    const game = gameRef.current || {
       player: {
         x: 100,
         y: 570,
@@ -106,10 +110,10 @@ const CyberRunnerEnhanced = () => {
         icon: '🎨',
         generate: () => {
           const colors = [
-            { name: 'VERMELHO', color: '#ff0000', text: 'VERMELHO' },
+            { name: 'VERMELHO', color: '#e06b68', text: 'VERMELHO' },
             { name: 'AZUL', color: '#0000ff', text: 'AZUL' },
-            { name: 'VERDE', color: '#00ff00', text: 'VERDE' },
-            { name: 'AMARELO', color: '#ffff00', text: 'AMARELO' }
+            { name: 'VERDE', color: '#5cc98a', text: 'VERDE' },
+            { name: 'AMARELO', color: '#e6c768', text: 'AMARELO' }
           ];
           const target = colors[Math.floor(Math.random() * colors.length)];
           const wrongColor = colors[Math.floor(Math.random() * colors.length)];
@@ -169,8 +173,8 @@ const CyberRunnerEnhanced = () => {
       const height = p.sliding ? p.height / 2 : p.height;
       
       // Corpo do robô
-      const bodyColor = powerUp === 'shield' ? '#00ffff' : '#4a9eff';
-      const glowColor = p.jumping || p.sliding ? '#ffff00' : '#00ffff';
+      const bodyColor = powerUp === 'shield' ? '#8cc9d6' : '#4a9eff';
+      const glowColor = p.jumping || p.sliding ? '#e6c768' : '#8cc9d6';
       
       // Efeito glow
       ctx.shadowBlur = 20;
@@ -187,7 +191,7 @@ const CyberRunnerEnhanced = () => {
       // Olhos (piscando)
       const eyeOpen = Math.floor(game.player.animationCounter / 30) % 10 !== 0;
       if (eyeOpen) {
-        ctx.fillStyle = '#ffff00';
+        ctx.fillStyle = '#e6c768';
         ctx.fillRect(p.x + 12, p.y - 12, 8, 8);
         ctx.fillRect(p.x + 30, p.y - 12, 8, 8);
       }
@@ -207,7 +211,7 @@ const CyberRunnerEnhanced = () => {
       
       // Power-up visual
       if (powerUp) {
-        ctx.strokeStyle = '#ffff00';
+        ctx.strokeStyle = '#e6c768';
         ctx.lineWidth = 3;
         ctx.strokeRect(p.x - 5, p.y - 25, p.width + 10, height + 30);
       }
@@ -225,7 +229,7 @@ const CyberRunnerEnhanced = () => {
         width: 60,
         height: type === 'go' ? 80 : 40,
         type: type,
-        color: type === 'go' ? '#00ff00' : '#ff0000'
+        color: type === 'go' ? '#5cc98a' : '#e06b68'
       };
       game.obstacles.push(obstacle);
     };
@@ -286,6 +290,8 @@ const CyberRunnerEnhanced = () => {
       if (gameState === 'menu' && e.key === ' ') {
         setGameState('playing');
         resetGame();
+      } else if (gameState === 'playing' && e.key === 'Escape') {
+        setGameState('gameover'); // encerra e dispara o salvamento da sessão
       } else if (gameState === 'playing') {
         if (e.key === ' ' && !game.player.jumping) {
           game.player.jumping = true;
@@ -349,12 +355,12 @@ const CyberRunnerEnhanced = () => {
             setScore(s => s + 50 + (combo * 10));
             setCombo(c => c + 1);
             setStats(st => ({ ...st, acertos: st.acertos + 1 }));
-            createParticles(640, 360, '#00ff00', 20);
+            createParticles(640, 360, '#5cc98a', 20);
             game.comboTimer = 180; // 3 segundos
           } else {
             setStats(st => ({ ...st, erros: st.erros + 1 }));
             setCombo(0);
-            createParticles(640, 360, '#ff0000', 15);
+            createParticles(640, 360, '#e06b68', 15);
           }
           
           game.challengeActive = false;
@@ -442,7 +448,7 @@ const CyberRunnerEnhanced = () => {
           if (powerUp === 'shield') {
             setPowerUp(null);
             game.obstacles.splice(index, 1);
-            createParticles(obs.x, obs.y, '#00ffff', 15);
+            createParticles(obs.x, obs.y, '#8cc9d6', 15);
             return;
           }
 
@@ -473,7 +479,7 @@ const CyberRunnerEnhanced = () => {
             setScore(s => s + 10 + (combo * 2));
             setCombo(c => c + 1);
             setStats(st => ({ ...st, acertos: st.acertos + 1 }));
-            createParticles(obs.x, obs.y, '#00ff00', 10);
+            createParticles(obs.x, obs.y, '#5cc98a', 10);
             game.comboTimer = 180;
           } else {
             setLives(l => {
@@ -485,7 +491,7 @@ const CyberRunnerEnhanced = () => {
             });
             setCombo(0);
             setStats(st => ({ ...st, erros: st.erros + 1 }));
-            createParticles(obs.x, obs.y, '#ff0000', 15);
+            createParticles(obs.x, obs.y, '#e06b68', 15);
           }
 
           game.obstacles.splice(index, 1);
@@ -516,11 +522,11 @@ const CyberRunnerEnhanced = () => {
             createParticles(col.x, col.y, '#ffd700', 8);
           } else if (col.type === 'star') {
             setScore(s => s + 25);
-            createParticles(col.x, col.y, '#ffff00', 12);
+            createParticles(col.x, col.y, '#e6c768', 12);
           } else if (col.type === 'powerup') {
             setPowerUp('shield');
             setTimeout(() => setPowerUp(null), 10000);
-            createParticles(col.x, col.y, '#ff00ff', 15);
+            createParticles(col.x, col.y, '#a99ad1', 15);
           }
           
           game.collectibles.splice(index, 1);
@@ -581,9 +587,9 @@ const CyberRunnerEnhanced = () => {
 
       // Título animado
       const titleY = 150 + Math.sin(Date.now() / 500) * 10;
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.shadowBlur = 30;
-      ctx.shadowColor = '#00ffff';
+      ctx.shadowColor = '#8cc9d6';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('CYBER-RUNNER', 640, titleY);
@@ -596,10 +602,10 @@ const CyberRunnerEnhanced = () => {
 
       // Instruções com ícones
       const instructions = [
-        { text: 'VERDE ↑ = PULAR (ESPAÇO)', color: '#00ff00' },
-        { text: 'VERMELHO ↓ = DESLIZAR (↓)', color: '#ff0000' },
+        { text: 'VERDE ↑ = PULAR (ESPAÇO)', color: '#5cc98a' },
+        { text: 'VERMELHO ↓ = DESLIZAR (↓)', color: '#e06b68' },
         { text: '💰 Colete moedas e power-ups!', color: '#ffd700' },
-        { text: '🧠 Resolva desafios cognitivos!', color: '#00ffff' }
+        { text: '🧠 Resolva desafios cognitivos!', color: '#8cc9d6' }
       ];
 
       let y = 350;
@@ -615,7 +621,7 @@ const CyberRunnerEnhanced = () => {
       ctx.save();
       ctx.translate(640, 580);
       ctx.scale(pulseSize, pulseSize);
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.font = 'bold 32px Arial';
       ctx.fillText('Pressione ESPAÇO para começar', 0, 0);
       ctx.restore();
@@ -623,10 +629,10 @@ const CyberRunnerEnhanced = () => {
       // Botão de configurações
       ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.fillRect(20, 650, 200, 50);
-      ctx.strokeStyle = '#00ffff';
+      ctx.strokeStyle = '#8cc9d6';
       ctx.lineWidth = 2;
       ctx.strokeRect(20, 650, 200, 50);
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.font = 'bold 20px Arial';
       ctx.textAlign = 'left';
       ctx.fillText('⚙️ Configurações', 35, 682);
@@ -642,7 +648,7 @@ const CyberRunnerEnhanced = () => {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Texto "SLOW MOTION"
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+        ctx.fillStyle = 'rgba(140, 201, 214, 0.3)';
         ctx.font = 'bold 48px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('⏱️ SLOW MOTION', 640, 150);
@@ -684,7 +690,7 @@ const CyberRunnerEnhanced = () => {
       if (adaptiveMessage) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 80, 600, 60);
-        ctx.fillStyle = '#00ffff';
+        ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(adaptiveMessage, 640, 115);
@@ -714,9 +720,9 @@ const CyberRunnerEnhanced = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Título
-      ctx.fillStyle = '#ff0000';
+      ctx.fillStyle = '#e06b68';
       ctx.shadowBlur = 30;
-      ctx.shadowColor = '#ff0000';
+      ctx.shadowColor = '#e06b68';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', 640, 150);
@@ -727,12 +733,12 @@ const CyberRunnerEnhanced = () => {
       const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
 
       const statsData = [
-        { label: '🏆 Pontuação Final', value: score, color: '#ffff00' },
+        { label: '🏆 Pontuação Final', value: score, color: '#e6c768' },
         { label: '💰 Moedas Coletadas', value: coins, color: '#ffd700' },
-        { label: '📊 Nível Alcançado', value: level, color: '#00ffff' },
-        { label: '✅ Acertos', value: stats.acertos, color: '#00ff00' },
-        { label: '❌ Erros', value: stats.erros, color: '#ff0000' },
-        { label: '🎯 Precisão', value: `${precisao}%`, color: '#00ffff' }
+        { label: '📊 Nível Alcançado', value: level, color: '#8cc9d6' },
+        { label: '✅ Acertos', value: stats.acertos, color: '#5cc98a' },
+        { label: '❌ Erros', value: stats.erros, color: '#e06b68' },
+        { label: '🎯 Precisão', value: `${precisao}%`, color: '#8cc9d6' }
       ];
 
       let y = 280;
@@ -755,7 +761,7 @@ const CyberRunnerEnhanced = () => {
       ctx.fillText(message, 640, y + 30);
 
       // Botão restart
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.font = 'bold 28px Arial';
       ctx.fillText('Pressione ESPAÇO para jogar novamente', 640, y + 90);
     };
@@ -806,6 +812,7 @@ const CyberRunnerEnhanced = () => {
   return (
     <div className="cyber-runner-canvas">
       <canvas ref={canvasRef} />
+      <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: ' ', icon: '⬆', label: 'Pular' }, { key: 'ArrowDown', icon: '⬇', label: 'Deslizar' }, { key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       
       {/* Modal de Configurações */}
       {showSettings && (

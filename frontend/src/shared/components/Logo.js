@@ -1,78 +1,53 @@
+import React, { useId } from 'react';
 import './Logo.css';
 
+/**
+ * Logo do NeuroPlay: um laço de infinito — símbolo da neurodiversidade criado
+ * pela própria comunidade autista — desenhado como uma fita contínua que vai do
+ * azul (calma) ao dourado, com um botão "play" no laço direito (brincar) e um
+ * ponto no esquerdo (a mente). Evita o quebra-cabeça, símbolo contestado.
+ */
+const INFINITO = 'M100 100 C 116 66, 172 58, 172 100 C 172 142, 116 134, 100 100 C 84 66, 28 58, 28 100 C 28 142, 84 134, 100 100 Z';
+
+export function LogoMark({ size = 60, withBackground = false, title = 'NeuroPlay' }) {
+  const id = useId().replace(/:/g, '');
+  const corPlay = withBackground ? '#ffffff' : '#e3b341';
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 200 200"
+      xmlns="http://www.w3.org/2000/svg"
+      className="logo-svg"
+      role="img"
+      aria-label={title}
+    >
+      <defs>
+        <linearGradient id={`np-fita-${id}`} x1="28" y1="0" x2="172" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#5b8fd6" />
+          <stop offset="55%" stopColor="#3fae9c" />
+          <stop offset="100%" stopColor="#e3b341" />
+        </linearGradient>
+        <linearGradient id={`np-fundo-${id}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#22406b" />
+          <stop offset="100%" stopColor="#16294a" />
+        </linearGradient>
+      </defs>
+      {withBackground && <rect x="8" y="8" width="184" height="184" rx="48" fill={`url(#np-fundo-${id})`} />}
+      <path d={INFINITO} fill="none" stroke={`url(#np-fita-${id})`} strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M133 89 L151 100 L133 111 Z" fill={corPlay} stroke={corPlay} strokeWidth="6" strokeLinejoin="round" />
+      <circle cx="60" cy="100" r="8" fill={withBackground ? '#8fd0c2' : '#3fae9c'} />
+    </svg>
+  );
+}
+
 function Logo({ size = 'medium', showText = true, animated = true }) {
-  const sizes = {
-    small: '40px',
-    medium: '60px',
-    large: '80px',
-    xlarge: '120px'
-  };
+  const sizes = { small: 40, medium: 56, large: 80, xlarge: 120 };
+  const px = sizes[size] || sizes.medium;
 
   return (
-    <div className={`logo-container ${animated ? 'animated' : ''}`}>
-      <svg 
-        width={sizes[size]} 
-        height={sizes[size]} 
-        viewBox="0 0 200 200" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
-        className="logo-svg"
-      >
-        <defs>
-          <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{stopColor:'#667eea', stopOpacity:1}} />
-            <stop offset="100%" style={{stopColor:'#764ba2', stopOpacity:1}} />
-          </linearGradient>
-          <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{stopColor:'#f093fb', stopOpacity:1}} />
-            <stop offset="100%" style={{stopColor:'#f5576c', stopOpacity:1}} />
-          </linearGradient>
-          <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
-            <feOffset dx="0" dy="4" result="offsetblur"/>
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="0.3"/>
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        
-        <circle cx="100" cy="100" r="90" fill="url(#brainGradient)" opacity="0.1"/>
-        
-        <g filter="url(#softShadow)">
-          <path d="M 70 60 Q 50 70, 50 90 Q 50 110, 60 125 Q 70 135, 85 135 Q 95 135, 100 130" 
-                stroke="url(#brainGradient)" strokeWidth="6" fill="none" strokeLinecap="round"/>
-          
-          <path d="M 130 60 Q 150 70, 150 90 Q 150 110, 140 125 Q 130 135, 115 135 Q 105 135, 100 130" 
-                stroke="url(#brainGradient)" strokeWidth="6" fill="none" strokeLinecap="round"/>
-          
-          <path d="M 100 130 L 100 145" 
-                stroke="url(#brainGradient)" strokeWidth="5" strokeLinecap="round"/>
-          
-          <circle cx="70" cy="80" r="8" fill="url(#accentGradient)" className="neuron neuron-1"/>
-          <circle cx="130" cy="80" r="8" fill="url(#accentGradient)" className="neuron neuron-2"/>
-          <circle cx="100" cy="100" r="10" fill="url(#accentGradient)" className="neuron neuron-3"/>
-          <circle cx="85" cy="115" r="7" fill="url(#accentGradient)" className="neuron neuron-4"/>
-          <circle cx="115" cy="115" r="7" fill="url(#accentGradient)" className="neuron neuron-5"/>
-          
-          <line x1="70" y1="80" x2="100" y2="100" stroke="url(#brainGradient)" strokeWidth="2" opacity="0.5" className="synapse synapse-1"/>
-          <line x1="130" y1="80" x2="100" y2="100" stroke="url(#brainGradient)" strokeWidth="2" opacity="0.5" className="synapse synapse-2"/>
-          <line x1="100" y1="100" x2="85" y2="115" stroke="url(#brainGradient)" strokeWidth="2" opacity="0.5" className="synapse synapse-3"/>
-          <line x1="100" y1="100" x2="115" y2="115" stroke="url(#brainGradient)" strokeWidth="2" opacity="0.5" className="synapse synapse-4"/>
-          
-          <g transform="translate(100, 155)">
-            <rect x="-20" y="0" width="40" height="15" rx="7" fill="url(#accentGradient)"/>
-            <circle cx="-8" cy="7" r="3" fill="white" opacity="0.8"/>
-            <circle cx="8" cy="7" r="3" fill="white" opacity="0.8"/>
-            <rect x="-12" y="5" width="2" height="5" rx="1" fill="white" opacity="0.6"/>
-            <rect x="-14" y="7" width="6" height="2" rx="1" fill="white" opacity="0.6"/>
-          </g>
-        </g>
-      </svg>
-      
+    <div className={`logo-container ${animated ? 'animated' : ''} logo-${size}`}>
+      <LogoMark size={px} withBackground={!showText} />
       {showText && (
         <span className="logo-text">
           <span className="logo-neuro">Neuro</span>

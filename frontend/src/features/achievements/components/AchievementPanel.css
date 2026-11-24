@@ -19,7 +19,7 @@
   to { opacity: 1; }
 }
 
-.achievement-panel {
+.achievement-panel-overlay .achievement-panel {
   background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
   border-radius: 24px;
   width: 100%;
@@ -37,26 +37,26 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
-.achievement-panel-header {
+.achievement-panel-overlay .achievement-panel-header {
   padding: 24px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.header-title {
+.achievement-panel-overlay .header-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.header-title h2 {
+.achievement-panel-overlay .header-title h2 {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
   color: #ffffff;
 }
 
-.close-button {
+.achievement-panel-overlay .close-button {
   background: rgba(255, 255, 255, 0.1);
   border: none;
   width: 40px;
@@ -68,18 +68,18 @@
   transition: all 0.2s ease;
 }
 
-.close-button:hover {
+.achievement-panel-overlay .close-button:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: rotate(90deg);
 }
 
-.achievement-stats {
+.achievement-panel-overlay .achievement-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 16px;
 }
 
-.stat-card {
+.achievement-panel-overlay .stat-card {
   background: rgba(255, 255, 255, 0.05);
   padding: 16px;
   border-radius: 12px;
@@ -87,33 +87,33 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.stat-value {
+.achievement-panel-overlay .stat-value {
   font-size: 32px;
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 4px;
 }
 
-.stat-label {
+.achievement-panel-overlay .stat-label {
   font-size: 13px;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.achievement-filters {
+.achievement-panel-overlay .achievement-filters {
   padding: 20px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.category-tabs {
+.achievement-panel-overlay .category-tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
   overflow-x: auto;
 }
 
-.category-tab {
+.achievement-panel-overlay .category-tab {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 10px 16px;
@@ -127,32 +127,32 @@
   font-size: 14px;
 }
 
-.category-tab:hover {
+.achievement-panel-overlay .category-tab:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.category-tab.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.achievement-panel-overlay .category-tab.active {
+  background: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);
   color: #ffffff;
 }
 
-.filter-controls {
+.achievement-panel-overlay .filter-controls {
   display: flex;
   gap: 16px;
 }
 
-.filter-group {
+.achievement-panel-overlay .filter-group {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.filter-group label {
+.achievement-panel-overlay .filter-group label {
   font-size: 13px;
   color: #888;
 }
 
-.filter-group select {
+.achievement-panel-overlay .filter-group select {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 8px 12px;
@@ -161,7 +161,7 @@
   font-size: 13px;
 }
 
-.achievement-grid {
+.achievement-panel-overlay .achievement-grid {
   flex: 1;
   overflow-y: auto;
   padding: 24px 32px;
@@ -170,7 +170,7 @@
   gap: 20px;
 }
 
-.loading-state, .empty-state {
+.achievement-panel-overlay .loading-state, .achievement-panel-overlay .empty-state {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
@@ -179,11 +179,11 @@
   color: #888;
 }
 
-.spinner {
+.achievement-panel-overlay .spinner {
   width: 48px;
   height: 48px;
   border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #667eea;
+  border-top-color: #3f6fb5;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -193,17 +193,17 @@
   to { transform: rotate(360deg); }
 }
 
-.empty-icon {
+.achievement-panel-overlay .empty-icon {
   font-size: 64px;
   margin-bottom: 16px;
   opacity: 0.5;
 }
 
 @media (max-width: 768px) {
-  .achievement-panel-header { padding: 20px; }
-  .header-title h2 { font-size: 24px; }
-  .achievement-filters { padding: 16px 20px; }
-  .achievement-grid {
+  .achievement-panel-overlay .achievement-panel-header { padding: 20px; }
+  .achievement-panel-overlay .header-title h2 { font-size: 24px; }
+  .achievement-panel-overlay .achievement-filters { padding: 16px 20px; }
+  .achievement-panel-overlay .achievement-grid {
     padding: 16px 20px;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }

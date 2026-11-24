@@ -95,6 +95,78 @@ function JogoMemoriaDupla({ user }) {
     setShowingStimulus(true);
   }, [nBackLevel, audioStimuli.length]);
 
+  const finishGame = useCallback(async () => {
+    setGameState('finished');
+    addPoints(score);
+
+    const gameTime = (Date.now() - gameStartTime.current) / 1000;
+    
+    if (!studentId) {
+      setGameState('ready');
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('token');
+      await fetch(apiUrl('/api/v1/gameplay/sync'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          session_id: `memoria-dupla-${studentId}-${Date.now()}`,
+          student_id: Number(studentId),
+          game_type: 'memoria-dupla',
+          score,
+          duration_seconds: Math.floor(gameTime),
+          acertos: stats.visualCorrect + stats.audioCorrect,
+          erros: stats.visualWrong + stats.audioWrong
+        })
+      });
+    } catch (error) {
+      setGameState('ready');
+    }
+  }, [score, stats, studentId, addPoints]);
+
+  const finishRound = useCallback(() => {
+    setShowingStimulus(false);
+    setRound(prev => prev + 1);
+
+    // Calcular performance
+    const totalVisual = stats.visualCorrect + stats.visualWrong;
+    const totalAudio = stats.audioCorrect + stats.audioWrong;
+    const visualAccuracy = totalVisual > 0 ? (stats.visualCorrect / totalVisual) * 100 : 0;
+    const audioAccuracy = totalAudio > 0 ? (stats.audioCorrect / totalAudio) * 100 : 0;
+    const overallAccuracy = (visualAccuracy + audioAccuracy) / 2;
+
+    // Adaptação local calcula métricas da rodada
+    localAdaptation.analyzePerformance({
+      accuracy: overallAccuracy,
+      reactionTime: 1000,
+      errorsCount: stats.visualWrong + stats.audioWrong,
+      successStreak: stats.visualCorrect + stats.audioCorrect
+    });
+
+    // Decidir se avança de nível
+    if (round >= 2 && overallAccuracy > 75 && nBackLevel < 3) {
+      setTimeout(() => {
+        setNBackLevel(prev => prev + 1);
+        audioManager.play('achievement');
+        alert(`Parabéns! Avançou para ${nBackLevel + 1}-Back!`);
+        generateSequence();
+        setShowingStimulus(true);
+      }, 2000);
+    } else if (round >= 3) {
+      finishGame();
+    } else {
+      setTimeout(() => {
+        generateSequence();
+        setShowingStimulus(true);
+      }, 2000);
+    }
+  }, [round, stats, nBackLevel, generateSequence, finishGame]);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const nextStimulus = useCallback(() => {
     if (currentIndex >= sequence.length - 1) {
@@ -109,15 +181,21 @@ function JogoMemoriaDupla({ user }) {
     audioManager.playNote(audioNotes[current.audio], 0.3);
   }, [currentIndex, sequence, audioNotes, finishRound]);
 
+  // O avanço usa a versão mais recente de nextStimulus via ref, e o cronômetro
+  // depende só da posição na sequência: responder não reinicia o tempo do
+  // estímulo (antes, cada resposta adiava a troca e a rodada "congelava").
+  const nextStimulusRef = useRef(nextStimulus);
+  nextStimulusRef.current = nextStimulus;
+
   useEffect(() => {
     if (gameState === 'playing' && showingStimulus) {
       const timer = setTimeout(() => {
-        nextStimulus();
+        nextStimulusRef.current();
       }, 2500); // 2.5 segundos por estímulo
 
       return () => clearTimeout(timer);
     }
-  }, [gameState, showingStimulus, nextStimulus]);
+  }, [gameState, showingStimulus, currentIndex, sequence]);
 
   const handleResponse = (type) => {
     if (!showingStimulus || currentIndex < nBackLevel) return;
@@ -179,85 +257,13 @@ function JogoMemoriaDupla({ user }) {
 
   const handleTakePause = () => {
     setShowCascadeModal(false);
-    navigate('/aluno');
+    navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno');
   };
 
   const showFeedback = (symbol, type) => {
     setFeedback({ symbol, type });
     setTimeout(() => setFeedback(null), 500);
   };
-
-  const finishRound = useCallback(() => {
-    setShowingStimulus(false);
-    setRound(prev => prev + 1);
-
-    // Calcular performance
-    const totalVisual = stats.visualCorrect + stats.visualWrong;
-    const totalAudio = stats.audioCorrect + stats.audioWrong;
-    const visualAccuracy = totalVisual > 0 ? (stats.visualCorrect / totalVisual) * 100 : 0;
-    const audioAccuracy = totalAudio > 0 ? (stats.audioCorrect / totalAudio) * 100 : 0;
-    const overallAccuracy = (visualAccuracy + audioAccuracy) / 2;
-
-    // Adaptação local calcula métricas da rodada
-    localAdaptation.analyzePerformance({
-      accuracy: overallAccuracy,
-      reactionTime: 1000,
-      errorsCount: stats.visualWrong + stats.audioWrong,
-      successStreak: stats.visualCorrect + stats.audioCorrect
-    });
-
-    // Decidir se avança de nível
-    if (round >= 2 && overallAccuracy > 75 && nBackLevel < 3) {
-      setTimeout(() => {
-        setNBackLevel(prev => prev + 1);
-        audioManager.play('achievement');
-        alert(`Parabéns! Avançou para ${nBackLevel + 1}-Back!`);
-        generateSequence();
-        setShowingStimulus(true);
-      }, 2000);
-    } else if (round >= 3) {
-      finishGame();
-    } else {
-      setTimeout(() => {
-        generateSequence();
-        setShowingStimulus(true);
-      }, 2000);
-    }
-  }, [round, stats, nBackLevel, generateSequence, finishGame]);
-
-  const finishGame = useCallback(async () => {
-    setGameState('finished');
-    addPoints(score);
-
-    const gameTime = (Date.now() - gameStartTime.current) / 1000;
-    
-    if (!studentId) {
-      setGameState('ready');
-      return;
-    }
-
-    try {
-      const token = sessionStorage.getItem('token');
-      await fetch(apiUrl('/api/v1/gameplay/sync'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          session_id: `memoria-dupla-${studentId}-${Date.now()}`,
-          student_id: Number(studentId),
-          game_type: 'memoria-dupla',
-          score,
-          duration_seconds: Math.floor(gameTime),
-          acertos: stats.visualCorrect + stats.audioCorrect,
-          erros: stats.visualWrong + stats.audioWrong
-        })
-      });
-    } catch (error) {
-      setGameState('ready');
-    }
-  }, [score, stats, studentId, addPoints]);
 
   const currentStimulus = sequence[currentIndex];
 
@@ -268,7 +274,7 @@ function JogoMemoriaDupla({ user }) {
       <ParticleSystem type={particleType} active={showParticles} />
 
       <div className="game-header">
-        <button onClick={() => navigate('/aluno')} className="btn-voltar">
+        <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn-voltar">
           ← Voltar
         </button>
         <div className="game-info">
@@ -318,7 +324,7 @@ function JogoMemoriaDupla({ user }) {
                   className={`grid-cell ${currentStimulus && currentStimulus.visual === idx ? 'active' : ''}`}
                   animate={currentStimulus && currentStimulus.visual === idx ? {
                     scale: [1, 1.2, 1],
-                    backgroundColor: ['#667eea', '#FFD93D', '#667eea']
+                    backgroundColor: ['#3f6fb5', '#d4a63f', '#3f6fb5']
                   } : {}}
                   transition={{ duration: 0.5 }}
                 />
@@ -418,7 +424,7 @@ function JogoMemoriaDupla({ user }) {
             <button onClick={startGame} className="btn btn-primary">
               Treinar Novamente
             </button>
-            <button onClick={() => navigate('/aluno')} className="btn btn-secondary">
+            <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn btn-secondary">
               Menu Principal
             </button>
           </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './EchoTemple.css';
+import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
@@ -23,6 +24,7 @@ const EchoTemple = () => {
   const [maxSequenceLength, setMaxSequenceLength] = useState(0);
   const [adaptiveMessage, setAdaptiveMessage] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const salvoRef = useRef({ score: 0, acertos: 0, erros: 0, at: null }); // já registrado nesta partida
   const gameRef = useRef(null);
   const audioRef = useRef(null);
   const adaptiveSystemRef = useRef(null);
@@ -41,7 +43,10 @@ const EchoTemple = () => {
     applySensorySettings(settings, canvas, audio);
 
     // Estado do jogo
-    const game = {
+    // O estado do jogo vive em gameRef e é criado uma única vez: este efeito roda
+    // de novo sempre que pontuação/fase mudam, e recriar o objeto apagava a
+    // partida em andamento (sequência, posição do jogador, obstáculos).
+    const game = gameRef.current || {
       player: {
         x: 640,
         y: 360,
@@ -101,10 +106,15 @@ const EchoTemple = () => {
       
       const sequence = [];
       
-      for (let i = 0; i < length; i++) {
+      // Casas distintas e fora da posição inicial (2,2), para que cada passo
+      // da sequência seja inequívoco.
+      const usadas = new Set(['2,2']);
+      while (sequence.length < length && usadas.size < game.grid.cols * game.grid.rows) {
         const col = Math.floor(Math.random() * game.grid.cols);
         const row = Math.floor(Math.random() * game.grid.rows);
-        sequence.push({ col, row, number: i + 1 });
+        if (usadas.has(`${col},${row}`)) continue;
+        usadas.add(`${col},${row}`);
+        sequence.push({ col, row, number: sequence.length + 1 });
       }
       
       game.sequence = sequence;
@@ -188,9 +198,9 @@ const EchoTemple = () => {
           
           if (isCurrentStep) {
             // Plataforma brilhando
-            ctx.fillStyle = '#00ffff';
+            ctx.fillStyle = '#8cc9d6';
             ctx.shadowBlur = 30;
-            ctx.shadowColor = '#00ffff';
+            ctx.shadowColor = '#8cc9d6';
             ctx.fillRect(x + 10, y + 10, cellSize - 20, cellSize - 20);
             
             // Número
@@ -206,7 +216,7 @@ const EchoTemple = () => {
             ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
             ctx.fillRect(x + 10, y + 10, cellSize - 20, cellSize - 20);
             
-            ctx.fillStyle = '#00ff00';
+            ctx.fillStyle = '#5cc98a';
             ctx.font = 'bold 36px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('✓', x + cellSize / 2, y + cellSize / 2 + 12);
@@ -276,7 +286,7 @@ const EchoTemple = () => {
         retention: '⏳ AGUARDE',
         recall: '🎯 LEMBRE-SE'
       };
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.font = 'bold 28px Arial';
       ctx.textAlign = 'center';
       ctx.fillText(phaseText[phase] || '', 640, 50);
@@ -284,7 +294,7 @@ const EchoTemple = () => {
       // Precisão
       const total = stats.acertos + stats.erros;
       const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 100;
-      ctx.fillStyle = '#00ff00';
+      ctx.fillStyle = '#5cc98a';
       ctx.font = 'bold 20px Arial';
       ctx.textAlign = 'right';
       ctx.fillText(`PRECISÃO: ${precisao}%`, 1260, 30);
@@ -293,7 +303,7 @@ const EchoTemple = () => {
       if (adaptiveMessage) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 80, 600, 60);
-        ctx.fillStyle = '#00ffff';
+        ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(adaptiveMessage, 640, 115);
@@ -302,7 +312,7 @@ const EchoTemple = () => {
       // Timer de retenção
       if (phase === 'retention' && game.retentionTimer > 0) {
         const seconds = Math.ceil(game.retentionTimer / 60);
-        ctx.fillStyle = '#ffff00';
+        ctx.fillStyle = '#e6c768';
         ctx.font = 'bold 48px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(seconds, 640, 360);
@@ -320,6 +330,11 @@ const EchoTemple = () => {
         } else if (e.key === 'c' || e.key === 'C') {
           setShowSettings(true);
         }
+      } else if (gameState === 'playing' && e.key === 'Escape') {
+        // Encerrar: registra as tentativas ainda não salvas e volta ao menu.
+        registrarIncrementoRef.current({ encerrado_pelo_jogador: true });
+        sessionStartedAtRef.current = null;
+        setGameState('menu');
       } else if (gameState === 'playing' && phase === 'recall' && !game.player.moving) {
         let newGridX = game.player.gridX;
         let newGridY = game.player.gridY;
@@ -335,8 +350,14 @@ const EchoTemple = () => {
           game.player.targetX = game.grid.offsetX + newGridX * game.grid.cellSize + game.grid.cellSize / 2;
           game.player.targetY = game.grid.offsetY + newGridY * game.grid.cellSize + game.grid.cellSize / 2;
           game.player.moving = true;
-          
-          checkPlatform(newGridX, newGridY);
+
+          // Andar por casas vazias é livre; só pisar em uma plataforma da
+          // sequência conta como resposta (certa ou errada).
+          const plataforma = game.platforms.find((p) => p.col === newGridX && p.row === newGridY);
+          const pisouEmPlataforma = Boolean(plataforma && !plataforma.correct);
+          if (pisouEmPlataforma) {
+            checkPlatform(newGridX, newGridY);
+          }
         }
       } else if (gameState === 'gameover' && e.key === ' ') {
         setGameState('menu');
@@ -375,7 +396,7 @@ const EchoTemple = () => {
         
         setScore(s => s + 50 + (level * 10));
         setStats(st => ({ ...st, acertos: st.acertos + 1 }));
-        createParticles(game.player.targetX, game.player.targetY, '#00ff00', 20);
+        createParticles(game.player.targetX, game.player.targetY, '#5cc98a', 20);
         
         // Feedback auditivo
         audioRef.current?.onCorrectAnswer(game.currentStep);
@@ -432,7 +453,7 @@ const EchoTemple = () => {
         }
         
         setStats(st => ({ ...st, erros: st.erros + 1 }));
-        createParticles(game.player.targetX, game.player.targetY, '#ff0000', 15);
+        createParticles(game.player.targetX, game.player.targetY, '#e06b68', 15);
         
         // Feedback auditivo
         audioRef.current?.onIncorrectAnswer();
@@ -468,6 +489,7 @@ const EchoTemple = () => {
     const resetGame = () => {
       sessionStartedAtRef.current = Date.now();
       lastPersistedSequenceRef.current = 0;
+      salvoRef.current = { score: 0, acertos: 0, erros: 0, at: null };
       setScore(0);
       setLevel(1);
       setStats({ acertos: 0, erros: 0 });
@@ -561,9 +583,9 @@ const EchoTemple = () => {
 
       // Título
       const titleY = 150 + Math.sin(Date.now() / 500) * 10;
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.shadowBlur = 30;
-      ctx.shadowColor = '#00ffff';
+      ctx.shadowColor = '#8cc9d6';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('TEMPLO DOS ECOS', 640, titleY);
@@ -587,7 +609,7 @@ const EchoTemple = () => {
 
       let y = 350;
       instructions.forEach(inst => {
-        ctx.fillStyle = inst === '' ? '#00ffff' : 'white';
+        ctx.fillStyle = inst === '' ? '#8cc9d6' : 'white';
         ctx.font = inst.includes('ESPAÇO') ? 'bold 24px Arial' : '20px Arial';
         ctx.fillText(inst, 640, y);
         y += 40;
@@ -596,10 +618,10 @@ const EchoTemple = () => {
       // Botão de configurações
       ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.fillRect(20, 650, 200, 50);
-      ctx.strokeStyle = '#00ffff';
+      ctx.strokeStyle = '#8cc9d6';
       ctx.lineWidth = 2;
       ctx.strokeRect(20, 650, 200, 50);
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.font = 'bold 18px Arial';
       ctx.textAlign = 'left';
       ctx.fillText('⚙️ Config (C)', 40, 682);
@@ -617,7 +639,7 @@ const EchoTemple = () => {
       ctx.fillStyle = '#0a0e1a';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = '#ff0000';
+      ctx.fillStyle = '#e06b68';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', 640, 200);
@@ -631,7 +653,7 @@ const EchoTemple = () => {
       ctx.fillText(`Nível Alcançado: ${level}`, 640, 350);
       ctx.fillText(`Precisão: ${precisao}%`, 640, 400);
 
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.fillText('Pressione ESPAÇO para voltar ao menu', 640, 500);
     };
 
@@ -654,20 +676,38 @@ const EchoTemple = () => {
     };
   }, [gameState, score, level, phase, stats]);
   
+  // Registra só o que aconteceu desde o último registro, para o relatório não
+  // somar a mesma pontuação mais de uma vez.
+  const registrarIncremento = (metadata) => {
+    if (!studentId || !sessionStartedAtRef.current) return Promise.resolve();
+    const salvo = salvoRef.current;
+    const delta = {
+      score: Math.max(0, score - salvo.score),
+      acertos: Math.max(0, stats.acertos - salvo.acertos),
+      erros: Math.max(0, stats.erros - salvo.erros)
+    };
+    if (delta.acertos + delta.erros === 0) return Promise.resolve();
+    const inicio = salvo.at || sessionStartedAtRef.current;
+    salvoRef.current = { score, acertos: stats.acertos, erros: stats.erros, at: Date.now() };
+    return persistGameplay({
+      studentId,
+      gameType: 'echo-temple',
+      score: delta.score,
+      durationSeconds: (Date.now() - inicio) / 1000,
+      acertos: delta.acertos,
+      erros: delta.erros,
+      metadata: { ...metadata, level, phase }
+    }).catch(() => {
+      salvoRef.current = salvo; // tenta de novo no próximo registro
+    });
+  };
+  const registrarIncrementoRef = useRef(registrarIncremento);
+  registrarIncrementoRef.current = registrarIncremento;
+
   useEffect(() => {
     if (!studentId || !sessionStartedAtRef.current || sequencesCompleted <= lastPersistedSequenceRef.current) return;
     lastPersistedSequenceRef.current = sequencesCompleted;
-    persistGameplay({
-      studentId,
-      gameType: 'echo-temple',
-      score,
-      durationSeconds: (Date.now() - sessionStartedAtRef.current) / 1000,
-      acertos: stats.acertos,
-      erros: stats.erros,
-      metadata: { sequence_completed: sequencesCompleted, level, phase }
-    }).catch(() => {
-      lastPersistedSequenceRef.current = Math.max(0, sequencesCompleted - 1);
-    });
+    registrarIncrementoRef.current({ sequence_completed: sequencesCompleted });
   }, [studentId, sequencesCompleted, score, stats, level, phase]);
 
   // Handler para salvar configurações
@@ -680,6 +720,7 @@ const EchoTemple = () => {
   return (
     <div className="echo-temple">
       <canvas ref={canvasRef} />
+      <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: 'ArrowLeft', icon: '←', label: 'Esquerda' }, { key: 'ArrowUp', icon: '↑', label: 'Cima' }, { key: 'ArrowDown', icon: '↓', label: 'Baixo' }, { key: 'ArrowRight', icon: '→', label: 'Direita' }, { key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       
       {/* Modal de Configurações */}
       {showSettings && (

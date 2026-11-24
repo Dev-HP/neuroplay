@@ -12,8 +12,8 @@ export default function Obstacle({ type, initialPosition, speed }) {
   const meshRef = useRef();
 
   const isGo = type === 'go';
-  const color = isGo ? '#00ff00' : '#ff0000';
-  const emissiveColor = isGo ? '#00ff00' : '#ff0000';
+  const color = isGo ? '#5cc98a' : '#e06b68';
+  const emissiveColor = isGo ? '#5cc98a' : '#e06b68';
 
   useFrame((state, delta) => {
     if (!rigidBodyRef.current) return;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import EmergencyStop from '../shared/components/EmergencyStop';
@@ -21,29 +21,43 @@ function JogoMestresSinal({ user }) {
   const [cascadeMessage, setCascadeMessage] = useState(null); // Mensagem de cascata
   const [showCascadeModal, setShowCascadeModal] = useState(false); // Modal de pausa
 
+  const TOTAL_RESPOSTAS = 10;
+  const timerRef = useRef(null);
+  const ativoRef = useRef(false); // rodadas só avançam enquanto a partida está ativa
+
+  const pararRodadas = useCallback(() => {
+    ativoRef.current = false;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => pararRodadas, [pararRodadas]);
+
   const iniciarJogo = () => {
     setPontos(0);
     setAcertos(0);
     setErros(0);
-    setGameState('playing');
+    setReactionTimes([]);
     setTempoInicio(Date.now());
     errorCascadeDetector.reset(); // Resetar detector ao iniciar
     setCascadeMessage(null);
     setShowCascadeModal(false);
+    ativoRef.current = true;
+    setGameState('playing');
   };
 
   const iniciarRodada = useCallback(() => {
+    if (!ativoRef.current) return;
     const isNoGo = Math.random() > 0.5;
     setSinalAtual(isNoGo ? 'no-go' : 'go');
     setGameState('waiting');
     setStimulusTimestamp(performance.now());
 
-    setTimeout(() => {
-      if (gameState === 'playing' || gameState === 'waiting') {
-        iniciarRodada();
-      }
-    }, 2000 + Math.random() * 2000);
-  }, [gameState]);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(iniciarRodada, 2000 + Math.random() * 2000);
+  }, []);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -51,66 +65,11 @@ function JogoMestresSinal({ user }) {
     }
   }, [gameState, iniciarRodada]);
 
-  const handleClick = () => {
-    if (gameState !== 'waiting' || !stimulusTimestamp) return;
-
-    const reactionTime = performance.now() - stimulusTimestamp;
-    const isCorrect = sinalAtual === 'go';
-
-    // Registrar tentativa no detector de cascata
-    const cascadeResult = errorCascadeDetector.addAttempt(isCorrect);
-
-    // Salvar tempo de reação
-    setReactionTimes(prev => [...prev, {
-      timestamp: Date.now(),
-      reactionTime: Math.round(reactionTime),
-      correct: isCorrect,
-      stimulusType: sinalAtual
-    }]);
-
-    // Atualizar pontuação
-    if (isCorrect) {
-      setAcertos(prev => prev + 1);
-      setPontos(prev => prev + 10);
-    } else {
-      setErros(prev => prev + 1);
-      setPontos(prev => Math.max(0, prev - 5));
-    }
-
-    // Verificar cascata de erros
-    if (cascadeResult.cascade && !cascadeResult.cooldown) {
-      console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
-      
-      // Mostrar mensagem encorajadora
-      setCascadeMessage(cascadeResult.suggestion);
-      
-      // Se crítico, pausar o jogo e sugerir descanso
-      if (cascadeResult.severity === 'critical') {
-        setGameState('paused');
-        setShowCascadeModal(true);
-      }
-    }
-
-    if (acertos + erros >= 9) {
-      finalizarJogo();
-    }
-  };
-
-  const handleContinueAfterPause = () => {
-    setShowCascadeModal(false);
-    setCascadeMessage(null);
-    setGameState('playing');
-  };
-
-  const handleTakePause = () => {
-    setShowCascadeModal(false);
-    navigate('/aluno');
-  };
-
-  const finalizarJogo = async () => {
+  const finalizarJogo = async ({ pontosFinais, acertosFinais, errosFinais, eventos }) => {
+    pararRodadas();
     setGameState('ready');
     const tempoTotal = Math.floor((Date.now() - tempoInicio) / 1000);
-    
+
     if (!studentId) {
       setCascadeMessage('Selecione um perfil de estudante autorizado antes de iniciar uma atividade.');
       return;
@@ -122,30 +81,92 @@ function JogoMestresSinal({ user }) {
         session_id: `mestres-sinal-${studentId}-${Date.now()}`,
         student_id: Number(studentId),
         game_type: 'mestres-sinal',
-        pontos,
-        score: pontos,
+        pontos: pontosFinais,
+        score: pontosFinais,
         tempo_gasto: tempoTotal,
         duration_seconds: tempoTotal,
-        acertos: acertos + 1,
-        erros,
-        events: reactionTimes.map((event) => ({ type: 'reaction', data: event }))
+        acertos: acertosFinais,
+        erros: errosFinais,
+        events: eventos.map((event) => ({ type: 'reaction', data: event }))
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      alert(`Atividade finalizada!\nPontos: ${pontos}\nAcertos: ${acertos + 1}\nErros: ${erros}`);
+      alert(`Atividade finalizada!\nPontos: ${pontosFinais}\nAcertos: ${acertosFinais}\nErros: ${errosFinais}`);
       navigate(`/aluno?student_id=${studentId}`);
     } catch (error) {
       setCascadeMessage(error.response?.data?.error || 'Não foi possível salvar a sessão. Verifique o consentimento e tente novamente.');
     }
   };
 
+  const handleClick = () => {
+    if (gameState !== 'waiting' || !stimulusTimestamp || !ativoRef.current) return;
+
+    const reactionTime = performance.now() - stimulusTimestamp;
+    const isCorrect = sinalAtual === 'go';
+    setStimulusTimestamp(null); // uma resposta por sinal
+
+    // Registrar tentativa no detector de cascata
+    const cascadeResult = errorCascadeDetector.addAttempt(isCorrect);
+
+    // Valores atualizados calculados aqui para que o resultado final inclua esta resposta
+    const novosAcertos = acertos + (isCorrect ? 1 : 0);
+    const novosErros = erros + (isCorrect ? 0 : 1);
+    const novosPontos = isCorrect ? pontos + 10 : Math.max(0, pontos - 5);
+    const novosEventos = [...reactionTimes, {
+      timestamp: Date.now(),
+      reactionTime: Math.round(reactionTime),
+      correct: isCorrect,
+      stimulusType: sinalAtual
+    }];
+
+    setAcertos(novosAcertos);
+    setErros(novosErros);
+    setPontos(novosPontos);
+    setReactionTimes(novosEventos);
+
+    if (novosAcertos + novosErros >= TOTAL_RESPOSTAS) {
+      finalizarJogo({ pontosFinais: novosPontos, acertosFinais: novosAcertos, errosFinais: novosErros, eventos: novosEventos });
+      return;
+    }
+
+    // Verificar cascata de erros
+    if (cascadeResult.cascade && !cascadeResult.cooldown) {
+      console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+
+      // Mostrar mensagem encorajadora
+      setCascadeMessage(cascadeResult.suggestion);
+
+      // Se crítico, pausar o jogo e sugerir descanso
+      if (cascadeResult.severity === 'critical') {
+        pararRodadas();
+        setGameState('paused');
+        setShowCascadeModal(true);
+      }
+    }
+  };
+
+  const handleContinueAfterPause = () => {
+    setShowCascadeModal(false);
+    setCascadeMessage(null);
+    ativoRef.current = true;
+    setGameState('playing');
+  };
+
+  const voltarAoPainel = () => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno');
+
+  const handleTakePause = () => {
+    pararRodadas();
+    setShowCascadeModal(false);
+    voltarAoPainel();
+  };
+
   return (
     <div className="jogo-container">
-      <EmergencyStop onStop={() => setGameState('ready')} />
+      <EmergencyStop onStop={() => { pararRodadas(); setGameState('ready'); }} />
       {!studentId && <div className="status-banner" role="status">Selecione um perfil autorizado no painel do educador.</div>}
       <header className="jogo-header">
-        <button onClick={() => navigate('/aluno')} className="btn-voltar">← Voltar</button>
+        <button onClick={() => { pararRodadas(); voltarAoPainel(); }} className="btn-voltar">← Voltar</button>
         <div className="pontos-display">Pontos: {pontos}</div>
       </header>
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './SonicJump.css';
+import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { getPhonemeSynthesizer } from '../../shared/utils/phonemeSynthesizer';
 import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
@@ -55,7 +56,10 @@ const SonicJump = () => {
     ];
 
     // Estado do jogo
-    const game = {
+    // O estado do jogo vive em gameRef e é criado uma única vez: este efeito roda
+    // de novo sempre que pontuação/fase mudam, e recriar o objeto apagava a
+    // partida em andamento (sequência, posição do jogador, obstáculos).
+    const game = gameRef.current || {
       player: {
         x: 640,
         y: 600,
@@ -361,12 +365,12 @@ const SonicJump = () => {
       // Timer
       const seconds = Math.ceil(game.soundTimer / 60);
       ctx.font = 'bold 40px Arial';
-      ctx.fillStyle = '#ffff00';
+      ctx.fillStyle = '#e6c768';
       ctx.fillText(seconds, canvas.width / 2, boxY + 270);
       
       // "Listening..." indicator
       ctx.font = '20px Arial';
-      ctx.fillStyle = '#00ff00';
+      ctx.fillStyle = '#5cc98a';
       ctx.fillText('🎧 Ouça o som!', canvas.width / 2, boxY + 240);
       
       // Replay instruction
@@ -388,19 +392,19 @@ const SonicJump = () => {
       
       // Vidas
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#ff0000';
+      ctx.fillStyle = '#e06b68';
       ctx.fillText(`${'❤️'.repeat(lives)}`, 1260, 30);
       
       // Precisão
       const total = stats.acertos + stats.erros;
       const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 100;
-      ctx.fillStyle = '#00ff00';
+      ctx.fillStyle = '#5cc98a';
       ctx.textAlign = 'center';
       ctx.fillText(`PRECISÃO: ${precisao}%`, 640, 30);
 
       // Instrução
       if (!game.showingSound && game.player.onPlatform) {
-        ctx.fillStyle = '#00ffff';
+        ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 28px Arial';
         ctx.fillText('Pule para a letra correta! (ESPAÇO)', 640, 680);
       }
@@ -409,7 +413,7 @@ const SonicJump = () => {
       if (adaptiveMessage) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 620, 600, 50);
-        ctx.fillStyle = '#00ffff';
+        ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(adaptiveMessage, 640, 650);
@@ -427,10 +431,19 @@ const SonicJump = () => {
         } else if (e.key === 'c' || e.key === 'C') {
           setShowSettings(true);
         }
+      } else if (gameState === 'playing' && e.key === 'Escape') {
+        setGameState('gameover'); // encerra e dispara o salvamento da sessão
       } else if (gameState === 'playing') {
         if (e.key === ' ' && game.player.onPlatform && !game.showingSound) {
           game.player.jumping = true;
-          game.player.velocityY = -18;
+          // Força do pulo calculada para alcançar as plataformas com folga, usando
+          // a mesma gravidade (adaptativa) da física. Antes era fixa em -18, o
+          // que subia ~200 px — as plataformas ficam ~300 px acima e o jogo era
+          // impossível de vencer.
+          const gravidade = Math.max(0.6, Math.min(1.0, adaptiveSystem.getParams().gravity));
+          const alturaPlataforma = game.platforms.length ? game.platforms[0].y : 325;
+          const subida = (game.player.y + game.player.height / 2) - alturaPlataforma + 70;
+          game.player.velocityY = -Math.sqrt(2 * gravidade * subida);
           game.player.onPlatform = false;
         }
         
@@ -445,13 +458,7 @@ const SonicJump = () => {
         }
         
         // Movimento horizontal no ar
-        if (game.player.jumping) {
-          if (e.key === 'ArrowLeft') {
-            game.player.x -= 15;
-          } else if (e.key === 'ArrowRight') {
-            game.player.x += 15;
-          }
-        }
+        // (o deslocamento lateral é aplicado continuamente em update())
       } else if (gameState === 'gameover' && e.key === ' ') {
         setGameState('menu');
       }
@@ -550,7 +557,7 @@ const SonicJump = () => {
               return newLives;
             });
             setStats(st => ({ ...st, erros: st.erros + 1 }));
-            createParticles(platform.x + platform.width / 2, platform.y, '#ff0000', 25);
+            createParticles(platform.x + platform.width / 2, platform.y, '#e06b68', 25);
             
             // Feedback auditivo
             audioRef.current?.onIncorrectAnswer();
@@ -611,6 +618,11 @@ const SonicJump = () => {
 
       // Física do pulo
       if (game.player.jumping) {
+        // Direção contínua enquanto a seta estiver pressionada (teclado ou
+        // botão na tela); antes era 15 px por toque, o que tornava as
+        // plataformas laterais inalcançáveis pelo toque.
+        if (game.keys.ArrowLeft) game.player.x -= 13;
+        if (game.keys.ArrowRight) game.player.x += 13;
         game.player.y += game.player.velocityY;
         
         // Gravidade adaptativa
@@ -690,7 +702,7 @@ const SonicJump = () => {
 
       let y = 350;
       instructions.forEach(inst => {
-        ctx.fillStyle = inst === '' ? '#00ffff' : 'white';
+        ctx.fillStyle = inst === '' ? '#8cc9d6' : 'white';
         ctx.font = inst.includes('ESPAÇO') ? 'bold 24px Arial' : '20px Arial';
         ctx.fillText(inst, 640, y);
         y += 40;
@@ -720,9 +732,9 @@ const SonicJump = () => {
     const drawGameOver = () => {
       drawBackground();
 
-      ctx.fillStyle = '#ff0000';
+      ctx.fillStyle = '#e06b68';
       ctx.shadowBlur = 30;
-      ctx.shadowColor = '#ff0000';
+      ctx.shadowColor = '#e06b68';
       ctx.font = 'bold 72px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', 640, 200);
@@ -737,7 +749,7 @@ const SonicJump = () => {
       ctx.fillText(`Nível Alcançado: ${level}`, 640, 350);
       ctx.fillText(`Precisão: ${precisao}%`, 640, 400);
 
-      ctx.fillStyle = '#00ffff';
+      ctx.fillStyle = '#8cc9d6';
       ctx.fillText('Pressione ESPAÇO para voltar ao menu', 640, 500);
     };
 
@@ -786,6 +798,7 @@ const SonicJump = () => {
   return (
     <div className="sonic-jump">
       <canvas ref={canvasRef} />
+      <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: 'ArrowLeft', icon: '←', label: 'Esquerda' }, { key: ' ', icon: '⬆', label: 'Pular' }, { key: 'ArrowRight', icon: '→', label: 'Direita' }, { key: 'r', icon: '🔊', label: 'Repetir som' }, { key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       
       {/* Modal de Configurações */}
       {showSettings && (
