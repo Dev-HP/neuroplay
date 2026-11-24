@@ -4,12 +4,10 @@ import axios from 'axios';
 import Login from './pages/Login';
 import PainelAluno from './pages/PainelAluno';
 import PainelEducador from './pages/PainelEducador';
-import JogoMestresSinal from './pages/JogoMestresSinal';
-import JogoCacadorAlvos from './pages/JogoCacadorAlvos';
-import JogoMemoriaDupla from './pages/JogoMemoriaDupla';
+import JogoMestresSinal from './games/MestresDoSinal/JogoMestresSinal';
+import JogoCacadorAlvos from './games/CacadorDeAlvos/JogoCacadorAlvos';
+import JogoMemoriaDupla from './games/MemoriaDupla/JogoMemoriaDupla';
 import CyberRunner from './games/CyberRunner/CyberRunner';
-import CyberRunnerCanvas from './games/CyberRunnerCanvas/CyberRunnerCanvas';
-import CyberRunnerEnhanced from './games/CyberRunnerCanvas/CyberRunnerEnhanced';
 import EchoTemple from './games/EchoTemple/EchoTemple';
 import SonicJump from './games/SonicJump/SonicJump';
 import GravityLab from './games/GravityLab/GravityLab';
@@ -107,8 +105,8 @@ function App() {
           <Route path="/jogo/mestres-sinal" element={user ? <JogoMestresSinal user={user} /> : <Navigate to="/login" replace />} />
           <Route path="/jogo/cacador-alvos" element={user ? <JogoCacadorAlvos user={user} /> : <Navigate to="/login" replace />} />
           <Route path="/jogo/memoria-dupla" element={user ? <JogoMemoriaDupla user={user} /> : <Navigate to="/login" replace />} />
-          <Route path="/jogo/cyber-runner" element={user ? <CyberRunner user={user} /> : <Navigate to="/login" replace />} />
-          <Route path="/jogo/cyber-runner-canvas" element={user ? <CyberRunnerEnhanced user={user} /> : <Navigate to="/login" replace />} />
+          <Route path="/jogo/cyber-runner" element={<Navigate to="/jogo/cyber-runner-canvas" replace />} />
+          <Route path="/jogo/cyber-runner-canvas" element={user ? <CyberRunner user={user} /> : <Navigate to="/login" replace />} />
           <Route path="/jogo/echo-temple" element={user ? <EchoTemple user={user} /> : <Navigate to="/login" replace />} />
           <Route path="/jogo/sonic-jump" element={user ? <SonicJump user={user} /> : <Navigate to="/login" replace />} />
           <Route path="/jogo/gravity-lab" element={user ? <GravityLab user={user} /> : <Navigate to="/login" replace />} />

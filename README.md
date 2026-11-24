@@ -1,128 +1,126 @@
-<p align="center"><img src="docs/brand/neuroplay-icon.svg" width="120" alt="Logo NeuroPlay"></p>
+<p align="center"><img src="docs/marca/neuroplay-icon.svg" width="120" alt="Logo NeuroPlay"></p>
 
 # NeuroPlay
 
-**Acesse:** https://dev-hp.github.io/neuroplay — clique em **"Entrar como educador demonstração"**.
+> Plataforma web educacional de jogos lúdicos para inclusão digital de crianças com TEA e TDAH, com acompanhamento descritivo das sessões por educadores.
 
-> Plataforma web educacional de atividades lúdicas com jogos interativos e acompanhamento descritivo de sessões autorizadas.
+**Acesse:** https://dev-hp.github.io/neuroplay — clique em **"Entrar como educador demonstração"**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Status do produto
+> **Limite de uso:** o NeuroPlay é software educacional. Não é dispositivo médico, não faz diagnóstico, não promete tratamento ou melhora clínica e não substitui avaliação profissional.
 
-O NeuroPlay possui um **MVP funcional** com API Flask, PostgreSQL, Redis/Celery, autenticação de adultos, organizações, perfis de estudantes pseudonimizados, consentimento versionado, persistência de gameplay, idempotência, isolamento multi-organização, auditoria, exportação e exclusão lógica.
+## O que é
 
-A publicação do frontend no GitHub Pages não hospeda o backend. Para operar publicamente com dados reais, é necessário configurar uma hospedagem HTTPS para a API, banco PostgreSQL e Redis, além dos secrets descritos em [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md). Sem essa configuração, a publicação roda em **modo demonstração**: as mesmas rotas da API (login, estudantes, consentimento, sessões e relatórios) são atendidas no próprio navegador e os dados ficam só naquele dispositivo. Nenhum dado é enviado a servidores. Ao configurar o secret `REACT_APP_API_URL`, o modo demonstração é desligado automaticamente.
-
-A auditoria de design, usabilidade e código, com os testes práticos dos jogos, está em [`docs/auditoria/`](docs/auditoria/AUDITORIA_UX_E_CODIGO.md).
-
-> **Limite de uso:** o NeuroPlay é software educacional de atividades lúdicas. Não é dispositivo médico, não fornece diagnóstico, não promete tratamento ou melhora clínica e não substitui avaliação profissional.
-
-## O que está implementado
-
-| Área | Implementação real |
+| Área | Implementação |
 |---|---|
-| Autenticação | Cadastro, login, logout, access token curto, refresh token rotacionável e revogação de sessão. |
-| Organizações | Tenant, memberships e papéis `owner`, `admin` e `educador`. |
-| Estudantes | Perfis pseudonimizados criados por adulto autorizado; sem login infantil por e-mail no MVP. |
-| Governança | Consentimento versionado, revogação, auditoria, exportação e exclusão lógica. |
-| Gameplay | Sessões persistidas por atividade, score, duração, acertos, erros, eventos limitados e idempotency key. |
-| Relatórios | Indicadores descritivos por estudante e exportação CSV; nenhum score é interpretado como diagnóstico. |
-| Jogos | Cyber-Runner, Templo dos Ecos, Sonic Jump, Gravity Lab, Mestres do Sinal, Caçador de Alvos e Memória Dupla. |
-| Operação | Docker Compose, healthcheck, WSGI explícito, inicialização do schema, testes automatizados e GitHub Actions. |
+| Jogos | 7 jogos, um processo cognitivo por jogo (veja a tabela abaixo), com controles por toque, mouse e teclado |
+| Estudantes | Perfis pseudonimizados criados por um adulto autorizado; sem login infantil |
+| Governança | Consentimento versionado, revogação, auditoria, exportação e exclusão lógica |
+| Relatórios | Indicadores descritivos por estudante (pontos, acertos, erros, duração) e exportação CSV |
+| Acesso | Organizações, papéis `owner`/`admin`/`educador`, JWT de curta duração e refresh token rotacionável |
+| Publicação | GitHub Pages em **modo demonstração** (dados só no navegador) ou API Flask + PostgreSQL |
 
-## Pesquisa e posicionamento
+## Jogos
 
-As atividades são inspiradas em tarefas de atenção, memória de trabalho, controle inibitório e flexibilidade cognitiva. A literatura sobre serious games sugere potencial de engajamento e de melhoria em alguns desfechos, mas também aponta heterogeneidade, amostras pequenas e evidência insuficiente para claims específicos. O NeuroPlay, portanto, registra dados de interação para acompanhamento pedagógico e não para inferência clínica.
+| Jogo | Processo | Tarefa de referência |
+|---|---|---|
+| Mestres do Sinal | Controle inibitório | Go/No-Go (75% Go / 25% No-Go) |
+| Cyber-Runner | Atenção em multitarefa | Escolha rápida com distratores |
+| Templo dos Ecos | Memória visuoespacial | Sequência tipo Corsi |
+| Memória Dupla | Memória de trabalho | n-back |
+| Gravity Lab | Flexibilidade cognitiva | Troca de regra (tipo DCCS) |
+| Caçador de Alvos | Busca visual | — |
+| Sonic Jump | Processamento fonológico | — |
 
-Consulte [`docs/PRODUCT_POSITIONING.md`](docs/PRODUCT_POSITIONING.md), [`docs/PRODUCT_ARCHITECTURE.md`](docs/PRODUCT_ARCHITECTURE.md) e [`docs/ACADEMIC_RESEARCH.md`](docs/ACADEMIC_RESEARCH.md) para o posicionamento, modelo de dados, evidência e critérios de evolução do produto.
+A análise da evidência científica de cada jogo, com o que manter, melhorar e substituir, está em [`docs/pesquisa/ANALISE_JOGOS_EVIDENCIAS.md`](docs/pesquisa/ANALISE_JOGOS_EVIDENCIAS.md).
 
-## Execução local com dados reais de desenvolvimento
+## Estrutura do repositório
 
-```bash
-git clone https://github.com/Dev-HP/neuroplay.git
-cd neuroplay
-cp .env.example .env
+```text
+neuroplay/
+├── backend/            API Flask (app.py), WSGI, testes Pytest e Dockerfile
+├── frontend/           App React
+│   └── src/
+│       ├── pages/      Login, painel do estudante e painel do educador
+│       ├── games/      Um jogo por pasta + games/shared (feedback e telemetria)
+│       ├── features/   Conquistas
+│       ├── shared/     Componentes, API, modo demonstração, adaptação, utilitários
+│       └── store/      Estado global (Zustand)
+├── database/           schema.sql
+├── docs/               Documentação (índice em docs/README.md)
+├── legacy/pygame/      Protótipos desktop antigos (fora do produto)
+├── scripts/            Scripts de apoio (PowerShell/Bash)
+├── tests/load/         Teste de carga (Locust)
+└── .github/workflows/  CI, testes e deploy no GitHub Pages
 ```
 
-Edite `.env` e substitua `SECRET_KEY`, `POSTGRES_PASSWORD`, `DATABASE_URL` e demais valores. Em seguida, suba os serviços:
+Detalhes em [`docs/arquitetura/PROJECT_STRUCTURE.md`](docs/arquitetura/PROJECT_STRUCTURE.md).
+
+## Executar localmente
+
+**Só o frontend, em modo demonstração (sem banco):**
 
 ```bash
+cd frontend
+npm ci --legacy-peer-deps
+REACT_APP_DEMO_MODE=true npm start
+```
+
+**Stack completa com Docker:**
+
+```bash
+cp .env.example .env   # troque SECRET_KEY, POSTGRES_PASSWORD e DATABASE_URL
 docker compose up -d --build
 ```
 
-Acesse o frontend em `http://localhost:3000` e a API em `http://localhost:5000`. O perfil PgAdmin é opcional e deve ser iniciado apenas para administração local:
+Frontend em `http://localhost:3000` e API em `http://localhost:5000`.
 
-```bash
-docker compose --profile admin up -d pgadmin
-```
-
-O entrypoint do backend cria as tabelas e publica o catálogo de atividades na primeira inicialização. Em produção, use migrações controladas e backup gerenciado conforme a documentação operacional.
-
-## Execução manual do backend
+**Backend manual:**
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-export APP_ENV=development
-export SECRET_KEY='uma-chave-local-com-pelo-menos-32-caracteres'
+export APP_ENV=development SECRET_KEY='uma-chave-local-com-pelo-menos-32-caracteres'
 export DATABASE_URL='sqlite:///neuroplay-development.db'
 flask --app wsgi:application init-db
 gunicorn --bind 127.0.0.1:5000 wsgi:application
 ```
 
-Para produção, não use SQLite, não use secrets de exemplo e não exponha o servidor sem HTTPS reverso.
+Em produção, use PostgreSQL, secrets próprios e HTTPS.
 
-## Arquitetura
-
-```text
-React + jogos canvas/Three.js
-            │ HTTPS + Bearer access token
-            ▼
-Flask API v1 + WSGI + RBAC + tenant isolation
-            │
-            ├── PostgreSQL: contas, organizações, consentimentos e sessões
-            ├── Redis/Celery: tarefas assíncronas opcionais
-            └── Auditoria, healthcheck e exportação
-```
-
-A API principal está em `backend/app.py`, o entrypoint WSGI em `backend/wsgi.py`, os contratos de integração em `backend/tests/test_product_api.py` e o cliente comum dos jogos em `frontend/src/shared/api/gameplay.js`.
-
-## Validação local
+## Testes
 
 ```bash
-cd backend
-pytest -q
-
-cd ../frontend
-CI=true npm test -- --watchAll=false --passWithNoTests
-CI=false GENERATE_SOURCEMAP=false npm run build
-cp build/index.html build/404.html
+cd backend && pytest -q                                   # 13 testes da API
+cd frontend && CI=true npm test -- --watchAll=false       # 146 testes (18 suítes)
 ```
 
-Os testes de produto verificam cadastro, consentimento, persistência, idempotência e isolamento entre organizações. A suíte do frontend cobre 17 suítes e 141 testes, incluindo a política local de adaptação e o motor compartilhado dos jogos.
+O GitHub Actions roda as duas suítes a cada push e publica o frontend no GitHub Pages.
+
+## Modo demonstração e deploy
+
+Sem o secret `REACT_APP_API_URL`, o deploy no GitHub Pages ativa o modo demonstração: as rotas da API (login, estudantes, consentimento, sessões, relatórios) são atendidas no próprio navegador e nada é enviado a servidores. Com o secret configurado, o frontend usa a API real. Veja [`docs/guias/DEPLOY_BACKEND.md`](docs/guias/DEPLOY_BACKEND.md).
 
 ## Documentação
 
-| Documento | Conteúdo |
+| Pasta | Conteúdo |
 |---|---|
-| [`docs/PRODUCT_ARCHITECTURE.md`](docs/PRODUCT_ARCHITECTURE.md) | Escopo v1, modelo de dados, API, segurança e critérios de aceite. |
-| [`docs/DEPLOY_BACKEND.md`](docs/DEPLOY_BACKEND.md) | Deploy HTTPS, variáveis, banco, Redis e configuração do GitHub Pages. |
-| [`docs/LOCAL_ADAPTATION.md`](docs/LOCAL_ADAPTATION.md) | Política local de adaptação de dificuldade, limites, segurança e evolução futura. |
-| [`docs/PRODUCT_POSITIONING.md`](docs/PRODUCT_POSITIONING.md) | Promessa, limites educacionais e critérios para futuros claims. |
-| [`docs/architecture/ARQUITETURA.md`](docs/architecture/ARQUITETURA.md) | Arquitetura histórica e componentes do projeto. |
-| [`docs/guides/DEPLOY.md`](docs/guides/DEPLOY.md) | Procedimentos existentes de deploy. |
+| [`docs/produto/`](docs/produto/) | Posicionamento, limites de uso, roadmap e especificação do painel |
+| [`docs/arquitetura/`](docs/arquitetura/) | Arquitetura, modelo de dados, adaptação local e design system |
+| [`docs/pesquisa/`](docs/pesquisa/) | Evidência científica, análise dos jogos e artigo |
+| [`docs/jogos/`](docs/jogos/) | Guias dos jogos e sistema de conquistas |
+| [`docs/guias/`](docs/guias/) | Instalação e deploy |
+| [`docs/qualidade/`](docs/qualidade/) | Auditoria de UX e código, teste prático e estratégia de testes |
+| [`docs/seguranca/`](docs/seguranca/) | Revisão de segurança e requisitos de LGPD |
+| [`docs/marca/`](docs/marca/) | Logo e aplicações |
+| [`docs/historico/`](docs/historico/) | Relatórios e planos antigos, mantidos só como registro |
 
-## Privacidade e segurança
+## Privacidade
 
-Não envie dados pessoais, clínicos ou identificáveis para issues, commits ou fixtures. O MVP foi desenhado para usar identificadores pedagógicos mínimos, consentimento e papéis de acesso, mas uma operação com crianças ainda exige revisão jurídica, política de retenção, DPIA/RIPD, responsáveis definidos, backup, monitoramento e validação institucional antes de uso real.
+Não envie dados pessoais, clínicos ou identificáveis em issues, commits ou fixtures. O uso real com crianças exige as medidas descritas em [`docs/seguranca/`](docs/seguranca/).
 
-## Contribuição e licença
+## Licença e autor
 
-Contribuições são bem-vindas por meio de issues e pull requests. O projeto está sob a licença [MIT](LICENSE). Toda contribuição envolvendo dados de crianças deve usar dados sintéticos e manter a minimização como requisito de revisão.
-
-## Autor
-
-**Hélio Paulo Leite de Lima** — [GitHub](https://github.com/Dev-HP)
+[MIT](LICENSE) · **Hélio Paulo Leite de Lima** — [GitHub](https://github.com/Dev-HP)

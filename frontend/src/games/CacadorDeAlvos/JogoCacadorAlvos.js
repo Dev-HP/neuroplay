@@ -1,0 +1,534 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei';
+import { motion } from 'framer-motion';
+import audioManager from '../../shared/utils/audioManager';
+import localAdaptation from '../../shared/utils/localAdaptation';
+import ParticleSystem from '../../shared/components/ParticleSystem';
+import EmergencyStop from '../../shared/components/EmergencyStop';
+import errorCascadeDetector from '../../shared/utils/errorCascadeDetector';
+import useGameStore from '../../store/gameStore';
+import { apiUrl } from '../../shared/config/api';
+import './JogoCacadorAlvos.css';
+
+// Componente do personagem (nave espacial)
+function Spaceship({ position, onMove }) {
+  const meshRef = useRef();
+  const [hovered, setHovered] = useState(false);
+
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += 0.01;
+      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+    }
+  });
+
+  return (
+    <mesh
+      ref={meshRef}
+      position={position}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+      scale={hovered ? 1.2 : 1}
+    >
+      <coneGeometry args={[0.5, 1.5, 8]} />
+      <meshStandardMaterial color={hovered ? '#d4a63f' : '#3f6fb5'} emissive="#3f6fb5" emissiveIntensity={0.5} />
+    </mesh>
+  );
+}
+
+// Componente de alvo
+function Target({ position, onCollect, id, type = 'good' }) {
+  const meshRef = useRef();
+  const [collected, setCollected] = useState(false);
+
+  useFrame((state) => {
+    if (meshRef.current && !collected) {
+      meshRef.current.rotation.x += 0.02;
+      meshRef.current.rotation.y += 0.02;
+      meshRef.current.position.y += Math.sin(state.clock.elapsedTime * 3 + id) * 0.05;
+    }
+  });
+
+  const handleClick = () => {
+    if (!collected) {
+      setCollected(true);
+      onCollect(type, id);
+    }
+  };
+
+  if (collected) return null;
+
+  const color = type === 'good' ? '#4c9468' : type === 'bonus' ? '#d4a63f' : '#c96a67';
+
+  return (
+    <mesh ref={meshRef} position={position} onClick={handleClick}>
+      {type === 'bonus' ? (
+        <octahedronGeometry args={[0.4]} />
+      ) : (
+        <sphereGeometry args={[0.3, 16, 16]} />
+      )}
+      <meshStandardMaterial 
+        color={color} 
+        emissive={color} 
+        emissiveIntensity={0.8}
+        metalness={0.5}
+        roughness={0.2}
+      />
+    </mesh>
+  );
+}
+
+// Componente de obstáculo
+function Obstacle({ position, onCollision, id }) {
+  const meshRef = useRef();
+  const [hit, setHit] = useState(false);
+
+  useFrame((state) => {
+    if (meshRef.current && !hit) {
+      meshRef.current.rotation.x += 0.03;
+      meshRef.current.rotation.z += 0.02;
+    }
+  });
+
+  const handleClick = () => {
+    if (!hit) {
+      setHit(true);
+      onCollision(id);
+    }
+  };
+
+  if (hit) return null;
+
+  return (
+    <mesh ref={meshRef} position={position} onClick={handleClick}>
+      <boxGeometry args={[0.6, 0.6, 0.6]} />
+      <meshStandardMaterial 
+        color="#c96a67" 
+        emissive="#d32f2f" 
+        emissiveIntensity={0.5}
+        wireframe
+      />
+    </mesh>
+  );
+}
+
+// Componente principal do jogo
+function JogoCacadorAlvos({ user }) {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('student_id') || user?.student_id || (user?.tipo === 'aluno' ? user.id : null);
+  const [gameState, setGameState] = useState('ready'); // ready, playing, paused, finished
+  const [score, setScore] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [targets, setTargets] = useState([]);
+  const [obstacles, setObstacles] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [combo, setCombo] = useState(0);
+  const [stats, setStats] = useState({
+    collected: 0,
+    missed: 0,
+    collisions: 0,
+    accuracy: 100
+  });
+  const [showParticles, setShowParticles] = useState(false);
+  const [particleType, setParticleType] = useState('success');
+  const [shipPosition] = useState([0, 0, 0]);
+  const [targetTimestamps, setTargetTimestamps] = useState({});
+  const [reactionTimes, setReactionTimes] = useState([]);
+  const [cascadeMessage, setCascadeMessage] = useState(null);
+  const [showCascadeModal, setShowCascadeModal] = useState(false);
+  const gameStartTime = useRef(null);
+  const addPoints = useGameStore(state => state.addPoints);
+
+  useEffect(() => {
+    audioManager.init();
+    localAdaptation.init();
+  }, []);
+
+  const finishGame = useCallback(async () => {
+    setGameState('finished');
+    addPoints(score);
+
+    const gameTime = (Date.now() - gameStartTime.current) / 1000;
+    if (!studentId) {
+      setCascadeMessage('Selecione um perfil de estudante autorizado antes de iniciar uma atividade.');
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('token');
+      await fetch(apiUrl('/api/v1/gameplay/sync'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          session_id: `cacador-alvos-${studentId}-${Date.now()}`,
+          student_id: Number(studentId),
+          game_type: 'cacador-alvos',
+          score,
+          pontos: score,
+          duration_seconds: Math.floor(gameTime),
+          tempo_gasto: Math.floor(gameTime),
+          acertos: stats.collected,
+          erros: stats.collisions,
+          events: reactionTimes.map((event) => ({ type: 'reaction', data: event }))
+        })
+      });
+    } catch (error) {
+      setCascadeMessage(error.response?.data?.error || 'Não foi possível salvar a sessão. Verifique o consentimento e tente novamente.');
+    }
+
+    localAdaptation.generateInsights();
+  }, [score, stats, studentId, addPoints, reactionTimes]);
+
+  useEffect(() => {
+    if (gameState === 'playing') {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            finishGame();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [gameState, finishGame]);
+
+  const startGame = () => {
+    setGameState('playing');
+    setScore(0);
+    setCombo(0);
+    setTimeLeft(60);
+    setStats({ collected: 0, missed: 0, collisions: 0, accuracy: 100 });
+    gameStartTime.current = Date.now();
+    errorCascadeDetector.reset();
+    setCascadeMessage(null);
+    setShowCascadeModal(false);
+    spawnTargets();
+    spawnObstacles();
+    audioManager.playMelody([
+      { pitch: 'C5', duration: 0.1 },
+      { pitch: 'E5', duration: 0.1 },
+      { pitch: 'G5', duration: 0.2 }
+    ]);
+  };
+
+  const spawnTargets = () => {
+    const newTargets = [];
+    const count = 5 + level * 2;
+    const now = performance.now();
+    const newTimestamps = {};
+    
+    for (let i = 0; i < count; i++) {
+      const type = Math.random() > 0.8 ? 'bonus' : 'good';
+      const targetId = Date.now() + i;
+      newTargets.push({
+        id: targetId,
+        position: [
+          (Math.random() - 0.5) * 10,
+          (Math.random() - 0.5) * 5 + 2,
+          (Math.random() - 0.5) * 10
+        ],
+        type
+      });
+      newTimestamps[targetId] = now;
+    }
+    
+    setTargets(newTargets);
+    setTargetTimestamps(newTimestamps);
+  };
+
+  const spawnObstacles = () => {
+    const newObstacles = [];
+    const count = Math.min(level * 2, 10);
+    
+    for (let i = 0; i < count; i++) {
+      newObstacles.push({
+        id: Date.now() + i + 1000,
+        position: [
+          (Math.random() - 0.5) * 10,
+          (Math.random() - 0.5) * 5 + 2,
+          (Math.random() - 0.5) * 10
+        ]
+      });
+    }
+    
+    setObstacles(newObstacles);
+  };
+
+  const handleCollectTarget = (type, id) => {
+    const reactionTime = performance.now() - (targetTimestamps[id] || 0);
+    
+    setReactionTimes(prev => [...prev, {
+      timestamp: Date.now(),
+      reactionTime: Math.round(reactionTime),
+      targetType: type,
+      targetId: id
+    }]);
+    
+    const points = type === 'bonus' ? 50 : 20;
+    const comboBonus = combo * 5;
+    const totalPoints = points + comboBonus;
+    
+    setScore(prev => prev + totalPoints);
+    setCombo(prev => prev + 1);
+    setStats(prev => ({
+      ...prev,
+      collected: prev.collected + 1,
+      accuracy: ((prev.collected + 1) / (prev.collected + prev.missed + 1)) * 100
+    }));
+
+    // Registrar acerto no detector de cascata
+    errorCascadeDetector.addAttempt(true);
+
+    // Remover alvo coletado
+    setTargets(prev => prev.filter(t => t.id !== id));
+
+    // Efeitos visuais e sonoros
+    audioManager.play('success');
+    setParticleType(type === 'bonus' ? 'achievement' : 'success');
+    setShowParticles(true);
+    setTimeout(() => setShowParticles(false), 500);
+
+    // Verificar se coletou todos os alvos
+    if (targets.length <= 1) {
+      levelUp();
+    }
+
+    // Analisar performance com IA
+    localAdaptation.analyzePerformance({
+      accuracy: stats.accuracy,
+      reactionTime: 500,
+      errorsCount: stats.collisions,
+      successStreak: combo,
+      timeSpent: (Date.now() - gameStartTime.current) / 1000,
+      difficultyLevel: level
+    });
+  };
+
+  const handleCollision = (id) => {
+    setScore(prev => Math.max(0, prev - 10));
+    setCombo(0);
+    setStats(prev => ({
+      ...prev,
+      collisions: prev.collisions + 1,
+      accuracy: (prev.collected / (prev.collected + prev.missed + prev.collisions + 1)) * 100
+    }));
+
+    // Registrar erro no detector de cascata
+    const cascadeResult = errorCascadeDetector.addAttempt(false);
+
+    // Verificar cascata de erros
+    if (cascadeResult.cascade && !cascadeResult.cooldown) {
+      console.warn('⚠️ Cascata de erros detectada!', cascadeResult);
+      
+      // Reduzir dificuldade automaticamente
+      if (level > 1 && cascadeResult.severity === 'critical') {
+        setLevel(prev => Math.max(1, prev - 1));
+        setCascadeMessage('Vamos facilitar um pouco! Você consegue! 💪');
+      } else {
+        setCascadeMessage(cascadeResult.suggestion);
+      }
+      
+      // Se crítico, pausar o jogo
+      if (cascadeResult.severity === 'critical') {
+        setGameState('paused');
+        setShowCascadeModal(true);
+      }
+    }
+
+    // Remover obstáculo
+    setObstacles(prev => prev.filter(o => o.id !== id));
+
+    audioManager.play('error');
+    setParticleType('error');
+    setShowParticles(true);
+    setTimeout(() => setShowParticles(false), 300);
+  };
+
+  const handleContinueAfterPause = () => {
+    setShowCascadeModal(false);
+    setCascadeMessage(null);
+    setGameState('playing');
+  };
+
+  const handleTakePause = () => {
+    setShowCascadeModal(false);
+    navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno');
+  };
+
+  const levelUp = () => {
+    setLevel(prev => prev + 1);
+    setTimeLeft(prev => prev + 15);
+    audioManager.play('achievement');
+    
+    setTimeout(() => {
+      spawnTargets();
+      spawnObstacles();
+    }, 1000);
+  };
+
+
+
+  return (
+    <div className="jogo-cacador-container">
+      <EmergencyStop onStop={() => setGameState('ready')} />
+      {!studentId && <div className="status-banner" role="status">Selecione um perfil autorizado no painel do educador.</div>}
+      <ParticleSystem type={particleType} active={showParticles} />
+      
+      <div className="game-header">
+        <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn-voltar">
+          ← Voltar
+        </button>
+        <div className="game-stats">
+          <div className="stat-item">
+            <span className="stat-label">Pontos:</span>
+            <span className="stat-value">{score}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Nível:</span>
+            <span className="stat-value">{level}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Tempo:</span>
+            <span className="stat-value">{timeLeft}s</span>
+          </div>
+          {combo > 0 && (
+            <motion.div 
+              className="combo-display"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+            >
+              🔥 Combo x{combo}
+            </motion.div>
+          )}
+
+          {/* Mensagem de encorajamento durante cascata */}
+          {cascadeMessage && !showCascadeModal && (
+            <div className="cascade-warning">
+              <div className="cascade-icon">💪</div>
+              <p>{cascadeMessage}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {gameState === 'ready' && (
+        <motion.div 
+          className="start-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <h1>🚀 Caçador de Alvos</h1>
+          <p>Colete as esferas verdes e douradas!</p>
+          <p>Evite os cubos vermelhos!</p>
+          <button onClick={startGame} className="btn btn-primary btn-large">
+            Iniciar Missão
+          </button>
+        </motion.div>
+      )}
+
+      {gameState === 'finished' && (
+        <motion.div 
+          className="finish-overlay"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <h1>🎉 Missão Completa!</h1>
+          <div className="final-stats">
+            <div className="final-stat">
+              <span className="final-label">Pontuação Final:</span>
+              <span className="final-value">{score}</span>
+            </div>
+            <div className="final-stat">
+              <span className="final-label">Alvos Coletados:</span>
+              <span className="final-value">{stats.collected}</span>
+            </div>
+            <div className="final-stat">
+              <span className="final-label">Precisão:</span>
+              <span className="final-value">{stats.accuracy.toFixed(1)}%</span>
+            </div>
+            <div className="final-stat">
+              <span className="final-label">Nível Alcançado:</span>
+              <span className="final-value">{level}</span>
+            </div>
+          </div>
+          <div className="final-buttons">
+            <button onClick={startGame} className="btn btn-primary">
+              Jogar Novamente
+            </button>
+            <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn btn-secondary">
+              Menu Principal
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Modal de pausa sugerida */}
+      {showCascadeModal && (
+        <div className="cascade-modal-overlay">
+          <div className="cascade-modal">
+            <div className="cascade-modal-icon">😊</div>
+            <h2>Vamos fazer uma pausa?</h2>
+            <p>Você está indo muito bem! Que tal descansar um pouquinho?</p>
+            <p className="cascade-modal-subtitle">Descansar ajuda a concentração e melhora o desempenho!</p>
+            <div className="cascade-modal-actions">
+              <button onClick={handleTakePause} className="btn btn-primary">
+                Fazer Pausa
+              </button>
+              <button onClick={handleContinueAfterPause} className="btn btn-secondary">
+                Continuar Jogando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Canvas className="game-canvas">
+        <PerspectiveCamera makeDefault position={[0, 5, 10]} />
+        <OrbitControls enableZoom={false} enablePan={false} />
+        
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3f6fb5" />
+        
+        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+        
+        {gameState === 'playing' && (
+          <>
+            <Spaceship position={shipPosition} />
+            
+            {targets.map(target => (
+              <Target
+                key={target.id}
+                id={target.id}
+                position={target.position}
+                type={target.type}
+                onCollect={handleCollectTarget}
+              />
+            ))}
+            
+            {obstacles.map(obstacle => (
+              <Obstacle
+                key={obstacle.id}
+                id={obstacle.id}
+                position={obstacle.position}
+                onCollision={handleCollision}
+              />
+            ))}
+          </>
+        )}
+      </Canvas>
+    </div>
+  );
+}
+
+export default JogoCacadorAlvos;

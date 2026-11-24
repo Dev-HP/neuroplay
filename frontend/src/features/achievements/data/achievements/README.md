@@ -428,7 +428,7 @@ MIT License - NeuroPlay 2024
 
 ## 🤝 Contribuindo
 
-Veja [CONTRIBUTING.md](../../../CONTRIBUTING.md) para detalhes.
+Veja [CONTRIBUTING.md](../../../../../../CONTRIBUTING.md) para detalhes.
 
 ## 📧 Suporte
 

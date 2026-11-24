@@ -1,44 +1,23 @@
-# NeuroPlay 2.0 - Módulos de Jogos
+# Jogos
 
-Esta pasta contém os 4 módulos principais do NeuroPlay 2.0:
+Cada jogo fica numa pasta própria e é aberto pela rota `/jogo/<slug>?student_id=<id>`.
 
-## 📁 Estrutura
+| Pasta | Rota | Processo | Como termina |
+|---|---|---|---|
+| `MestresDoSinal/` | `mestres-sinal` | Controle inibitório (Go/No-Go 75/25) | Bloco de 20 sinais |
+| `CacadorDeAlvos/` | `cacador-alvos` | Busca visual | Tempo de 60 s |
+| `MemoriaDupla/` | `memoria-dupla` | Memória de trabalho (n-back) | 4 rodadas |
+| `CyberRunner/` | `cyber-runner-canvas` | Atenção em multitarefa | Vidas ou botão Encerrar |
+| `EchoTemple/` | `echo-temple` | Memória visuoespacial | Cada sequência salva; Encerrar |
+| `SonicJump/` | `sonic-jump` | Processamento fonológico | Vidas ou botão Encerrar |
+| `GravityLab/` | `gravity-lab` | Flexibilidade cognitiva | 3 experimentos ou Encerrar |
 
-```
-games/
-├── CyberRunner/          # Módulo 1: Controle Inibitório
-├── EchoTemple/           # Módulo 2: Memória Visuoespacial
-├── SonicJump/            # Módulo 3: Processamento Fonológico
-├── GravityLab/           # Módulo 4: Flexibilidade Cognitiva
-├── NeuroGuardian/        # Hub Central (Mind Palace)
-└── shared/               # Componentes compartilhados
-```
+Regras para um jogo novo:
 
-## 🎮 Módulos
+1. Pasta `games/<Nome>/` com `<Nome>.js` e `<Nome>.css`; todo seletor do CSS começa pela classe raiz do jogo.
+2. Jogos em canvas: estado em `gameRef` criado uma vez; controles na tela com `shared/components/GameControls`.
+3. Salvar com `shared/api/gameplay.js` (`persistGameplay`) só quando houver jogada.
+4. Fim claro (tempo, número de tentativas ou "Encerrar") e uma resposta por estímulo.
+5. Registrar o jogo em `App.js`, em `pages/PainelAluno.js` e no catálogo do backend (`seed_activities`).
 
-### 1. Cyber-Runner (Córtex Pré-Frontal)
-- **Alvo**: Controle Inibitório + Raciocínio Aritmético
-- **Tipo**: Endless Runner 2.5D
-- **Mecânicas**: Go/No-Go + Dual-Task Matemático
-
-### 2. Templo dos Ecos (Hipocampo)
-- **Alvo**: Memória Visuoespacial + Navegação
-- **Tipo**: Exploração 3D Isométrica
-- **Mecânicas**: Dual N-Back Adaptativo
-
-### 3. Orquestra das Plataformas (Giro Temporal Superior)
-- **Alvo**: Processamento Fonológico
-- **Tipo**: Plataforma Musical 3D
-- **Mecânicas**: Discriminação Auditiva + Física
-
-### 4. Laboratório de Gravidade (Córtex Parietal)
-- **Alvo**: Flexibilidade Cognitiva
-- **Tipo**: Physics Puzzle Primeira Pessoa
-- **Mecânicas**: Set-Shifting + NPC Emocional
-
-## 🏗️ Componentes Compartilhados
-
-- `FeedbackSystem` - Feedback multissensorial
-- `TelemetryHook` - Sistema de telemetria
-- `AdaptiveAI` - Engine de adaptação
-- `PhysicsWrapper` - Wrapper do Rapier
+Base científica e recomendações: `docs/pesquisa/ANALISE_JOGOS_EVIDENCIAS.md`.

@@ -1,0 +1,365 @@
+/* ===== JOGO MESTRES DO SINAL - DESIGN SYSTEM ===== */
+
+.jogo-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+  color: var(--white);
+}
+
+.jogo-container .jogo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-6);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.jogo-container .btn-voltar {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  border: none;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all var(--transition-base);
+}
+
+.jogo-container .btn-voltar:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.jogo-container .pontos-display {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: var(--gradient-warning);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  color: var(--gray-900);
+}
+
+.jogo-container .jogo-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: var(--space-10);
+}
+
+.jogo-container .start-screen {
+  text-align: center;
+  max-width: 600px;
+}
+
+.jogo-container .start-screen h1 {
+  font-size: 3rem;
+  margin-bottom: var(--space-6);
+}
+
+.jogo-container .start-screen p {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.9;
+}
+
+.jogo-container .btn-large {
+  font-size: 1.5rem;
+  padding: var(--space-5) var(--space-12);
+  margin-top: var(--space-8);
+}
+
+.jogo-container .game-screen {
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.jogo-container .sinal {
+  width: 300px;
+  height: 300px;
+  margin: 0 auto var(--space-10);
+  border-radius: var(--radius-full);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  font-size: 7.5rem;
+  line-height: 1;
+  box-shadow: 0 0 60px rgba(255, 255, 255, 0.3);
+  animation: pulse 1s infinite;
+  transition: all var(--transition-base);
+}
+
+.jogo-container .sinal.go {
+  background: radial-gradient(circle, var(--success) 0%, var(--success-dark) 100%);
+  box-shadow: 0 0 80px rgba(16, 185, 129, 0.8);
+}
+
+.jogo-container .sinal.no-go {
+  background: radial-gradient(circle, var(--error) 0%, var(--error-dark) 100%);
+  box-shadow: 0 0 80px rgba(239, 68, 68, 0.8);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.jogo-container .sinal-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--white, #fff);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  max-width: 80%;
+  text-align: center;
+}
+
+.jogo-container .btn-acao {
+  position: relative;
+  z-index: 1;
+  background: var(--white);
+  color: var(--gray-900);
+  border: none;
+  padding: var(--space-5) var(--space-16);
+  border-radius: var(--radius-xl);
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-xl);
+}
+
+.jogo-container .btn-acao:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2xl);
+}
+
+.jogo-container .btn-acao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jogo-container .stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-10);
+  margin-top: var(--space-10);
+}
+
+.jogo-container .stat-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: var(--space-5) var(--space-10);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+}
+
+.jogo-container .stat-label {
+  display: block;
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: var(--space-2);
+}
+
+.jogo-container .stat-value {
+  display: block;
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+/* ===== CASCADE DETECTION UI ===== */
+
+.jogo-container .cascade-warning {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #d4a63f 0%, #d18b3a 100%);
+  color: var(--gray-900);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  animation: slideDown 0.3s ease-out;
+  z-index: 100;
+  max-width: 500px;
+  text-align: center;
+}
+
+.jogo-container .cascade-warning .cascade-icon {
+  font-size: 2rem;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.jogo-container .cascade-warning p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.jogo-container .cascade-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.jogo-container .cascade-modal {
+  background: linear-gradient(135deg, var(--white) 0%, #f8f9fa 100%);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+  max-width: 500px;
+  width: 90%;
+  box-shadow: var(--shadow-2xl);
+  text-align: center;
+  animation: scaleIn 0.3s ease-out;
+}
+
+.jogo-container .cascade-modal-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.jogo-container .cascade-modal h2 {
+  color: var(--gray-900);
+  font-size: 2rem;
+  margin-bottom: var(--space-4);
+  font-weight: 700;
+}
+
+.jogo-container .cascade-modal p {
+  color: var(--gray-700);
+  font-size: 1.125rem;
+  margin-bottom: var(--space-3);
+  line-height: 1.6;
+}
+
+.jogo-container .cascade-modal-subtitle {
+  font-size: 1rem !important;
+  color: var(--gray-600) !important;
+  font-style: italic;
+}
+
+.jogo-container .cascade-modal-actions {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  justify-content: center;
+}
+
+.jogo-container .cascade-modal-actions .btn {
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-width: 180px;
+}
+
+.jogo-container .cascade-modal-actions .btn-primary {
+  background: var(--gradient-success);
+  color: var(--white);
+}
+
+.jogo-container .cascade-modal-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.jogo-container .cascade-modal-actions .btn-secondary {
+  background: var(--gray-200);
+  color: var(--gray-900);
+}
+
+.jogo-container .cascade-modal-actions .btn-secondary:hover {
+  background: var(--gray-300);
+  transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .jogo-container .cascade-warning {
+    max-width: 90%;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .jogo-container .cascade-modal {
+    padding: var(--space-6);
+  }
+
+  .jogo-container .cascade-modal h2 {
+    font-size: 1.5rem;
+  }
+
+  .jogo-container .cascade-modal-actions {
+    flex-direction: column;
+  }
+
+  .jogo-container .cascade-modal-actions .btn {
+    width: 100%;
+  }
+}
+
+.jogo-container .progresso-sinais {
+  margin: 0 0 var(--space-4);
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.85;
+}

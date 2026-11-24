@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import './EchoTemple.css';
 import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
-import { AdaptiveDifficulty } from '../CyberRunnerCanvas/adaptiveDifficulty';
+import { AdaptiveDifficulty } from '../../shared/adaptation/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
 import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';

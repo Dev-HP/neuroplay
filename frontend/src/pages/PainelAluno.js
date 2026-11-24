@@ -13,8 +13,8 @@ const jogos = [
   { id: 'mestres-sinal', titulo: 'Mestres do Sinal', descricao: 'Respostas a sinais e controle de impulsos', icone: '🎯', cor: 'coral', rota: '/jogo/mestres-sinal', nivel: 'Inicial' },
   { id: 'cacador-alvos', titulo: 'Caçador de Alvos', descricao: 'Atenção visual e seleção de alvos', icone: '🚀', cor: 'azul', rota: '/jogo/cacador-alvos', nivel: 'Em desenvolvimento' },
   { id: 'memoria-dupla', titulo: 'Memória Dupla', descricao: 'Memória de trabalho visuoespacial', icone: '🧠', cor: 'verde', rota: '/jogo/memoria-dupla', nivel: 'Avançado' },
-  { id: 'quebra-cabeca', titulo: 'Quebra-cabeça', descricao: 'Desenvolva sua lógica', icone: '🧩', cor: 'amarelo', rota: '/jogo/quebra-cabeca', nivel: 'Em breve', emBreve: true },
-  { id: 'jogo-memoria', titulo: 'Jogo da Memória', descricao: 'Exercite sua memória', icone: '🎴', cor: 'roxo', rota: '/jogo/jogo-memoria', nivel: 'Em breve', emBreve: true }
+  { id: 'jogo-emocoes', titulo: 'Jogo das Emoções', descricao: 'Reconhecer emoções e o que o outro sente', icone: '🙂', cor: 'amarelo', rota: '/jogo/emocoes', nivel: 'Em breve', emBreve: true },
+  { id: 'peixinhos', titulo: 'Peixinhos', descricao: 'Atenção ao peixe do meio, ignorando os vizinhos', icone: '🐟', cor: 'azul', rota: '/jogo/peixinhos', nivel: 'Em breve', emBreve: true }
 ];
 
 function PainelAluno({ user, onLogout }) {

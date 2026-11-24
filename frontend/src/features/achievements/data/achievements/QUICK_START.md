@@ -333,7 +333,7 @@ console.log('Container:', container);
 ## 📚 Próximos Passos
 
 - Leia o [README completo](./README.md)
-- Veja [exemplos avançados](./EXAMPLES.md)
+- Veja exemplos avançados
 - Consulte a [API Reference](./README.md#api-reference)
 
 ## 🎉 Pronto!
