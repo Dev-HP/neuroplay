@@ -35,6 +35,12 @@ IS_PRODUCTION = APP_ENV in {"production", "prod", "staging"}
 def _database_url() -> str:
     configured = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI")
     if configured:
+        # O projeto instala psycopg2; versões recentes do SQLAlchemy trocaram o
+        # driver padrão de "postgresql://" para psycopg (v3). Fixa o driver.
+        if configured.startswith("postgres://"):
+            configured = "postgresql://" + configured[len("postgres://"):]
+        if configured.startswith("postgresql://"):
+            configured = "postgresql+psycopg2://" + configured[len("postgresql://"):]
         return configured
     if IS_PRODUCTION:
         raise RuntimeError("DATABASE_URL é obrigatório em produção")
