@@ -174,11 +174,17 @@ function PainelEducador({ user, onLogout }) {
       ['Atividade', 'Acertos', 'Erros', 'Pontos', 'Duração (s)', 'Data'],
       ...progresso.map((item) => [item.jogo, item.acertos, item.erros, item.pontos, item.tempo_medio, item.data])
     ];
-    const csv = rows.map((row) => row.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(';')).join('\n');
+    // Neutraliza fórmulas (=, +, -, @) para o CSV não executar nada ao abrir no Excel.
+    const celula = (value) => {
+      const texto = String(value ?? '');
+      const seguro = /^[=+\-@\t\r]/.test(texto) ? `'${texto}` : texto;
+      return `"${seguro.replaceAll('"', '""')}"`;
+    };
+    const csv = rows.map((row) => row.map(celula).join(';')).join('\n');
     const url = window.URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a');
     link.href = url;
-    link.download = `relatorio_${alunoSelecionado.apelido || alunoSelecionado.nome}.csv`;
+    link.download = `relatorio_${String(alunoSelecionado.apelido || alunoSelecionado.nome || 'estudante').replace(/[^\p{L}\p{N}_-]+/gu, '_')}.csv`;
     link.click();
     window.URL.revokeObjectURL(url);
   };

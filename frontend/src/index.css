@@ -152,7 +152,7 @@ body {
 }
 
 /* Importar fonte Inter do Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+/* Fonte do sistema (sem Google Fonts): nenhum dado do visitante vai para terceiros. */
 
 code {
   font-family: 'Fira Code', 'Courier New', monospace;

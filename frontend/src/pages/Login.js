@@ -72,6 +72,11 @@ function Login({ onLogin }) {
           <p className="login-disclaimer" role="note">
             Plataforma educacional de atividades lúdicas. Não fornece diagnóstico ou tratamento.
           </p>
+          <p className="login-privacy">
+            <a href="https://github.com/Dev-HP/neuroplay/blob/main/docs/seguranca/AVISO_DE_PRIVACIDADE.md" target="_blank" rel="noopener noreferrer">
+              Como tratamos os dados das crianças
+            </a>
+          </p>
         </div>
 
         {isDemoMode() && (

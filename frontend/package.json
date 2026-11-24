@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "node scripts/build.js",
     "test": "react-scripts test --passWithNoTests",
     "test:coverage": "react-scripts test --watchAll=false --coverage",
     "test:ci": "react-scripts test --watchAll=false --coverage --maxWorkers=2",

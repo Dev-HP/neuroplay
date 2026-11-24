@@ -88,6 +88,8 @@ jobs:
 
       - name: Verificar Backend
         working-directory: ./backend
+        env:
+          APP_ENV: test
         run: |
           pip install -r requirements.txt
           python -c "import app; print('Backend OK')"

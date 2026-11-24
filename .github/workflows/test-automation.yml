@@ -9,6 +9,9 @@ on:
     # Roda testes automaticamente todo dia às 2am
     - cron: '0 2 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   # Job 1: Frontend Tests
   frontend-tests:

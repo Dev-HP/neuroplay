@@ -108,6 +108,7 @@ def init_sentry(app=None):
     sentry_sdk.init(
         dsn=sentry_dsn,
         environment=environment,
+        send_default_pii=False,  # nunca enviar IP, cookies ou dados de usuário
         
         # Integrações
         integrations=[

@@ -150,3 +150,8 @@ CORS_ORIGINS = [
 **Versão:** 2.5.0
 
 Obrigado por ajudar a manter o NeuroPlay seguro! 🙏
+
+## Documentação
+
+- Revisão de segurança mais recente: [`docs/seguranca/REVISAO_SEGURANCA.md`](docs/seguranca/REVISAO_SEGURANCA.md)
+- Requisitos de LGPD e ECA Digital: [`docs/seguranca/LGPD.md`](docs/seguranca/LGPD.md)

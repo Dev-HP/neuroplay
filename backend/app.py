@@ -20,6 +20,8 @@ import jwt
 from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from sqlalchemy import UniqueConstraint, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
@@ -28,8 +30,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 
 UTC = timezone.utc
-APP_ENV = os.getenv("APP_ENV", os.getenv("FLASK_ENV", "development")).lower()
-IS_PRODUCTION = APP_ENV in {"production", "prod", "staging"}
+# Seguro por padrão: sem APP_ENV explícito, o app se comporta como produção
+# (exige SECRET_KEY forte e DATABASE_URL). Desenvolvimento e testes precisam
+# declarar APP_ENV=development ou APP_ENV=test.
+APP_ENV = os.getenv("APP_ENV", os.getenv("FLASK_ENV", "production")).lower()
+IS_PRODUCTION = APP_ENV not in {"development", "dev", "test", "testing"}
 
 
 def _database_url() -> str:
@@ -90,6 +95,33 @@ CORS(
     allow_headers=["Content-Type", "Authorization", "Idempotency-Key", "X-Organization-ID"],
     methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
 )
+
+# Limite de tentativas nas rotas de autenticação (força bruta / credential stuffing).
+# Em produção com vários workers, use RATELIMIT_STORAGE_URI=redis://...
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
+    enabled=APP_ENV not in {"test", "testing"},
+)
+LOGIN_LIMIT = os.getenv("LOGIN_RATE_LIMIT", "10 per minute;50 per hour")
+REGISTER_LIMIT = os.getenv("REGISTER_RATE_LIMIT", "5 per minute;20 per hour")
+
+
+@app.after_request
+def security_headers(response):
+    """Cabeçalhos defensivos para todas as respostas da API."""
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    if IS_PRODUCTION:
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
 
 
 # ---------------------------------------------------------------------------
@@ -589,6 +621,7 @@ def handle_unexpected_error(error):
 
 
 @app.post("/api/v1/auth/register")
+@limiter.limit(REGISTER_LIMIT)
 def register_v1():
     data = _require_json()
     try:
@@ -605,6 +638,7 @@ def register_v1():
 
 
 @app.post("/api/v1/auth/login")
+@limiter.limit(LOGIN_LIMIT)
 def login_v1():
     result = login_account(_require_json())
     if not result:
@@ -615,6 +649,7 @@ def login_v1():
 
 
 @app.post("/api/v1/auth/refresh")
+@limiter.limit("30 per minute")
 def refresh_v1():
     raw_token = request.cookies.get("neuroplay_refresh") or _require_json().get("refresh_token")
     if not raw_token:
@@ -1015,12 +1050,14 @@ def progress_v1(user: User, student_id: int):
 
 
 @app.post("/api/auth/register")
+@limiter.limit(REGISTER_LIMIT)
 def register_legacy():
     response = register_v1()
     return response
 
 
 @app.post("/api/auth/login")
+@limiter.limit(LOGIN_LIMIT)
 def login_legacy():
     return login_v1()
 
@@ -1129,6 +1166,8 @@ def telemetry_batch(user: User):
     if not events:
         return json_error("Nenhum evento fornecido")
     # Do not accept identity fields from the client as authorization metadata.
+    if len(events) > 500:
+        return json_error("Lote de telemetria grande demais (máximo 500 eventos)", 413, "PAYLOAD_TOO_LARGE")
     sanitized = [{"type": str(event.get("type", "unknown"))[:60], "data": event.get("data", {})} for event in events if isinstance(event, dict)]
     result = telemetry_service.process_batch(sanitized)
     audit("telemetry_batch", "telemetry", metadata={"count": len(sanitized)})
@@ -1141,6 +1180,12 @@ def telemetry_batch(user: User):
 def get_session_summary(user: User, session_id: str):
     if telemetry_service is None:
         return json_error("Telemetria indisponível", 503, "SERVICE_UNAVAILABLE")
+    # Só devolve o resumo de uma sessão de jogo que o usuário pode acessar
+    # (mesma organização ou responsável vinculado). Antes, qualquer usuário
+    # autenticado lia a telemetria de qualquer sessão (IDOR entre organizações).
+    game_session = GameSession.query.filter_by(public_id=session_id).first()
+    if not game_session or not student_for_user(user, game_session.student_id)[0]:
+        return json_error("Sessão não encontrada", 404, "NOT_FOUND")
     summary = telemetry_service.get_session_summary(session_id)
     if "error" in summary:
         return jsonify(summary), 404

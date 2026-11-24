@@ -93,7 +93,7 @@ Em produção, use PostgreSQL, secrets próprios e HTTPS.
 ## Testes
 
 ```bash
-cd backend && pytest -q                                   # 13 testes da API
+cd backend && pytest -q                                   # 15 testes da API (11 ativos + 4 opcionais)
 cd frontend && CI=true npm test -- --watchAll=false       # 146 testes (18 suítes)
 ```
 

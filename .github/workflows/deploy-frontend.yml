@@ -122,6 +122,8 @@ jobs:
 
   # Job de Deploy
   deploy:
+    # Pull requests só testam e compilam; publicar no Pages apenas em push.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

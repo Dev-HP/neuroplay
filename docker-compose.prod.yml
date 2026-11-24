@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: neuroplay
       POSTGRES_USER: neuroplay
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-neuroplay_prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
     ports:
       - "5432:5432"
     volumes:
@@ -48,9 +48,10 @@ services:
       - "5000:5000"
     environment:
       FLASK_ENV: production
-      DATABASE_URL: postgresql://neuroplay:${POSTGRES_PASSWORD:-neuroplay_prod}@postgres:5432/neuroplay
+      DATABASE_URL: postgresql://neuroplay:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}@postgres:5432/neuroplay
       REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+      APP_ENV: production
+      SECRET_KEY: ${SECRET_KEY:?Defina SECRET_KEY (32+ caracteres) no .env}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: production
     depends_on:
@@ -74,9 +75,10 @@ services:
       dockerfile: Dockerfile
     container_name: neuroplay-celery
     environment:
-      DATABASE_URL: postgresql://neuroplay:${POSTGRES_PASSWORD:-neuroplay_prod}@postgres:5432/neuroplay
+      DATABASE_URL: postgresql://neuroplay:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}@postgres:5432/neuroplay
       REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+      APP_ENV: production
+      SECRET_KEY: ${SECRET_KEY:?Defina SECRET_KEY (32+ caracteres) no .env}
     depends_on:
       - redis
       - postgres

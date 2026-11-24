@@ -126,21 +126,22 @@ class NotificationManager {
     
     div.style.background = rarityColors[achievement.rarity] || rarityColors.common;
     
+    const esc = (valor) => String(valor ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     div.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="font-size: 32px;">${achievement.icon}</div>
+        <div style="font-size: 32px;">${esc(achievement.icon)}</div>
         <div style="flex: 1;">
           <div style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">
             🏆 Conquista Desbloqueada!
           </div>
           <div style="font-size: 14px; margin-bottom: 2px;">
-            ${achievement.title}
+            ${esc(achievement.title)}
           </div>
           <div style="font-size: 12px; opacity: 0.9;">
-            ${achievement.description}
+            ${esc(achievement.description)}
           </div>
           <div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">
-            +${achievement.points} pontos
+            +${esc(achievement.points)} pontos
           </div>
         </div>
       </div>
