@@ -29,14 +29,7 @@
   font-size: 2rem;
 }
 
-.painel-educador .logo-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* A marca usa o componente Logo (cores próprias); sem sobrescrever aqui. */
 
 .painel-educador .logo-badge {
   background: linear-gradient(135deg, #3f6fb5 0%, #2a4a7c 100%);

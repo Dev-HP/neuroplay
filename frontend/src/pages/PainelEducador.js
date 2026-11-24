@@ -6,6 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { apiUrl, isApiConfigured } from '../shared/config/api';
+import Logo from '../shared/components/Logo';
 import './PainelEducador.css';
 
 const COLORS = ['#3f6fb5', '#2f8a7c', '#d4a63f', '#8eadd8', '#c9744f'];
@@ -187,8 +188,7 @@ function PainelEducador({ user, onLogout }) {
       <header className="educator-header">
         <div className="header-left">
           <div className="logo">
-            <span className="logo-icon">🧠</span>
-            <span className="logo-text">NeuroPlay</span>
+            <Logo size="small" showText animated={false} />
             <span className="logo-badge">Educador</span>
           </div>
         </div>
@@ -236,7 +236,7 @@ function PainelEducador({ user, onLogout }) {
                 </div>
                 {alunos.length ? <div className="charts-grid">
                   <div className="chart-card"><h3>Pontuação por estudante</h3><ResponsiveContainer width="100%" height={300}><BarChart data={alunos.slice(0, 10)}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="nome" /><YAxis /><Tooltip /><Bar dataKey="pontos_totais" fill="#3f6fb5" radius={[8, 8, 0, 0]} /></BarChart></ResponsiveContainer></div>
-                  <div className="chart-card"><h3>Distribuição de nível de atividade</h3><ResponsiveContainer width="100%" height={300}><PieChart><Pie data={distribuicaoNiveis} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={100} dataKey="value">{distribuicaoNiveis.map((entry, index) => <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />)}</Pie><Tooltip /></PieChart></ResponsiveContainer></div>
+                  <div className="chart-card"><h3>Distribuição de nível de atividade</h3><ResponsiveContainer width="100%" height={300}><PieChart><Pie isAnimationActive={false} data={distribuicaoNiveis.filter((item) => item.value > 0)} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={100} dataKey="value">{distribuicaoNiveis.filter((item) => item.value > 0).map((entry, index) => <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />)}</Pie><Tooltip /></PieChart></ResponsiveContainer></div>
                 </div> : <div className="empty-state"><div className="empty-icon">👥</div><h2>Nenhum perfil cadastrado</h2><p>Crie o primeiro perfil pseudonimizado na aba Estudantes.</p></div>}
               </>
             )}

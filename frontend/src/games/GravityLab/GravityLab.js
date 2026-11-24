@@ -806,6 +806,7 @@ const GravityLab = () => {
   
   useEffect(() => {
     if (gameState !== 'gameover' || sessionPersistedRef.current || !studentId || !sessionStartedAtRef.current) return;
+    if (!score && !stats.acertos && !stats.erros) return; // partida sem nenhuma jogada não gera registro
     sessionPersistedRef.current = true;
     persistGameplay({
       studentId,
