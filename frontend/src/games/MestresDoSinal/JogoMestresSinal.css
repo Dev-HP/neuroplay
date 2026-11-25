@@ -363,3 +363,59 @@
   font-weight: 600;
   opacity: 0.85;
 }
+
+/* ===== Tema comum dos jogos ===== */
+.jogo-container {
+  background: var(--game-bg);
+}
+
+.jogo-container .jogo-header {
+  padding: 16px;
+  background: var(--game-panel);
+  border-bottom: 1px solid var(--game-border);
+  backdrop-filter: none;
+}
+
+.jogo-container .btn-voltar {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+  border-radius: 10px;
+}
+
+.jogo-container .pontos-display {
+  font-size: 1.125rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+  color: var(--game-text);
+}
+
+.jogo-container .start-screen h1 {
+  color: var(--game-text);
+}
+
+.jogo-container .start-screen p {
+  color: var(--game-text-soft);
+}
+
+.jogo-container .stat-item {
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+}
+
+.jogo-container .botoes-fim {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.jogo-container .aviso-salvamento {
+  color: var(--game-yellow);
+  font-weight: 600;
+}

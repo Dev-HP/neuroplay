@@ -7,7 +7,7 @@
 | `jogos/` | Os jogos, controles e recursos comuns | [`README.md`](jogos/README.md) |
 | `pesquisa/` | Base científica, análise dos jogos e artigo | [`ANALISE_JOGOS_EVIDENCIAS.md`](pesquisa/ANALISE_JOGOS_EVIDENCIAS.md), [`ACADEMIC_RESEARCH.md`](pesquisa/ACADEMIC_RESEARCH.md) |
 | `guias/` | Instalar, rodar e publicar | [`INSTALACAO.md`](guias/INSTALACAO.md), [`DEPLOY.md`](guias/DEPLOY.md) |
-| `qualidade/` | Auditoria de UX/código e teste prático | [`AUDITORIA_UX_E_CODIGO.md`](qualidade/AUDITORIA_UX_E_CODIGO.md), [`RESULTADOS_TESTE_PRATICO.md`](qualidade/RESULTADOS_TESTE_PRATICO.md) |
+| `qualidade/` | Avaliação de design, auditoria e teste prático | [`AVALIACAO_DESIGN_FINAL.md`](qualidade/AVALIACAO_DESIGN_FINAL.md), [`AUDITORIA_UX_E_CODIGO.md`](qualidade/AUDITORIA_UX_E_CODIGO.md) |
 | `seguranca/` | Revisão de segurança e LGPD | [`REVISAO_SEGURANCA.md`](seguranca/REVISAO_SEGURANCA.md), [`LGPD.md`](seguranca/LGPD.md), [`AVISO_DE_PRIVACIDADE.md`](seguranca/AVISO_DE_PRIVACIDADE.md) |
 | `marca/` | Logo (SVG e PNG) | [`neuroplay-icon.svg`](marca/neuroplay-icon.svg) |
 

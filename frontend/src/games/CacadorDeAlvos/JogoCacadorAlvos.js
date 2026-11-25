@@ -199,7 +199,15 @@ function JogoCacadorAlvos({ user }) {
           tempo_gasto: Math.floor(gameTime),
           acertos: stats.collected,
           erros: stats.collisions,
-          events: reactionTimes.map((event) => ({ type: 'reaction', data: event }))
+          events: reactionTimes.map((event) => ({ type: 'reaction', data: event })),
+          metadata: {
+            paradigma: 'busca-visual',
+            alvos_coletados: stats.collected,
+            colisoes: stats.collisions,
+            tempo_reacao_medio_ms: reactionTimes.length
+              ? Math.round(reactionTimes.reduce((soma, item) => soma + (Number(item.reactionTime) || 0), 0) / reactionTimes.length)
+              : null
+          }
         })
       });
     } catch (error) {
@@ -451,11 +459,11 @@ function JogoCacadorAlvos({ user }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <h1>🚀 Caçador de Alvos</h1>
+          <h1>Caçador de Alvos</h1>
           <p>Colete as esferas verdes e douradas!</p>
           <p>Evite os cubos vermelhos!</p>
           <button onClick={startGame} className="btn btn-primary btn-large">
-            Iniciar Missão
+            Começar
           </button>
         </motion.div>
       )}
@@ -466,7 +474,7 @@ function JogoCacadorAlvos({ user }) {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <h1>🎉 Missão Completa!</h1>
+          <h1>Atividade concluída</h1>
           <div className="final-stats">
             <div className="final-stat">
               <span className="final-label">Pontuação Final:</span>

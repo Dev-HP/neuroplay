@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import './SonicJump.css';
+import '../../shared/theme/gameStage.css';
 import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { getPhonemeSynthesizer } from '../../shared/utils/phonemeSynthesizer';
@@ -8,6 +8,7 @@ import { AdaptiveDifficulty } from '../../shared/adaptation/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
 import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
+import { TEMA, fonte, pintarFundo, desenharTelaTitulo, desenharPlacar, desenharFaixa } from '../../shared/theme/gameTheme';
 
 const SonicJump = () => {
   const [searchParams] = useSearchParams();
@@ -53,9 +54,9 @@ const SonicJump = () => {
 
     // FONEMAS E LETRAS
     const phonemes = [
-      { sound: '/B/', letter: 'B', color: '#ff6b6b', description: 'Bola' },
-      { sound: '/P/', letter: 'P', color: '#4ecdc4', description: 'Pato' },
-      { sound: '/D/', letter: 'D', color: '#ffe66d', description: 'Dado' },
+      { sound: '/B/', letter: 'B', color: '#e06b68', description: 'Bola' },
+      { sound: '/P/', letter: 'P', color: '#8cc9d6', description: 'Pato' },
+      { sound: '/D/', letter: 'D', color: '#e6c768', description: 'Dado' },
       { sound: '/T/', letter: 'T', color: '#a8e6cf', description: 'Tatu' },
       { sound: '/V/', letter: 'V', color: '#ff8b94', description: 'Vaca' },
       { sound: '/F/', letter: 'F', color: '#c7ceea', description: 'Foca' },
@@ -171,36 +172,20 @@ const SonicJump = () => {
 
     // DESENHAR FUNDO MUSICAL
     const drawBackground = () => {
-      // Gradiente
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#1a1a2e');
-      gradient.addColorStop(1, '#16213e');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      pintarFundo(ctx, canvas.width, canvas.height, { grade: false });
 
-      // Ondas sonoras animadas
-      game.waveAnimation += 0.05;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      // Ondas sonoras lentas e discretas (sem notas piscando).
+      game.waveAnimation += 0.02;
+      ctx.strokeStyle = 'rgba(140, 201, 214, 0.08)';
       ctx.lineWidth = 2;
-      
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 3; i++) {
         ctx.beginPath();
         for (let x = 0; x < canvas.width; x += 10) {
-          const y = 360 + Math.sin((x + game.waveAnimation * 50 + i * 50) / 50) * (30 + i * 10);
+          const y = 360 + Math.sin((x + game.waveAnimation * 50 + i * 50) / 60) * (30 + i * 12);
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
-      }
-
-      // Notas musicais flutuantes
-      ctx.font = '30px Arial';
-      const notes = ['♪', '♫', '♬'];
-      for (let i = 0; i < 10; i++) {
-        const x = (i * 150 + game.waveAnimation * 20) % canvas.width;
-        const y = 100 + Math.sin((i + game.waveAnimation) * 0.5) * 50;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.1 + Math.sin(game.waveAnimation + i) * 0.1})`;
-        ctx.fillText(notes[i % 3], x, y);
       }
     };
 
@@ -217,7 +202,7 @@ const SonicJump = () => {
 
         // Plataforma
         ctx.fillStyle = color;
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 0;
         ctx.shadowColor = color;
         ctx.fillRect(-width / 2, -height / 2, width, height);
         
@@ -230,7 +215,7 @@ const SonicJump = () => {
 
         // Letra 3D
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 80px Arial';
+        ctx.font = 'bold 80px Inter, "Segoe UI", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
@@ -262,9 +247,9 @@ const SonicJump = () => {
       }
 
       // Corpo (nota musical)
-      ctx.fillStyle = '#ffd700';
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = '#ffd700';
+      ctx.fillStyle = '#e6c768';
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = '#e6c768';
       
       // Cabeça (círculo)
       ctx.beginPath();
@@ -307,123 +292,58 @@ const SonicJump = () => {
     const drawSoundPanel = () => {
       if (!game.showingSound || !game.currentPhoneme) return;
 
-      // Overlay pulsante
-      const pulse = 0.7 + Math.sin(game.soundTimer / 10) * 0.3;
-      ctx.fillStyle = `rgba(0, 0, 0, ${pulse * 0.7})`;
+      // Fundo escurecido fixo (sem pulsar) e cartão central com uma informação por linha.
+      ctx.fillStyle = 'rgba(22, 41, 74, 0.6)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Caixa de som
-      const boxWidth = 600;
-      const boxHeight = 300;
+      const boxWidth = 560;
+      const boxHeight = 330;
       const boxX = (canvas.width - boxWidth) / 2;
-      const boxY = 100;
-
-      ctx.fillStyle = '#1a1a2e';
+      const boxY = 150;
+      ctx.fillStyle = TEMA.painel;
       ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
       ctx.strokeStyle = game.currentPhoneme.color;
-      ctx.lineWidth = 5;
+      ctx.lineWidth = 3;
       ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
-      // 🎵 AUDIO WAVEFORM (visual indicator that real audio is playing)
-      ctx.strokeStyle = game.currentPhoneme.color;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      const waveY = boxY + 80;
-      const waveWidth = 100;
-      const waveAmplitude = 15;
-      for (let x = -waveWidth; x <= waveWidth; x += 5) {
-        const y = waveY + Math.sin((x + game.soundTimer * 2) / 10) * waveAmplitude * pulse;
-        if (x === -waveWidth) ctx.moveTo(canvas.width / 2 + x, y);
-        else ctx.lineTo(canvas.width / 2 + x, y);
-      }
-      ctx.stroke();
-
-      // Speaker icon with animation
-      ctx.font = 'bold 60px Arial';
-      ctx.fillStyle = game.currentPhoneme.color;
+      const centro = canvas.width / 2;
       ctx.textAlign = 'center';
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = game.currentPhoneme.color;
-      ctx.fillText('🔊', canvas.width / 2, boxY + 80);
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = TEMA.textoSuave;
+      ctx.font = fonte(24, 600);
+      ctx.fillText('🔊 Ouça o som', centro, boxY + 50);
 
-      // Fonema
-      ctx.font = 'bold 60px Arial';
-      ctx.fillStyle = 'white';
-      ctx.fillText(game.currentPhoneme.sound, canvas.width / 2, boxY + 160);
+      ctx.fillStyle = TEMA.texto;
+      ctx.font = fonte(80, 800);
+      ctx.fillText(game.currentPhoneme.sound, centro, boxY + 150);
 
-      // Descrição
-      ctx.font = '28px Arial';
       ctx.fillStyle = game.currentPhoneme.color;
-      ctx.fillText(`(${game.currentPhoneme.description})`, canvas.width / 2, boxY + 210);
+      ctx.font = fonte(28, 600);
+      ctx.fillText(`(${game.currentPhoneme.description})`, centro, boxY + 200);
 
-      // Ondas sonoras animadas (concentric circles)
-      for (let i = 0; i < 3; i++) {
-        const radius = 50 + i * 30 + (game.soundTimer % 30);
-        const alpha = 1 - (game.soundTimer % 30) / 30;
-        ctx.strokeStyle = `${game.currentPhoneme.color}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, boxY + 80, radius, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      // Timer
       const seconds = Math.ceil(game.soundTimer / 60);
-      ctx.font = 'bold 40px Arial';
-      ctx.fillStyle = '#e6c768';
-      ctx.fillText(seconds, canvas.width / 2, boxY + 270);
-      
-      // "Listening..." indicator
-      ctx.font = '20px Arial';
-      ctx.fillStyle = '#5cc98a';
-      ctx.fillText('🎧 Ouça o som!', canvas.width / 2, boxY + 240);
-      
-      // Replay instruction
-      ctx.font = '18px Arial';
-      ctx.fillStyle = '#aaaaaa';
-      ctx.fillText('Pressione R para ouvir novamente', canvas.width / 2, boxY + 265);
+      ctx.fillStyle = TEMA.amarelo;
+      ctx.font = fonte(30, 700);
+      ctx.fillText(`${seconds}`, centro, boxY + 255);
+
+      ctx.fillStyle = TEMA.textoSuave;
+      ctx.font = fonte(18, 500);
+      ctx.fillText('Aperte R ou "Repetir som" para ouvir de novo', centro, boxY + 300);
     };
 
     // DESENHAR HUD
     const drawHUD = () => {
-      // Pontos
-      ctx.fillStyle = '#ffd700';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(`PONTOS: ${score}`, 20, 30);
-      
-      // Nível
-      ctx.fillText(`NÍVEL: ${level}`, 20, 60);
-      
-      // Vidas
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#e06b68';
-      ctx.fillText(`${'❤️'.repeat(lives)}`, 1260, 30);
-      
-      // Precisão
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 100;
-      ctx.fillStyle = '#5cc98a';
-      ctx.textAlign = 'center';
-      ctx.fillText(`PRECISÃO: ${precisao}%`, 640, 30);
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 100;
+      desenharPlacar(ctx, [`Pontos ${score}`, `Nível ${level}`, `Precisão ${precisao}%`]);
 
-      // Instrução
-      if (!game.showingSound && game.player.onPlatform) {
-        ctx.fillStyle = '#8cc9d6';
-        ctx.font = 'bold 28px Arial';
-        ctx.fillText('Pule para a letra correta! (ESPAÇO)', 640, 680);
-      }
-      
-      // Mensagem de ajuste adaptativo
-      if (adaptiveMessageRef.current) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(340, 620, 600, 50);
-        ctx.fillStyle = '#8cc9d6';
-        ctx.font = 'bold 18px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessageRef.current, 640, 650);
-      }
+      ctx.font = fonte(26, 700);
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${'❤️'.repeat(lives)}`, 1260, 37);
+      ctx.textBaseline = 'alphabetic';
+
+      const instrucao = !game.showingSound && game.player.onPlatform ? 'Pule para a letra certa (ESPAÇO)' : '';
+      desenharFaixa(ctx, adaptiveMessageRef.current || instrucao, { y: 690 });
     };
 
     // CONTROLES
@@ -677,50 +597,16 @@ const SonicJump = () => {
 
     const drawMenu = () => {
       drawBackground();
-
-      // Título
-      const titleY = 150 + Math.sin(Date.now() / 500) * 10;
-      ctx.fillStyle = '#ff6b6b';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#ff6b6b';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('SONIC JUMP', 640, titleY);
-      ctx.shadowBlur = 0;
-
-      // Subtítulo
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '28px Arial';
-      ctx.fillText('🎵 Orquestra das Plataformas 🎵', 640, 250);
-
-      // Instruções
-      const instructions = [
-        '1. OUÇA o som do fonema',
-        '2. PULE para a letra correta',
-        '3. Use ESPAÇO para pular',
-        '4. Use ← → no ar para ajustar',
-        '',
-        'Pressione ESPAÇO para começar'
-      ];
-
-      let y = 350;
-      instructions.forEach(inst => {
-        ctx.fillStyle = inst === '' ? '#8cc9d6' : 'white';
-        ctx.font = inst.includes('ESPAÇO') ? 'bold 24px Arial' : '20px Arial';
-        ctx.fillText(inst, 640, y);
-        y += 40;
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Sonic Jump',
+        subtitulo: 'Ouça o som e pule na letra certa',
+        linhas: [
+          '1. Escute o som da letra (R repete o som)',
+          '2. Pule com ESPAÇO para a plataforma da letra',
+          '3. No ar, use ← → para ajustar',
+        ],
+        chamada: 'Toque em Começar ou aperte ESPAÇO',
       });
-      
-      // Botão de configurações
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(20, 650, 200, 50);
-      ctx.strokeStyle = '#ff6b6b';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(20, 650, 200, 50);
-      ctx.fillStyle = '#ff6b6b';
-      ctx.font = 'bold 18px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('⚙️ Config (C)', 40, 682);
     };
 
     const drawGame = () => {
@@ -734,26 +620,14 @@ const SonicJump = () => {
 
     const drawGameOver = () => {
       drawBackground();
-
-      ctx.fillStyle = '#e06b68';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#e06b68';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', 640, 200);
-      ctx.shadowBlur = 0;
-
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
-
-      ctx.fillStyle = 'white';
-      ctx.font = '28px Arial';
-      ctx.fillText(`Pontuação: ${score}`, 640, 300);
-      ctx.fillText(`Nível Alcançado: ${level}`, 640, 350);
-      ctx.fillText(`Precisão: ${precisao}%`, 640, 400);
-
-      ctx.fillStyle = '#8cc9d6';
-      ctx.fillText('Pressione ESPAÇO para voltar ao menu', 640, 500);
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 0;
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Atividade concluída',
+        subtitulo: 'Bom trabalho!',
+        linhas: [`Pontos: ${score}   ·   Nível: ${level}   ·   Precisão: ${precisao}%`],
+        chamada: 'Aperte ESPAÇO para voltar ao início',
+      });
     };
 
     // GAME LOOP
@@ -786,7 +660,7 @@ const SonicJump = () => {
       durationSeconds: (Date.now() - sessionStartedAtRef.current) / 1000,
       acertos: stats.acertos,
       erros: stats.erros,
-      metadata: { lives_remaining: lives, level }
+      metadata: { paradigma: 'discriminacao-fonemica', nivel: level, vidas_restantes: lives }
     }).catch(() => {
       sessionPersistedRef.current = false;
     });
@@ -800,7 +674,7 @@ const SonicJump = () => {
   };
 
   return (
-    <div className="sonic-jump">
+    <div className="game-stage sonic-jump">
       <canvas ref={canvasRef} />
       <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: 'ArrowLeft', icon: '←', label: 'Esquerda' }, { key: ' ', icon: '⬆', label: 'Pular' }, { key: 'ArrowRight', icon: '→', label: 'Direita' }, { key: 'r', icon: '🔊', label: 'Repetir som' }, { key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       

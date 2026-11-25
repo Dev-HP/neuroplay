@@ -1,15 +1,16 @@
-// Funções de desenho para o Cyber Runner Enhanced
+// Funções de desenho do Cyber-Runner
+import { TEMA, fonte, desenharPlacar, desenharFaixa } from '../../shared/theme/gameTheme';
 
 export const drawBackground = (ctx, offset, width, height) => {
   // Fundo gradiente
   const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, '#0a0e27');
-  gradient.addColorStop(1, '#1a1f3a');
+  gradient.addColorStop(0, '#16294a');
+  gradient.addColorStop(1, '#1b304f');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
   // Grid animado
-  ctx.strokeStyle = '#003264';
+  ctx.strokeStyle = '#2a4a7c';
   ctx.lineWidth = 1;
   for (let i = -offset % 50; i < width; i += 50) {
     ctx.beginPath();
@@ -34,7 +35,7 @@ export const drawBackground = (ctx, offset, width, height) => {
   }
 
   // Pista
-  ctx.fillStyle = '#1a1f3a';
+  ctx.fillStyle = '#1b304f';
   ctx.fillRect(0, 620, width, 100);
   
   // Linha da pista
@@ -57,20 +58,20 @@ export const drawCollectible = (ctx, collectible) => {
   
   if (type === 'coin') {
     // Moeda girando
-    ctx.fillStyle = '#ffd700';
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = '#ffd700';
+    ctx.fillStyle = '#e6c768';
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = '#e6c768';
     ctx.beginPath();
     ctx.ellipse(0, 0, width / 2, height / 3, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#ffed4e';
+    ctx.fillStyle = '#e6c768';
     ctx.beginPath();
     ctx.ellipse(0, 0, width / 3, height / 4, 0, 0, Math.PI * 2);
     ctx.fill();
   } else if (type === 'star') {
     // Estrela
     ctx.fillStyle = '#e6c768';
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = 0;
     ctx.shadowColor = '#e6c768';
     ctx.beginPath();
     for (let i = 0; i < 5; i++) {
@@ -86,11 +87,11 @@ export const drawCollectible = (ctx, collectible) => {
   } else if (type === 'powerup') {
     // Power-up
     ctx.fillStyle = '#a99ad1';
-    ctx.shadowBlur = 25;
+    ctx.shadowBlur = 0;
     ctx.shadowColor = '#a99ad1';
     ctx.fillRect(-width / 2, -height / 2, width, height);
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 20px Arial';
+    ctx.font = 'bold 20px Inter, "Segoe UI", system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('⚡', 0, 7);
   }
@@ -109,73 +110,53 @@ export const drawParticles = (ctx, particles) => {
 };
 
 export const drawHUD = (ctx, score, lives, coins, level, combo, precisao, powerUp) => {
-  // Pontos
-  ctx.fillStyle = '#e6c768';
-  ctx.font = 'bold 24px Arial';
-  ctx.textAlign = 'left';
-  ctx.fillText(`PONTOS: ${score}`, 20, 30);
-  
-  // Moedas
-  ctx.fillText(`💰 ${coins}`, 20, 60);
-  
-  // Nível
-  ctx.fillText(`NÍVEL: ${level}`, 20, 90);
+  desenharPlacar(ctx, [`Pontos ${score}`, `💰 ${coins}`, `Nível ${level}`, `Precisão ${precisao}%`]);
 
   // Vidas
+  ctx.font = fonte(26, 700);
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#e06b68';
-  ctx.fillText(`${'❤️'.repeat(lives)}`, 1260, 30);
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`${'❤️'.repeat(lives)}`, 1260, 37);
+  ctx.textBaseline = 'alphabetic';
 
-  // Precisão
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#8cc9d6';
-  ctx.fillText(`PRECISÃO: ${precisao}%`, 640, 30);
-  
-  // Combo
+  // Sequência de acertos e power-up
   if (combo > 0) {
-    ctx.fillStyle = '#e6c768';
-    ctx.font = 'bold 32px Arial';
-    ctx.fillText(`COMBO x${combo}! 🔥`, 640, 70);
-  }
-  
-  // Power-up ativo
-  if (powerUp) {
-    ctx.fillStyle = '#a99ad1';
-    ctx.font = 'bold 20px Arial';
-    ctx.fillText(`⚡ ${powerUp.toUpperCase()} ATIVO!`, 640, 100);
+    desenharFaixa(ctx, `Sequência x${combo}`, { cor: TEMA.amarelo });
+  } else if (powerUp) {
+    desenharFaixa(ctx, `⚡ ${powerUp} ativo`, { cor: TEMA.lilas });
   }
 };
 
 export const drawChallenge = (ctx, challenge, buttons) => {
   // Overlay
-  ctx.fillStyle = 'rgba(10, 14, 39, 0.95)';
+  ctx.fillStyle = 'rgba(22, 41, 74, 0.95)';
   ctx.fillRect(0, 0, 1280, 720);
 
   // Caixa principal
   ctx.strokeStyle = '#8cc9d6';
   ctx.lineWidth = 4;
   ctx.strokeRect(290, 140, 700, 440);
-  ctx.fillStyle = '#0a0e27';
+  ctx.fillStyle = '#16294a';
   ctx.fillRect(290, 140, 700, 440);
 
   // Ícone do tipo de desafio
-  ctx.font = 'bold 48px Arial';
+  ctx.font = 'bold 48px Inter, "Segoe UI", system-ui, sans-serif';
   ctx.textAlign = 'center';
   const icons = { math: '🔢', color: '🎨', sequence: '🔄', memory: '🧠' };
   ctx.fillText(icons[challenge.type] || '❓', 640, 200);
 
   // Pergunta
   ctx.fillStyle = 'white';
-  ctx.font = 'bold 36px Arial';
+  ctx.font = 'bold 36px Inter, "Segoe UI", system-ui, sans-serif';
   
   if (challenge.type === 'color') {
     ctx.fillText(challenge.question, 640, 260);
     ctx.fillStyle = challenge.display.color;
-    ctx.font = 'bold 48px Arial';
+    ctx.font = 'bold 48px Inter, "Segoe UI", system-ui, sans-serif';
     ctx.fillText(challenge.display.text, 640, 320);
   } else if (challenge.type === 'memory' && challenge.sequence) {
     ctx.fillText(challenge.question, 640, 260);
-    ctx.font = 'bold 40px Arial';
+    ctx.font = 'bold 40px Inter, "Segoe UI", system-ui, sans-serif';
     ctx.fillText(challenge.sequence.join(' '), 640, 320);
   } else {
     ctx.fillText(challenge.question, 640, 280);
@@ -183,14 +164,14 @@ export const drawChallenge = (ctx, challenge, buttons) => {
 
   // Botões de resposta
   buttons.forEach((btn) => {
-    ctx.fillStyle = '#00aaff';
+    ctx.fillStyle = '#628cc6';
     ctx.fillRect(btn.x, btn.y, btn.width, btn.height);
     ctx.strokeStyle = '#8cc9d6';
     ctx.lineWidth = 3;
     ctx.strokeRect(btn.x, btn.y, btn.width, btn.height);
 
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 32px Arial';
+    ctx.font = 'bold 32px Inter, "Segoe UI", system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(btn.value.toString(), btn.x + btn.width / 2, btn.y + 55);
   });

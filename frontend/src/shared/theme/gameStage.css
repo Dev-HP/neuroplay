@@ -1,0 +1,47 @@
+/* Palco comum dos jogos em canvas: mesmo fundo dos demais jogos, canvas inteiro
+   à vista, com espaço reservado para o "Voltar" (topo) e os controles (base). */
+.game-stage {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  box-sizing: border-box;
+  padding: 72px 16px 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--game-bg);
+}
+
+.game-stage canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border: 1px solid var(--game-border);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  touch-action: none;
+}
+
+/* Celular deitado: a tela é baixa, então o canvas ocupa tudo e os botões
+   ficam por cima dele (o placar do canvas começa depois do "Voltar"). */
+@media (max-height: 600px) {
+  .game-stage {
+    padding: 4px;
+  }
+
+  .game-stage canvas {
+    border-radius: 8px;
+  }
+}
+
+/* Gravity Lab: objetos arrastáveis. */
+.gravity-lab canvas {
+  cursor: grab;
+}
+
+.gravity-lab canvas:active {
+  cursor: grabbing;
+}

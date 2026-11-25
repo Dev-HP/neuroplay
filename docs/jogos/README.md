@@ -9,7 +9,7 @@ Sete jogos publicados no painel do aluno, mais dois anunciados como "Em breve". 
 | **Templo dos Ecos** | Memória visuoespacial (tipo Corsi) | Observar a sequência de casas e repeti-la com as setas. | Cada sequência concluída é gravada; a sessão segue até "Encerrar". |
 | **Gravity Lab** | Flexibilidade (troca de regra) | Arrastar objetos para a zona correta, organizando por cor ou por forma; a regra troca durante a sessão. | Após 3 experimentos ou com "Encerrar". |
 | **Sonic Jump** | Discriminação de sons e tempo | Ouvir o fonema e pular na plataforma certa (R repete o som). | Ao perder as vidas ou com "Encerrar". |
-| **Memória Dupla** | Memória de trabalho (n-back visual e auditivo) | Apertar "Visual" ou "Áudio" quando a posição ou a nota repetir a de N passos atrás. Cada letra tem uma nota própria. | Quatro rodadas. |
+| **Memória Dupla** | Memória de trabalho (n-back visual e auditivo) | Tocar em "Mesma posição" ou "Mesmo som" quando a posição ou a nota repetir a de N passos atrás. Cada letra tem uma nota própria. | Quatro rodadas. Registra acertos, alarmes falsos e omissões. |
 | **Caçador de Alvos** | Atenção visual seletiva | Coletar os alvos e evitar os obstáculos na cena 3D. | 60 segundos. |
 | *Jogo das Emoções* (em breve) | Reconhecimento de emoções | — | — |
 | *Peixinhos* (em breve) | Atenção seletiva (Flanker) | — | — |
@@ -22,6 +22,10 @@ Sete jogos publicados no painel do aluno, mais dois anunciados como "Em breve". 
 - **Detector de erros em cascata:** depois de erros seguidos, o jogo sugere uma pausa; a criança escolhe pausar ou continuar.
 - **Ajustes sensoriais:** brilho, contraste, animações, volume e velocidade.
 - **Conquistas** nos jogos em canvas (Cyber-Runner, Templo dos Ecos, Sonic Jump, Gravity Lab), guardadas no navegador.
+
+## O que o educador vê
+
+Cada partida grava, além de pontos, acertos, erros e duração, os indicadores próprios da tarefa (por exemplo, omissões e comissões no Go/No-Go). O relatório mostra o resumo por atividade, a evolução por sessão e exporta tudo em CSV. Detalhes em [`../qualidade/AVALIACAO_DESIGN_FINAL.md`](../qualidade/AVALIACAO_DESIGN_FINAL.md).
 
 ## Onde está o código
 

@@ -5,6 +5,20 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [3.2.0] - 2026-11-24
+
+### Alterado
+- Tema visual único nas 7 atividades (`shared/theme/`): mesmo fundo azul-marinho, fonte, placar, telas de abertura e de fim; sem brilho neon nem fundos animados.
+- Textos para crianças: "Atividade concluída" no lugar de "GAME OVER"; subtítulos descrevem a tarefa; botões em português.
+- Relatório do educador: resumo por atividade, indicadores da tarefa (omissões, comissões, tempo de reação, alarmes falsos, maior sequência), taxa de acerto por sessão com uma linha por atividade, filtro, CSV completo e nota de leitura.
+- A API devolve e higieniza os indicadores de cada sessão (`metadata`).
+
+### Corrigido
+- "Voltar" cobria o placar dos jogos em canvas; Memória Dupla exigia rolar a página para responder; caixa cortada e título fantasma no Gravity Lab; texto sobreposto no Sonic Jump.
+- Cliques nos desafios do Cyber-Runner fora da escala do canvas.
+- Memória Dupla não contava omissões e aceitava respostas repetidas ao mesmo estímulo.
+- Janelas `alert()` substituídas por mensagens na tela.
+
 ## [3.1.0] - 2026-11-24
 
 ### Alterado

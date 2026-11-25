@@ -75,7 +75,7 @@ Frontend em `http://localhost:3000` (o nginx encaminha `/api` para a API) e API 
 ## Testes
 
 ```bash
-cd frontend && npm run lint && npm test     # ESLint sem avisos + 78 testes (Vitest)
+cd frontend && npm run lint && npm test     # ESLint sem avisos + 83 testes (Vitest)
 cd backend && flake8 . && pytest            # flake8 + 9 testes da API
 ```
 
@@ -94,7 +94,7 @@ Sem o secret `REACT_APP_API_URL`, o deploy no GitHub Pages ativa o modo demonstr
 | [`docs/jogos/`](docs/jogos/) | Os jogos e os recursos comuns |
 | [`docs/pesquisa/`](docs/pesquisa/) | Evidência científica, análise dos jogos e artigo |
 | [`docs/guias/`](docs/guias/) | Instalação e deploy |
-| [`docs/qualidade/`](docs/qualidade/) | Auditoria de UX e código e teste prático |
+| [`docs/qualidade/`](docs/qualidade/) | Avaliação final de design, auditoria de UX e código, teste prático |
 | [`docs/seguranca/`](docs/seguranca/) | Revisão de segurança, LGPD e aviso de privacidade |
 | [`docs/marca/`](docs/marca/) | Logo e aplicações |
 

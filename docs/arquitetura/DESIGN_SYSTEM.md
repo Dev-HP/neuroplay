@@ -24,6 +24,19 @@ As variáveis ficam em `frontend/src/index.css` (`:root`). Use as variáveis, n�
 
 Cada cor tem a escala 50–900 (primária e secundária) ou a versão `-light` (destaques e estados).
 
+## Tema dos jogos
+
+As sete atividades usam o mesmo tema, para a criança reconhecer o ambiente de uma para outra:
+
+| Elemento | Onde |
+|---|---|
+| Cores e fonte dos jogos em canvas | `frontend/src/shared/theme/gameTheme.js` (`TEMA`, `fonte`) |
+| Fundo azul-marinho, telas de abertura e fim, placar em "fichas", faixa de orientação | `pintarFundo`, `desenharTelaTitulo`, `desenharPlacar`, `desenharFaixa` no mesmo arquivo |
+| Palco dos jogos em canvas (espaço para "Voltar" e controles) | `frontend/src/shared/theme/gameStage.css` |
+| Mesmas cores nos jogos em HTML | variáveis `--game-*` em `frontend/src/index.css` |
+
+Regras: sem brilho neon, sem fundos animados, sem "GAME OVER" (a tela final é "Atividade concluída" com o resumo), sem `alert()` do navegador e avisos de mudança sempre calmos e no mesmo lugar.
+
 ## Tipografia
 
 Fonte do sistema (Inter quando instalada, depois `-apple-system`, Segoe UI, Roboto). Não há fonte externa: a CSP bloqueia e evita enviar o IP da criança a terceiros.

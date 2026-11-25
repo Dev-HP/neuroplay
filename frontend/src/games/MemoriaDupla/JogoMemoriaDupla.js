@@ -42,6 +42,10 @@ function JogoMemoriaDupla({ user }) {
   const [showParticles, setShowParticles] = useState(false);
   const [particleType, setParticleType] = useState('success');
   const [feedback, setFeedback] = useState(null);
+  const [avisoNivel, setAvisoNivel] = useState(null);
+  // Respostas dadas ao estímulo atual e repetições não marcadas (omissões).
+  const respondeuRef = useRef({ visual: false, audio: false });
+  const omissoesRef = useRef({ visual: 0, audio: 0 });
   const [cascadeMessage, setCascadeMessage] = useState(null);
   const [showCascadeModal, setShowCascadeModal] = useState(false);
   
@@ -58,6 +62,8 @@ function JogoMemoriaDupla({ user }) {
     setScore(0);
     setRound(0);
     setStats({ visualCorrect: 0, audioCorrect: 0, visualWrong: 0, audioWrong: 0 });
+    omissoesRef.current = { visual: 0, audio: 0 };
+    respondeuRef.current = { visual: false, audio: false };
     gameStartTime.current = Date.now();
     errorCascadeDetector.reset();
     setCascadeMessage(null);
@@ -121,13 +127,24 @@ function JogoMemoriaDupla({ user }) {
           score,
           duration_seconds: Math.floor(gameTime),
           acertos: stats.visualCorrect + stats.audioCorrect,
-          erros: stats.visualWrong + stats.audioWrong
+          erros: stats.visualWrong + stats.audioWrong + omissoesRef.current.visual + omissoesRef.current.audio,
+          metadata: {
+            paradigma: 'dual-n-back',
+            n_back_final: nBackLevel,
+            rodadas: round,
+            acertos_posicao: stats.visualCorrect,
+            alarmes_falsos_posicao: stats.visualWrong,
+            omissoes_posicao: omissoesRef.current.visual,
+            acertos_som: stats.audioCorrect,
+            alarmes_falsos_som: stats.audioWrong,
+            omissoes_som: omissoesRef.current.audio
+          }
         })
       });
     } catch {
       setGameState('ready');
     }
-  }, [score, stats, studentId, addPoints]);
+  }, [score, stats, studentId, addPoints, nBackLevel, round]);
 
   const finishRound = useCallback(() => {
     setShowingStimulus(false);
@@ -153,7 +170,8 @@ function JogoMemoriaDupla({ user }) {
       setTimeout(() => {
         setNBackLevel(prev => prev + 1);
         audioManager.play('achievement');
-        alert(`Parabéns! Avançou para ${nBackLevel + 1}-Back!`);
+        setAvisoNivel(`Muito bem! Agora compare com ${nBackLevel + 1} passos atrás.`);
+        setTimeout(() => setAvisoNivel(null), 3000);
         generateSequence();
         setShowingStimulus(true);
       }, 2000);
@@ -168,6 +186,14 @@ function JogoMemoriaDupla({ user }) {
   }, [round, stats, nBackLevel, generateSequence, finishGame]);
 
   const nextStimulus = useCallback(() => {
+    // Fecha o estímulo atual: repetição que não foi marcada conta como omissão.
+    const atual = sequence[currentIndex];
+    if (atual && currentIndex >= nBackLevel) {
+      if (atual.visualMatch && !respondeuRef.current.visual) omissoesRef.current.visual += 1;
+      if (atual.audioMatch && !respondeuRef.current.audio) omissoesRef.current.audio += 1;
+    }
+    respondeuRef.current = { visual: false, audio: false };
+
     if (currentIndex >= sequence.length - 1) {
       finishRound();
       return;
@@ -178,7 +204,7 @@ function JogoMemoriaDupla({ user }) {
     // Tocar som correspondente
     const current = sequence[currentIndex + 1];
     audioManager.playNote(audioNotes[current.audio], 0.3);
-  }, [currentIndex, sequence, finishRound]);
+  }, [currentIndex, sequence, nBackLevel, finishRound]);
 
   // O avanço usa a versão mais recente de nextStimulus via ref, e o cronômetro
   // depende só da posição na sequência: responder não reinicia o tempo do
@@ -198,6 +224,8 @@ function JogoMemoriaDupla({ user }) {
 
   const handleResponse = (type) => {
     if (!showingStimulus || currentIndex < nBackLevel) return;
+    if (respondeuRef.current[type]) return; // uma resposta de cada tipo por estímulo
+    respondeuRef.current[type] = true;
 
     const current = sequence[currentIndex];
     const isCorrect = type === 'visual' ? current.visualMatch : current.audioMatch;
@@ -272,6 +300,8 @@ function JogoMemoriaDupla({ user }) {
       {!studentId && <div className="status-banner" role="status">Selecione um perfil autorizado no painel do educador.</div>}
       <ParticleSystem type={particleType} active={showParticles} />
 
+      {avisoNivel && <div className="aviso-nivel" role="status">{avisoNivel}</div>}
+
       <div className="game-header">
         <button onClick={() => navigate(studentId ? `/aluno?student_id=${encodeURIComponent(studentId)}` : '/aluno')} className="btn-voltar">
           ← Voltar
@@ -298,17 +328,17 @@ function JogoMemoriaDupla({ user }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <h1>🧠 Memória Dupla</h1>
+          <h1>Memória Dupla</h1>
           <div className="instructions">
             <h2>Como Jogar:</h2>
             <p>1. Observe a posição iluminada no grid</p>
             <p>2. Ouça a letra/som apresentado</p>
-            <p>3. Clique “Visual” se a posição for igual a {nBackLevel} passo(s) atrás</p>
-            <p>4. Clique “Áudio” se o som for igual a {nBackLevel} passo(s) atrás</p>
+            <p>3. Toque em “Mesma posição” se a posição for igual a {nBackLevel} passo(s) atrás</p>
+            <p>4. Toque em “Mesmo som” se o som for igual a {nBackLevel} passo(s) atrás</p>
             <p>5. Você pode clicar ambos se os dois coincidirem!</p>
           </div>
           <button onClick={startGame} className="btn btn-primary btn-large">
-            Começar Treino
+            Começar
           </button>
         </motion.div>
       )}
@@ -351,7 +381,7 @@ function JogoMemoriaDupla({ user }) {
               whileTap={{ scale: 0.95 }}
               disabled={currentIndex < nBackLevel}
             >
-              👁️ Visual Match
+              👁️ Mesma posição
             </motion.button>
             <motion.button
               className="response-btn audio-btn"
@@ -360,7 +390,7 @@ function JogoMemoriaDupla({ user }) {
               whileTap={{ scale: 0.95 }}
               disabled={currentIndex < nBackLevel}
             >
-              🔊 Áudio Match
+              🔊 Mesmo som
             </motion.button>
           </div>
 
@@ -400,7 +430,7 @@ function JogoMemoriaDupla({ user }) {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <h1>🎉 Treino Completo!</h1>
+          <h1>Atividade concluída</h1>
           <div className="final-stats">
             <div className="stat-card">
               <span className="stat-title">Pontuação Final</span>

@@ -250,6 +250,7 @@ export function handleDemoRequest(method, url, body = {}, headers = {}) {
       acertos,
       erros,
       accuracy: total ? Math.round((acertos / total) * 10000) / 10000 : null,
+      metadata: data.metadata && typeof data.metadata === 'object' && !Array.isArray(data.metadata) ? data.metadata : {},
       status: 'completed',
       started_at: nowIso(),
       completed_at: nowIso()

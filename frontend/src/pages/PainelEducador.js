@@ -2,20 +2,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { apiUrl, isApiConfigured } from '../shared/config/api';
 import Logo from '../shared/components/Logo';
+import { ATIVIDADES, nomeDaAtividade, taxaDeAcerto, indicadoresDaTarefa, textoDosIndicadores } from '../shared/report/indicadores';
 import './PainelEducador.css';
 
-const COLORS = ['#3f6fb5', '#2f8a7c', '#d4a63f', '#8eadd8', '#c9744f'];
+
+const CORES_SERIES = ['#3f6fb5', '#2f8a7c', '#c9744f', '#6f68a8', '#d4a63f', '#4c9468', '#b96b86'];
 
 function PainelEducador({ user, onLogout }) {
   const navigate = useNavigate();
   const [alunos, setAlunos] = useState([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [progresso, setProgresso] = useState([]);
+  const [filtroJogo, setFiltroJogo] = useState('todas');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddAluno, setShowAddAluno] = useState(false);
   const [novoAluno, setNovoAluno] = useState({ apelido: '', ano_nascimento: '' });
@@ -119,13 +122,23 @@ function PainelEducador({ user, onLogout }) {
     }
     try {
       const response = await axios.get(apiUrl(`/api/v1/students/${aluno.id}/progress`), requestConfig);
-      const sessions = (response.data.sessions || []).map((session) => ({
-        ...session,
-        jogo: session.game_type,
-        pontos: session.score,
-        tempo_medio: session.duration_seconds,
-        data: session.completed_at ? new Date(session.completed_at).toLocaleDateString('pt-BR') : 'Em andamento'
-      }));
+      const sessions = (response.data.sessions || [])
+        .filter((session) => session.status === 'completed' || session.completed_at)
+        .sort((a, b) => String(a.completed_at || '').localeCompare(String(b.completed_at || '')))
+        .map((session, indice) => ({
+          ...session,
+          numero: indice + 1,
+          jogo: nomeDaAtividade(session.game_type),
+          pontos: session.score,
+          tempo_medio: session.duration_seconds,
+          taxa: taxaDeAcerto(session),
+          indicadores: textoDosIndicadores(session),
+          data: session.completed_at ? new Date(session.completed_at).toLocaleDateString('pt-BR') : 'Em andamento',
+          dataHora: session.completed_at
+            ? new Date(session.completed_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+            : '—'
+        }));
+      setFiltroJogo('todas');
       setProgresso(sessions);
       setFeedback('');
     } catch (error) {
@@ -146,33 +159,72 @@ function PainelEducador({ user, onLogout }) {
     };
   }, [alunos]);
 
+  const progressoFiltrado = useMemo(
+    () => (filtroJogo === 'todas' ? progresso : progresso.filter((item) => item.game_type === filtroJogo)),
+    [progresso, filtroJogo]
+  );
+
   const stats = useMemo(() => {
-    if (!progresso.length) return null;
-    const totalAcertos = progresso.reduce((sum, item) => sum + Number(item.acertos || 0), 0);
-    const totalErros = progresso.reduce((sum, item) => sum + Number(item.erros || 0), 0);
+    if (!progressoFiltrado.length) return null;
+    const totalAcertos = progressoFiltrado.reduce((sum, item) => sum + Number(item.acertos || 0), 0);
+    const totalErros = progressoFiltrado.reduce((sum, item) => sum + Number(item.erros || 0), 0);
     const total = totalAcertos + totalErros;
     return {
-      totalPontos: progresso.reduce((sum, item) => sum + Number(item.pontos || 0), 0),
+      sessoes: progressoFiltrado.length,
       taxaAcerto: total ? Math.round((totalAcertos / total) * 100) : 0,
       totalAcertos,
       totalErros,
-      tempoMedio: Math.round(progresso.reduce((sum, item) => sum + Number(item.tempo_medio || 0), 0) / progresso.length)
+      tempoMedio: Math.round(progressoFiltrado.reduce((sum, item) => sum + Number(item.tempo_medio || 0), 0) / progressoFiltrado.length)
     };
+  }, [progressoFiltrado]);
+
+  // Uma linha por atividade jogada: quantas sessões, taxa média e a última sessão.
+  const resumoPorAtividade = useMemo(() => {
+    const grupos = new Map();
+    progresso.forEach((item) => {
+      const lista = grupos.get(item.game_type) || [];
+      lista.push(item);
+      grupos.set(item.game_type, lista);
+    });
+    return [...grupos.entries()].map(([slug, sessoes]) => {
+      const taxas = sessoes.map((item) => item.taxa).filter((taxa) => taxa !== null);
+      const ultima = sessoes[sessoes.length - 1];
+      return {
+        slug,
+        nome: nomeDaAtividade(slug),
+        tarefa: ATIVIDADES[slug]?.tarefa || '—',
+        sessoes: sessoes.length,
+        taxaMedia: taxas.length ? Math.round(taxas.reduce((a, b) => a + b, 0) / taxas.length) : null,
+        duracaoMedia: Math.round(sessoes.reduce((sum, item) => sum + Number(item.tempo_medio || 0), 0) / sessoes.length),
+        ultima: ultima.dataHora,
+        indicadores: indicadoresDaTarefa(ultima)
+      };
+    });
   }, [progresso]);
 
-  const distribuicaoNiveis = useMemo(() => {
-    const groups = { 1: 'Inicial', 2: 'Em desenvolvimento', 3: 'Avançado' };
-    return Object.entries(groups).map(([level, name]) => ({
-      name,
-      value: alunos.filter((aluno) => Math.min(3, Number(aluno.nivel || 1)) === Number(level)).length
-    }));
-  }, [alunos]);
+  // Uma série por atividade: tarefas diferentes não são ligadas na mesma linha.
+  const serieTaxas = useMemo(
+    () => progressoFiltrado.map((item) => ({ numero: item.numero, jogo: item.jogo, dataHora: item.dataHora, [item.game_type]: item.taxa })),
+    [progressoFiltrado]
+  );
+  const atividadesNoGrafico = useMemo(
+    () => [...new Set(progressoFiltrado.map((item) => item.game_type))],
+    [progressoFiltrado]
+  );
+
+  const sessoesPorEstudante = useMemo(
+    () => alunos.slice(0, 10).map((aluno) => ({ nome: aluno.apelido || aluno.nome, sessoes: Number(aluno.jogos_completos || 0) })),
+    [alunos]
+  );
 
   const exportarRelatorio = () => {
     if (!alunoSelecionado || !progresso.length) return;
     const rows = [
-      ['Atividade', 'Acertos', 'Erros', 'Pontos', 'Duração (s)', 'Data'],
-      ...progresso.map((item) => [item.jogo, item.acertos, item.erros, item.pontos, item.tempo_medio, item.data])
+      ['Sessão', 'Data e hora', 'Atividade', 'Tarefa', 'Duração (s)', 'Acertos', 'Erros', 'Taxa de acerto (%)', 'Pontos', 'Indicadores da tarefa'],
+      ...progresso.map((item) => [
+        item.numero, item.dataHora, item.jogo, ATIVIDADES[item.game_type]?.tarefa || '', item.tempo_medio,
+        item.acertos, item.erros, item.taxa ?? '', item.pontos, item.indicadores
+      ])
     ];
     // Neutraliza fórmulas (=, +, -, @) para o CSV não executar nada ao abrir no Excel.
     const celula = (value) => {
@@ -242,7 +294,7 @@ function PainelEducador({ user, onLogout }) {
                 </div>
                 {alunos.length ? <div className="charts-grid">
                   <div className="chart-card"><h3>Pontuação por estudante</h3><ResponsiveContainer width="100%" height={300}><BarChart data={alunos.slice(0, 10)}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="nome" /><YAxis /><Tooltip /><Bar dataKey="pontos_totais" fill="#3f6fb5" radius={[8, 8, 0, 0]} /></BarChart></ResponsiveContainer></div>
-                  <div className="chart-card"><h3>Distribuição de nível de atividade</h3><ResponsiveContainer width="100%" height={300}><PieChart><Pie isAnimationActive={false} data={distribuicaoNiveis.filter((item) => item.value > 0)} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={100} dataKey="value">{distribuicaoNiveis.filter((item) => item.value > 0).map((entry, index) => <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />)}</Pie><Tooltip /></PieChart></ResponsiveContainer></div>
+                  <div className="chart-card"><h3>Sessões concluídas por estudante</h3><ResponsiveContainer width="100%" height={300}><BarChart data={sessoesPorEstudante}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="nome" /><YAxis allowDecimals={false} /><Tooltip /><Bar dataKey="sessoes" name="Sessões" fill="#2f8a7c" radius={[8, 8, 0, 0]} /></BarChart></ResponsiveContainer></div>
                 </div> : <div className="empty-state"><div className="empty-icon">👥</div><h2>Nenhum perfil cadastrado</h2><p>Crie o primeiro perfil pseudonimizado na aba Estudantes.</p></div>}
               </>
             )}
@@ -259,10 +311,80 @@ function PainelEducador({ user, onLogout }) {
         {activeTab === 'relatorios' && (
           <div className="relatorios-content">
             {alunoSelecionado ? <>
-              <div className="page-header"><div><h1>Relatório de {alunoSelecionado.apelido || alunoSelecionado.nome}</h1><p>Histórico de gameplay persistido e autorizado. Os indicadores não são diagnóstico.</p></div><button type="button" className="btn-export" onClick={exportarRelatorio} disabled={!progresso.length}><span aria-hidden="true">📥</span> Exportar CSV</button></div>
+              <div className="page-header">
+                <div>
+                  <h1>Relatório de {alunoSelecionado.apelido || alunoSelecionado.nome}</h1>
+                  <p>Sessões concluídas e autorizadas. Os indicadores descrevem o desempenho na tarefa; não são avaliação psicológica nem diagnóstico.</p>
+                </div>
+                <button type="button" className="btn-export" onClick={exportarRelatorio} disabled={!progresso.length}><span aria-hidden="true">📥</span> Exportar CSV</button>
+              </div>
               {!alunoSelecionado.consentimento_ativo && <div className="consent-notice" role="note"><strong>Consentimento pendente.</strong><p>O perfil ainda não pode registrar gameplay identificável. Confirme que a base legal e a autorização institucional foram verificadas antes de continuar.</p><button type="button" className="btn-primary" onClick={registrarConsentimento} disabled={isSaving}>{isSaving ? 'Registrando…' : 'Registrar consentimento autorizado'}</button></div>}
-              {stats ? <div className="stats-grid"><div className="stat-card-small card-purple"><h4>Pontos registrados</h4><div className="stat-value-small">{stats.totalPontos}</div></div><div className="stat-card-small card-blue"><h4>Acertos / tentativas</h4><div className="stat-value-small">{stats.taxaAcerto}%</div></div><div className="stat-card-small card-green"><h4>Total de acertos</h4><div className="stat-value-small">{stats.totalAcertos}</div></div><div className="stat-card-small card-orange"><h4>Duração média</h4><div className="stat-value-small">{stats.tempoMedio}s</div></div></div> : <div className="empty-state"><div className="empty-icon">📊</div><h2>Sem sessões concluídas</h2><p>Os dados aparecerão aqui depois que uma sessão autorizada for concluída.</p></div>}
-              {!!progresso.length && <><div className="charts-grid"><div className="chart-card"><h3>Acertos e erros por atividade</h3><ResponsiveContainer width="100%" height={300}><BarChart data={progresso}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="jogo" /><YAxis /><Tooltip /><Legend /><Bar dataKey="acertos" fill="#3f8a5c" name="Acertos" /><Bar dataKey="erros" fill="#c0504d" name="Erros" /></BarChart></ResponsiveContainer></div><div className="chart-card"><h3>Pontuação por atividade</h3><ResponsiveContainer width="100%" height={300}><LineChart data={progresso}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="jogo" /><YAxis /><Tooltip /><Line type="monotone" dataKey="pontos" stroke="#3f6fb5" strokeWidth={3} /></LineChart></ResponsiveContainer></div></div><div className="table-card"><h3>Histórico detalhado</h3><table className="data-table"><thead><tr><th>Atividade</th><th>Acertos</th><th>Erros</th><th>Pontos</th><th>Duração</th><th>Data</th></tr></thead><tbody>{progresso.map((item) => <tr key={item.id}><td><strong>{item.jogo}</strong></td><td><span className="badge badge-success">{item.acertos}</span></td><td><span className="badge badge-error">{item.erros}</span></td><td>{item.pontos}</td><td>{item.tempo_medio}s</td><td>{item.data}</td></tr>)}</tbody></table></div></>}
+              {!progresso.length ? <div className="empty-state"><div className="empty-icon">📊</div><h2>Sem sessões concluídas</h2><p>Os dados aparecerão aqui depois que uma sessão autorizada for concluída.</p></div> : <>
+                <div className="table-card">
+                  <h3>Resumo por atividade</h3>
+                  <div className="table-scroll">
+                    <table className="data-table">
+                      <thead><tr><th>Atividade</th><th>Tarefa de referência</th><th>Sessões</th><th>Taxa média de acerto</th><th>Duração média</th><th>Última sessão</th><th>Indicadores da última sessão</th></tr></thead>
+                      <tbody>{resumoPorAtividade.map((linha) => <tr key={linha.slug}><td><strong>{linha.nome}</strong></td><td>{linha.tarefa}</td><td>{linha.sessoes}</td><td>{linha.taxaMedia === null ? '—' : `${linha.taxaMedia}%`}</td><td>{linha.duracaoMedia}s</td><td>{linha.ultima}</td><td>{linha.indicadores.length ? linha.indicadores.map(([rotulo, valor]) => <span key={rotulo} className="indicador">{rotulo}: <strong>{valor}</strong></span>) : '—'}</td></tr>)}</tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="filtro-atividade">
+                  <label htmlFor="filtro-jogo">Atividade</label>
+                  <select id="filtro-jogo" value={filtroJogo} onChange={(event) => setFiltroJogo(event.target.value)}>
+                    <option value="todas">Todas as atividades</option>
+                    {resumoPorAtividade.map((linha) => <option key={linha.slug} value={linha.slug}>{linha.nome}</option>)}
+                  </select>
+                </div>
+
+                {stats && <div className="stats-grid"><div className="stat-card-small card-purple"><h4>Sessões</h4><div className="stat-value-small">{stats.sessoes}</div></div><div className="stat-card-small card-blue"><h4>Taxa de acerto</h4><div className="stat-value-small">{stats.taxaAcerto}%</div></div><div className="stat-card-small card-green"><h4>Acertos / erros</h4><div className="stat-value-small">{stats.totalAcertos} / {stats.totalErros}</div></div><div className="stat-card-small card-orange"><h4>Duração média</h4><div className="stat-value-small">{stats.tempoMedio}s</div></div></div>}
+
+                <div className="charts-grid">
+                  <div className="chart-card">
+                    <h3>Taxa de acerto por sessão (%)</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={serieTaxas}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="numero" label={{ value: 'Sessão', position: 'insideBottom', offset: -4 }} />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip labelFormatter={(numero) => { const item = progressoFiltrado.find((sessao) => sessao.numero === numero); return item ? `Sessão ${numero} · ${item.jogo} · ${item.dataHora}` : `Sessão ${numero}`; }} />
+                        {atividadesNoGrafico.length > 1 && <Legend />}
+                        {atividadesNoGrafico.map((slug, indice) => <Line key={slug} type="monotone" dataKey={slug} name={nomeDaAtividade(slug)} stroke={CORES_SERIES[indice % CORES_SERIES.length]} strokeWidth={3} connectNulls isAnimationActive={false} />)}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="chart-card">
+                    <h3>Acertos e erros por sessão</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={progressoFiltrado}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="numero" />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip labelFormatter={(numero) => { const item = progressoFiltrado.find((sessao) => sessao.numero === numero); return item ? `Sessão ${numero} · ${item.jogo}` : `Sessão ${numero}`; }} />
+                        <Legend />
+                        <Bar dataKey="acertos" stackId="a" fill="#3f8a5c" name="Acertos" isAnimationActive={false} />
+                        <Bar dataKey="erros" stackId="a" fill="#c0504d" name="Erros" isAnimationActive={false} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="table-card">
+                  <h3>Sessões</h3>
+                  <div className="table-scroll">
+                    <table className="data-table">
+                      <thead><tr><th>#</th><th>Data e hora</th><th>Atividade</th><th>Duração</th><th>Acertos</th><th>Erros</th><th>Taxa</th><th>Indicadores da tarefa</th></tr></thead>
+                      <tbody>{[...progressoFiltrado].reverse().map((item) => <tr key={item.id}><td>{item.numero}</td><td>{item.dataHora}</td><td><strong>{item.jogo}</strong></td><td>{item.tempo_medio}s</td><td><span className="badge badge-success">{item.acertos}</span></td><td><span className="badge badge-error">{item.erros}</span></td><td>{item.taxa === null ? '—' : `${item.taxa}%`}</td><td className="celula-indicadores">{item.indicadores || '—'}</td></tr>)}</tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="nota-leitura" role="note">
+                  <strong>Como ler este relatório.</strong>
+                  <p>Os números comparam a criança com ela mesma ao longo das sessões; não há norma populacional por trás deles. Omissões (não responder quando devia) e comissões ou alarmes falsos (responder quando não devia) são medidas diferentes e não devem ser somadas para interpretação. Cansaço, interesse, ambiente e familiaridade com o aparelho influenciam o desempenho.</p>
+                </div>
+              </>}
             </> : <div className="empty-state"><div className="empty-icon">📊</div><h2>Selecione um estudante</h2><p>Escolha um perfil na aba Estudantes para consultar dados persistidos.</p><button type="button" className="btn-primary" onClick={() => setActiveTab('alunos')}>Ver estudantes</button></div>}
           </div>
         )}

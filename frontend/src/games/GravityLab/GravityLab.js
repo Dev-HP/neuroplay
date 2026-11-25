@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import './GravityLab.css';
+import '../../shared/theme/gameStage.css';
 import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { AdaptiveDifficulty } from '../../shared/adaptation/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
 import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
+import { TEMA, fonte, pintarFundo, desenharTelaTitulo, desenharPlacar, desenharFaixa } from '../../shared/theme/gameTheme';
 
 const EXPERIMENTOS_POR_SESSAO = 3;
 
@@ -54,11 +55,11 @@ const GravityLab = () => {
 
     // TIPOS DE OBJETOS
     const objectTypes = [
-      { shape: 'square', color: '#ff6b6b', name: 'Quadrado Vermelho' },
-      { shape: 'square', color: '#4ecdc4', name: 'Quadrado Azul' },
-      { shape: 'circle', color: '#ff6b6b', name: 'Círculo Vermelho' },
-      { shape: 'circle', color: '#4ecdc4', name: 'Círculo Azul' },
-      { shape: 'triangle', color: '#ffe66d', name: 'Triângulo Amarelo' },
+      { shape: 'square', color: '#e06b68', name: 'Quadrado Vermelho' },
+      { shape: 'square', color: '#8cc9d6', name: 'Quadrado Azul' },
+      { shape: 'circle', color: '#e06b68', name: 'Círculo Vermelho' },
+      { shape: 'circle', color: '#8cc9d6', name: 'Círculo Azul' },
+      { shape: 'triangle', color: '#e6c768', name: 'Triângulo Amarelo' },
       { shape: 'triangle', color: '#95e1d3', name: 'Triângulo Verde' }
     ];
 
@@ -130,27 +131,29 @@ const GravityLab = () => {
         });
       }
       
-      // Cria zonas alvo baseadas na regra atual
+      // Cria zonas alvo baseadas na regra atual, alinhadas à direita para que
+      // três ou quatro caixas caibam inteiras no canvas (1280 px).
+      const posicaoZona = (i, total) => 1280 - 40 - total * 170 + 20 + i * 170;
       if (currentRule === 'color') {
         const colors = [...new Set(game.objects.map(o => o.color))];
         colors.forEach((color, i) => {
           game.targetZones.push({
-            x: 800 + i * 200,
+            x: posicaoZona(i, colors.length),
             y: 500,
             width: 150,
             height: 150,
             color: color,
             type: 'color',
-            label: color === '#ff6b6b' ? 'VERMELHO' : 
-                   color === '#4ecdc4' ? 'AZUL' : 
-                   color === '#ffe66d' ? 'AMARELO' : 'VERDE'
+            label: color === '#e06b68' ? 'VERMELHO' : 
+                   color === '#8cc9d6' ? 'AZUL' : 
+                   color === '#e6c768' ? 'AMARELO' : 'VERDE'
           });
         });
       } else {
         const shapes = [...new Set(game.objects.map(o => o.shape))];
         shapes.forEach((shape, i) => {
           game.targetZones.push({
-            x: 800 + i * 200,
+            x: posicaoZona(i, shapes.length),
             y: 500,
             width: 150,
             height: 150,
@@ -179,34 +182,7 @@ const GravityLab = () => {
 
     // DESENHAR FUNDO
     const drawBackground = () => {
-      // Gradiente de laboratório
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#2c3e50');
-      gradient.addColorStop(1, '#34495e');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Grid de laboratório
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < canvas.width; i += 50) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, canvas.height);
-        ctx.stroke();
-      }
-      for (let i = 0; i < canvas.height; i += 50) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(canvas.width, i);
-        ctx.stroke();
-      }
-
-      // Título do laboratório
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.font = 'bold 100px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GRAVITY LAB', 640, 100);
+      pintarFundo(ctx, canvas.width, canvas.height);
     };
 
     // DESENHAR OBJETO
@@ -216,7 +192,7 @@ const GravityLab = () => {
       ctx.rotate(obj.rotation);
 
       // Sombra
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 0;
       ctx.shadowColor = obj.color;
 
       ctx.fillStyle = obj.color;
@@ -285,7 +261,7 @@ const GravityLab = () => {
 
       // Label
       ctx.fillStyle = 'white';
-      ctx.font = 'bold 16px Arial';
+      ctx.font = 'bold 16px Inter, "Segoe UI", system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(zone.label, zone.x + zone.width / 2, zone.y + zone.height + 25);
     };
@@ -295,27 +271,27 @@ const GravityLab = () => {
       const r = game.robot;
       
       // Corpo
-      ctx.fillStyle = '#95a5a6';
+      ctx.fillStyle = '#8eadd8';
       ctx.fillRect(r.x - 30, r.y - 60, 60, 80);
       
       // Cabeça
-      ctx.fillStyle = '#bdc3c7';
+      ctx.fillStyle = '#b9cde8';
       ctx.fillRect(r.x - 25, r.y - 90, 50, 30);
       
       // Antena
-      ctx.strokeStyle = '#7f8c8d';
+      ctx.strokeStyle = '#628cc6';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(r.x, r.y - 90);
       ctx.lineTo(r.x, r.y - 110);
       ctx.stroke();
-      ctx.fillStyle = '#e74c3c';
+      ctx.fillStyle = '#e06b68';
       ctx.beginPath();
       ctx.arc(r.x, r.y - 110, 5, 0, Math.PI * 2);
       ctx.fill();
       
       // Olhos baseados no humor
-      ctx.fillStyle = '#2c3e50';
+      ctx.fillStyle = '#223c63';
       if (r.mood === 'happy') {
         // Olhos felizes (^_^)
         ctx.beginPath();
@@ -346,7 +322,7 @@ const GravityLab = () => {
       }
       
       // Braços
-      ctx.fillStyle = '#95a5a6';
+      ctx.fillStyle = '#8eadd8';
       ctx.fillRect(r.x - 45, r.y - 50, 15, 40);
       ctx.fillRect(r.x + 30, r.y - 50, 15, 40);
       
@@ -367,52 +343,15 @@ const GravityLab = () => {
 
     // DESENHAR HUD
     const drawHUD = () => {
-      // Pontos
-      ctx.fillStyle = '#ffd700';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(`PONTOS: ${score}`, 20, 30);
-      
-      // Nível
-      ctx.fillText(`NÍVEL: ${level}`, 20, 60);
-      
-      // Mudanças de regra
-      ctx.fillText(`MUDANÇAS: ${ruleChanges}`, 20, 90);
-      
-      // Regra atual (DESTAQUE)
-      const ruleText = currentRule === 'color' ? '🎨 ORGANIZE POR COR' : '🔷 ORGANIZE POR FORMA';
-      const ruleColor = currentRule === 'color' ? '#ff6b6b' : '#4ecdc4';
-      
-      ctx.fillStyle = ruleColor;
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = ruleColor;
-      ctx.font = 'bold 36px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(ruleText, 640, 50);
-      ctx.shadowBlur = 0;
-      
-      // Precisão
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 100;
-      ctx.fillStyle = '#5cc98a';
-      ctx.font = 'bold 20px Arial';
-      ctx.textAlign = 'right';
-      ctx.fillText(`PRECISÃO: ${precisao}%`, 1260, 30);
-      
-      // Instrução
-      ctx.fillStyle = 'white';
-      ctx.font = '18px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('Arraste os objetos para as zonas corretas!', 640, 690);
-      
-      // Mensagem de ajuste adaptativo
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 100;
+      desenharPlacar(ctx, [`Pontos ${score}`, `Nível ${level}`, `Trocas de regra ${ruleChanges}`, `Precisão ${precisao}%`]);
+
+      // Regra atual em destaque, sempre no mesmo lugar
+      const ruleText = currentRule === 'color' ? '🎨 Organize pela COR' : '🔷 Organize pela FORMA';
+      desenharFaixa(ctx, ruleText, { cor: currentRule === 'color' ? TEMA.amarelo : TEMA.destaque });
       if (adaptiveMessageRef.current) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(340, 620, 600, 50);
-        ctx.fillStyle = '#8cc9d6';
-        ctx.font = 'bold 18px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessageRef.current, 640, 650);
+        desenharFaixa(ctx, adaptiveMessageRef.current, { y: 150, cor: TEMA.textoSuave });
       }
     };
 
@@ -420,31 +359,24 @@ const GravityLab = () => {
     const drawRuleChange = () => {
       if (!game.showingRule) return;
 
-      // Overlay
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      // Aviso calmo e previsível: cartão central com a nova regra (sem alarme vermelho).
+      ctx.fillStyle = 'rgba(22, 41, 74, 0.85)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = TEMA.painel;
+      ctx.fillRect(340, 220, 600, 260);
+      ctx.strokeStyle = TEMA.amarelo;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(340, 220, 600, 260);
 
-      // Caixa de alerta
-      ctx.fillStyle = '#e74c3c';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#e74c3c';
-      ctx.fillRect(340, 200, 600, 300);
-      ctx.shadowBlur = 0;
-
-      // Ícone de alerta
-      ctx.font = 'bold 80px Arial';
-      ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
-      ctx.fillText('⚠️', 640, 280);
+      ctx.fillStyle = TEMA.texto;
+      ctx.font = fonte(40, 800);
+      ctx.fillText('A regra mudou!', 640, 310);
 
-      // Texto
-      ctx.font = 'bold 48px Arial';
-      ctx.fillText('MUDANÇA DE REGRA!', 640, 360);
-
-      const newRule = currentRule === 'color' ? '🎨 ORGANIZE POR COR' : '🔷 ORGANIZE POR FORMA';
-      ctx.font = 'bold 36px Arial';
-      ctx.fillStyle = '#e6c768';
-      ctx.fillText(newRule, 640, 430);
+      const newRule = currentRule === 'color' ? '🎨 Agora organize pela COR' : '🔷 Agora organize pela FORMA';
+      ctx.fillStyle = TEMA.amarelo;
+      ctx.font = fonte(32, 700);
+      ctx.fillText(newRule, 640, 390);
     };
 
     // MOUSE EVENTS
@@ -705,45 +637,16 @@ const GravityLab = () => {
 
     const drawMenu = () => {
       drawBackground();
-
-      ctx.fillStyle = '#3498db';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#3498db';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GRAVITY LAB', 640, 200);
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '28px Arial';
-      ctx.fillText('🧪 Laboratório de Gravidade 🧪', 640, 270);
-
-      const instructions = [
-        '1. ARRASTE objetos para as zonas corretas',
-        '2. Siga a REGRA atual (COR ou FORMA)',
-        '3. ATENÇÃO: A regra pode MUDAR!',
-        '',
-        'Pressione ESPAÇO para começar'
-      ];
-
-      let y = 360;
-      instructions.forEach(inst => {
-        ctx.fillStyle = inst === '' ? '#8cc9d6' : 'white';
-        ctx.font = inst.includes('ESPAÇO') ? 'bold 24px Arial' : '20px Arial';
-        ctx.fillText(inst, 640, y);
-        y += 40;
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Gravity Lab',
+        subtitulo: 'Organize os objetos pela regra',
+        linhas: [
+          '1. Arraste cada objeto para a caixa certa',
+          '2. Siga a regra do topo: pela COR ou pela FORMA',
+          '3. Quando a regra mudar, um aviso vai aparecer',
+        ],
+        chamada: 'Toque em Começar ou aperte ESPAÇO',
       });
-      
-      // Botão de configurações
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(20, 650, 200, 50);
-      ctx.strokeStyle = '#3498db';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(20, 650, 200, 50);
-      ctx.fillStyle = '#3498db';
-      ctx.font = 'bold 18px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('⚙️ Config (C)', 40, 682);
     };
 
     const drawGame = () => {
@@ -766,24 +669,14 @@ const GravityLab = () => {
 
     const drawGameOver = () => {
       drawBackground();
-
-      ctx.fillStyle = '#e74c3c';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', 640, 200);
-
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
-
-      ctx.fillStyle = 'white';
-      ctx.font = '28px Arial';
-      ctx.fillText(`Pontuação: ${score}`, 640, 300);
-      ctx.fillText(`Nível Alcançado: ${level}`, 640, 350);
-      ctx.fillText(`Mudanças de Regra: ${ruleChanges}`, 640, 400);
-      ctx.fillText(`Precisão: ${precisao}%`, 640, 450);
-
-      ctx.fillStyle = '#8cc9d6';
-      ctx.fillText('Pressione ESPAÇO para voltar ao menu', 640, 550);
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 0;
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Experimentos concluídos',
+        subtitulo: 'Bom trabalho!',
+        linhas: [`Pontos: ${score}   ·   Trocas de regra: ${ruleChanges}   ·   Precisão: ${precisao}%`],
+        chamada: 'Aperte ESPAÇO para voltar ao início',
+      });
     };
 
     // GAME LOOP
@@ -818,7 +711,7 @@ const GravityLab = () => {
       durationSeconds: (Date.now() - sessionStartedAtRef.current) / 1000,
       acertos: stats.acertos,
       erros: stats.erros,
-      metadata: { level, rule: currentRule, rule_changes: ruleChanges }
+      metadata: { paradigma: 'troca-de-regra', nivel: level, regra_final: currentRule === 'color' ? 'cor' : 'forma', trocas_de_regra: ruleChanges, experimentos: experimentsRef.current }
     }).catch(() => {
       sessionPersistedRef.current = false;
     });
@@ -832,7 +725,7 @@ const GravityLab = () => {
   };
 
   return (
-    <div className="gravity-lab">
+    <div className="game-stage gravity-lab">
       <canvas ref={canvasRef} />
       <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       

@@ -518,3 +518,132 @@
   padding: var(--space-4) var(--space-10);
   font-size: 1.25rem;
 }
+
+/* ===== Tema comum dos jogos e layout sem rolagem ===== */
+.jogo-memoria-dupla-container {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--game-bg);
+}
+
+.jogo-memoria-dupla-container .game-header {
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  background: var(--game-panel);
+  border-bottom: 1px solid var(--game-border);
+  backdrop-filter: none;
+}
+
+.jogo-memoria-dupla-container .game-area,
+.jogo-memoria-dupla-container .finish-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Grade, letra e botões cabem juntos na tela: a resposta tem prazo e a criança
+   não pode precisar rolar a página para encontrar os botões. */
+.jogo-memoria-dupla-container .game-area {
+  justify-content: center;
+  gap: clamp(12px, 2.5vh, 28px);
+  padding: 16px 16px 96px;
+}
+
+.jogo-memoria-dupla-container .stimulus-display {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(16px, 4vw, 48px);
+  margin: 0;
+}
+
+.jogo-memoria-dupla-container .grid-container {
+  --celula: clamp(64px, 13vh, 110px);
+  grid-template-columns: repeat(3, var(--celula));
+  grid-template-rows: repeat(3, var(--celula));
+  gap: 10px;
+  padding: 14px;
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+}
+
+.jogo-memoria-dupla-container .grid-cell.active {
+  background: var(--primary-500);
+  border-color: var(--game-yellow);
+  box-shadow: 0 0 0 4px rgba(230, 199, 104, 0.35);
+  transform: none;
+}
+
+.jogo-memoria-dupla-container .audio-display {
+  padding: clamp(12px, 3vh, 32px) clamp(28px, 5vw, 64px);
+  background: var(--game-panel);
+  border: 2px solid rgba(230, 199, 104, 0.6);
+  backdrop-filter: none;
+}
+
+.jogo-memoria-dupla-container .audio-letter {
+  font-family: inherit;
+  font-size: clamp(56px, 12vh, 110px);
+  color: var(--game-yellow);
+  text-shadow: none;
+}
+
+.jogo-memoria-dupla-container .response-buttons {
+  margin: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.jogo-memoria-dupla-container .response-btn {
+  min-height: 64px;
+  min-width: 160px;
+  padding: 14px 28px;
+}
+
+.jogo-memoria-dupla-container .instructions {
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+}
+
+.jogo-memoria-dupla-container .instructions h2 {
+  color: var(--game-yellow);
+}
+
+.jogo-memoria-dupla-container .aviso-nivel {
+  position: fixed;
+  top: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: var(--game-panel);
+  border: 2px solid var(--game-yellow);
+  color: var(--game-text);
+  font-weight: 700;
+  text-align: center;
+  max-width: calc(100vw - 32px);
+}
+
+.jogo-memoria-dupla-container h1,
+.jogo-memoria-dupla-container .finish-screen h1 {
+  color: var(--game-text);
+  text-shadow: none;
+}
+
+.jogo-memoria-dupla-container .info-value {
+  color: var(--game-text);
+}
+
+.jogo-memoria-dupla-container .start-screen h1 {
+  color: var(--game-text);
+  text-shadow: none;
+}
+
+.jogo-memoria-dupla-container::before {
+  display: none;
+}

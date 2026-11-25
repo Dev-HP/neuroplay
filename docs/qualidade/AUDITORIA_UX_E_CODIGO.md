@@ -44,7 +44,7 @@ Data: 24/11/2026 · Escopo: frontend React (todas as telas e os 7 jogos) e backe
 
 17 telas × 2 tamanhos: **0 erros de JavaScript, 0 botões cobertos, 0 textos vazando de botões, 0 rolagens horizontais**. No celular, as quatro abas do painel do educador ficam numa grade 2×2 (antes a aba "Governança" ficava fora da tela).
 
-Capturas: `depois_desktop_sheet.jpg` e `depois_celular_sheet.jpg`.
+A avaliação de design seguinte, com o tema único dos jogos e o novo relatório, está em [`AVALIACAO_DESIGN_FINAL.md`](AVALIACAO_DESIGN_FINAL.md).
 
 ## 4. Testes automatizados
 

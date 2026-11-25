@@ -57,6 +57,14 @@
   --gradient-info: linear-gradient(135deg, #4a7fc0 0%, #2f8a7c 100%);
   --gradient-game: linear-gradient(135deg, #2f8a7c 0%, #3f6fb5 100%);
   --gradient-calm: linear-gradient(135deg, #eef3fa 0%, #eef7f5 100%);
+  /* Fundo único de todos os jogos (mesmas cores de shared/theme/gameTheme.js). */
+  --game-bg: linear-gradient(180deg, #16294a 0%, #1b304f 55%, #223c63 100%);
+  --game-panel: rgba(22, 41, 74, 0.88);
+  --game-border: rgba(140, 201, 214, 0.3);
+  --game-text: #ffffff;
+  --game-text-soft: #b9cde8;
+  --game-accent: #8cc9d6;
+  --game-yellow: #e6c768;
   
   /* === NEUTROS === */
   --white: #ffffff;

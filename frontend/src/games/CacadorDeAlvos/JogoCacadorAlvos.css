@@ -441,3 +441,40 @@
     width: 100%;
   }
 }
+
+/* ===== Tema comum dos jogos ===== */
+.jogo-cacador-container {
+  background: var(--game-bg);
+}
+
+.jogo-cacador-container .game-header {
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(22, 41, 74, 0.9) 0%, rgba(22, 41, 74, 0) 100%);
+}
+
+.jogo-cacador-container .btn-voltar {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+  border-radius: 10px;
+  backdrop-filter: none;
+}
+
+.jogo-cacador-container .stat-item {
+  background: var(--game-panel);
+  border: 1px solid var(--game-border);
+  backdrop-filter: none;
+}
+
+.jogo-cacador-container .start-overlay,
+.jogo-cacador-container .finish-overlay {
+  background: rgba(22, 41, 74, 0.92);
+  backdrop-filter: none;
+}
+
+.jogo-cacador-container .start-overlay h1,
+.jogo-cacador-container .finish-overlay h1 {
+  color: var(--game-text);
+  text-shadow: none;
+}

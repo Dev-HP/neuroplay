@@ -375,3 +375,10 @@
     flex-direction: column;
   }
 }
+
+.sensory-settings-overlay .settings-saved {
+  margin: 0;
+  align-self: center;
+  color: var(--success-dark);
+  font-weight: 700;
+}

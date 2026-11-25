@@ -32,6 +32,7 @@ const defaultSettings = {
 export function SensorySettings({ userId, onSave, onClose }) {
   const [settings, setSettings] = useState(defaultSettings);
   const [activeTab, setActiveTab] = useState('visual');
+  const [salvo, setSalvo] = useState(false);
   
   // Carrega configurações salvas
   useEffect(() => {
@@ -58,11 +59,15 @@ export function SensorySettings({ userId, onSave, onClose }) {
   
   // Salva configurações
   const handleSave = () => {
-    localStorage.setItem(`sensory_settings_${userId || 'default'}`, JSON.stringify(settings));
+    try {
+      localStorage.setItem(`sensory_settings_${userId || 'default'}`, JSON.stringify(settings));
+    } catch {
+      // Sem armazenamento local, os ajustes valem só para esta sessão.
+    }
     if (onSave) {
       onSave(settings);
     }
-    alert('✅ Configurações salvas com sucesso!');
+    setSalvo(true);
   };
   
   // Presets para diferentes perfis sensoriais
@@ -352,6 +357,7 @@ export function SensorySettings({ userId, onSave, onClose }) {
         
         {/* Botões de ação */}
         <div className="modal-actions">
+          {salvo && <p className="settings-saved" role="status">Ajustes salvos.</p>}
           <button onClick={handleSave} className="btn-primary">
             💾 Salvar Configurações
           </button>

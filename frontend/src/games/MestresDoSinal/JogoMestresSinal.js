@@ -14,6 +14,7 @@ function JogoMestresSinal({ user }) {
   const [pontos, setPontos] = useState(0);
   const [acertos, setAcertos] = useState(0);
   const [erros, setErros] = useState(0);
+  const [resumo, setResumo] = useState(null);
   const [sinalAtual, setSinalAtual] = useState('go'); // go ou no-go
   const [tempoInicio, setTempoInicio] = useState(null);
   const [stimulusTimestamp, setStimulusTimestamp] = useState(null); // ← TIMESTAMP DO ESTÍMULO
@@ -146,8 +147,8 @@ function JogoMestresSinal({ user }) {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      alert(`Atividade finalizada!\nPontos: ${p.pontos}\nAcertos: ${acertosFinais}\nErros: ${errosFinais}`);
-      navigate(`/aluno?student_id=${studentId}`);
+      setResumo({ pontos: p.pontos, acertos: acertosFinais, erros: errosFinais });
+      setGameState('finished');
     } catch (error) {
       setCascadeMessage(error.response?.data?.error || 'Não foi possível salvar a sessão. Verifique o consentimento e tente novamente.');
     }
@@ -239,11 +240,26 @@ function JogoMestresSinal({ user }) {
       </header>
 
       <div className="jogo-area">
-        {gameState === 'ready' ? (
+        {gameState === 'finished' && resumo ? (
+          <div className="start-screen" role="status">
+            <h1>Atividade concluída</h1>
+            <p>Bom trabalho!</p>
+            <div className="stats">
+              <div className="stat-item"><span className="stat-label">Pontos:</span><span className="stat-value">{resumo.pontos}</span></div>
+              <div className="stat-item"><span className="stat-label">Acertos:</span><span className="stat-value">{resumo.acertos}</span></div>
+              <div className="stat-item"><span className="stat-label">Erros:</span><span className="stat-value">{resumo.erros}</span></div>
+            </div>
+            <div className="botoes-fim">
+              <button onClick={iniciarJogo} className="btn btn-primary btn-large">Jogar de novo</button>
+              <button onClick={voltarAoPainel} className="btn-voltar">Voltar aos jogos</button>
+            </div>
+          </div>
+        ) : gameState === 'ready' ? (
           <div className="start-screen">
             <h1>Mestres do Sinal</h1>
             <p>Clique apenas quando aparecer o sinal verde!</p>
             <p>Não clique no sinal vermelho!</p>
+            {cascadeMessage && <p className="aviso-salvamento" role="alert">{cascadeMessage}</p>}
             <button onClick={iniciarJogo} className="btn btn-primary btn-large">
               Começar
             </button>

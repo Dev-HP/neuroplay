@@ -35,6 +35,8 @@ neuroplay/
 │       │   ├── components/        Logo, GameControls, EmergencyStop, SensorySettings, ParticleSystem
 │       │   ├── config/api.js      URL da API e modo demonstração
 │       │   ├── demo/              API simulada do modo demonstração
+│       │   ├── report/            Indicadores do relatório do educador
+│       │   ├── theme/             Tema único dos jogos (cores, fonte, placar, palco)
 │       │   └── utils/             Áudio, política de adaptação, detector de erros em cascata
 │       └── store/                 Zustand (pontos)
 ├── docs/                    Índice em docs/README.md

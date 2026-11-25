@@ -39,6 +39,10 @@ def test_product_flow_persists_gameplay_and_is_idempotent(client):
         'acertos': 6,
         'erros': 2,
         'events': [{'type': 'round_completed', 'data': {'round': 1}}],
+        'metadata': {
+            'paradigma': 'go-no-go', 'omissoes': 1, 'comissoes': 1, 'tempo_reacao_medio_ms': 512.4,
+            'texto_livre': 'x' * 500, 'aninhado': {'nao': 'guardar'},
+        },
     }
     first = client.post('/api/v1/gameplay/sync', headers=headers, json=payload)
     assert first.status_code == 201, first.get_json()
@@ -52,6 +56,10 @@ def test_product_flow_persists_gameplay_and_is_idempotent(client):
     assert progress.status_code == 200
     assert len(progress.get_json()['sessions']) == 1
     assert progress.get_json()['student']['pontos_totais'] == 30
+    metricas = progress.get_json()['sessions'][0]['metadata']
+    assert metricas['omissoes'] == 1 and metricas['comissoes'] == 1
+    assert metricas['tempo_reacao_medio_ms'] == 512.4
+    assert len(metricas['texto_livre']) == 60 and 'aninhado' not in metricas
     assert account['usuario']['organizacoes'][0]['id'] == int(headers['X-Organization-ID'])
 
 

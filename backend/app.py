@@ -529,6 +529,23 @@ def student_payload(student: StudentProfile, sessions: list[GameSession] | None 
     }
 
 
+def _metricas_da_sessao(raw: Any) -> dict[str, Any]:
+    """Guarda só métricas da tarefa: até 30 chaves curtas com valores simples."""
+    if not isinstance(raw, dict):
+        return {}
+    metricas: dict[str, Any] = {}
+    for chave, valor in list(raw.items())[:30]:
+        if not isinstance(chave, str) or not chave:
+            continue
+        if isinstance(valor, bool) or valor is None:
+            metricas[chave[:40]] = valor
+        elif isinstance(valor, (int, float)):
+            metricas[chave[:40]] = round(float(valor), 4) if isinstance(valor, float) else valor
+        elif isinstance(valor, str):
+            metricas[chave[:40]] = valor[:60]
+    return metricas
+
+
 def session_payload(session: GameSession) -> dict[str, Any]:
     return {
         "id": session.public_id,
@@ -541,6 +558,7 @@ def session_payload(session: GameSession) -> dict[str, Any]:
         "acertos": session.acertos,
         "erros": session.erros,
         "accuracy": session.accuracy,
+        "metadata": session.metadata_json or {},
         "status": session.status,
         "started_at": session.started_at.isoformat() if session.started_at else None,
         "completed_at": session.completed_at.isoformat() if session.completed_at else None,
@@ -955,7 +973,7 @@ def _create_or_get_session(user: User, data: dict[str, Any], complete: bool = Fa
         game_type=activity.slug,
         versao_jogo=str(data.get("versao_jogo") or activity.versao)[:30],
         status="started",
-        metadata_json=data.get("metadata") if isinstance(data.get("metadata"), dict) else {},
+        metadata_json=_metricas_da_sessao(data.get("metadata")),
     )
     db.session.add(session)
     db.session.flush()
@@ -1072,7 +1090,7 @@ def health_check():
 
 @app.get("/api/v1/health")
 def api_health_check():
-    return jsonify({"status": "healthy", "version": "3.1.0", "api": "v1", "environment": APP_ENV}), 200
+    return jsonify({"status": "healthy", "version": "3.2.0", "api": "v1", "environment": APP_ENV}), 200
 
 
 @app.cli.command("init-db")

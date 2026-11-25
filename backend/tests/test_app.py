@@ -18,7 +18,7 @@ def test_api_health(client):
     assert response.status_code == 200
     data = response.get_json()
     assert data["status"] == "healthy"
-    assert data["version"] == "3.1.0"
+    assert data["version"] == "3.2.0"
 
 
 def test_rotas_legadas_foram_removidas(client):

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import './EchoTemple.css';
+import '../../shared/theme/gameStage.css';
 import GameControls from '../../shared/components/GameControls';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
 import { AdaptiveDifficulty } from '../../shared/adaptation/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { useAchievementSystem } from '../../features/achievements';
 import { getCurrentStudentId, persistGameplay } from '../../shared/api/gameplay';
+import { pintarFundo, desenharTelaTitulo, desenharPlacar, desenharFaixa } from '../../shared/theme/gameTheme';
 
 const EchoTemple = () => {
   const [searchParams] = useSearchParams();
@@ -158,9 +159,7 @@ const EchoTemple = () => {
     const drawGrid = () => {
       const { cols, rows, cellSize, offsetX, offsetY } = game.grid;
       
-      // Fundo do templo
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      pintarFundo(ctx, canvas.width, canvas.height, { grade: false });
       
       // Estrelas de fundo
       ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
@@ -177,14 +176,14 @@ const EchoTemple = () => {
           const y = offsetY + row * cellSize;
           
           // Borda da célula
-          ctx.strokeStyle = 'rgba(100, 200, 255, 0.3)';
+          ctx.strokeStyle = 'rgba(140, 201, 214, 0.3)';
           ctx.lineWidth = 2;
           ctx.strokeRect(x, y, cellSize, cellSize);
           
           // Coordenadas (debug)
           if (gameState === 'playing' && phase === 'encoding') {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.font = '12px Arial';
+            ctx.font = '12px Inter, "Segoe UI", system-ui, sans-serif';
             ctx.fillText(`${col},${row}`, x + 5, y + 15);
           }
         }
@@ -208,13 +207,13 @@ const EchoTemple = () => {
           if (isCurrentStep) {
             // Plataforma brilhando
             ctx.fillStyle = '#8cc9d6';
-            ctx.shadowBlur = 30;
+            ctx.shadowBlur = 0;
             ctx.shadowColor = '#8cc9d6';
             ctx.fillRect(x + 10, y + 10, cellSize - 20, cellSize - 20);
             
             // Número
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 48px Arial';
+            ctx.font = 'bold 48px Inter, "Segoe UI", system-ui, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(platform.number, x + cellSize / 2, y + cellSize / 2 + 15);
             ctx.shadowBlur = 0;
@@ -222,11 +221,11 @@ const EchoTemple = () => {
         } else if (phase === 'recall') {
           // Mostra plataformas pisadas
           if (platform.correct) {
-            ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+            ctx.fillStyle = 'rgba(92, 201, 138, 0.5)';
             ctx.fillRect(x + 10, y + 10, cellSize - 20, cellSize - 20);
             
             ctx.fillStyle = '#5cc98a';
-            ctx.font = 'bold 36px Arial';
+            ctx.font = 'bold 36px Inter, "Segoe UI", system-ui, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('✓', x + cellSize / 2, y + cellSize / 2 + 12);
           }
@@ -245,9 +244,9 @@ const EchoTemple = () => {
       ctx.fill();
       
       // Corpo do explorador
-      ctx.fillStyle = '#ffd700';
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = '#ffd700';
+      ctx.fillStyle = '#e6c768';
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = '#e6c768';
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
       ctx.fill();
@@ -280,49 +279,22 @@ const EchoTemple = () => {
 
     // DESENHAR HUD
     const drawHUD = () => {
-      // Pontos
-      ctx.fillStyle = '#ffd700';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(`PONTOS: ${score}`, 20, 30);
-      
-      // Nível
-      ctx.fillText(`NÍVEL: ${level}`, 20, 60);
-      
-      // Fase
-      const phaseText = {
-        encoding: '📖 MEMORIZE',
-        retention: '⏳ AGUARDE',
-        recall: '🎯 LEMBRE-SE'
-      };
-      ctx.fillStyle = '#8cc9d6';
-      ctx.font = 'bold 28px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(phaseText[phase] || '', 640, 50);
-      
-      // Precisão
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 100;
-      ctx.fillStyle = '#5cc98a';
-      ctx.font = 'bold 20px Arial';
-      ctx.textAlign = 'right';
-      ctx.fillText(`PRECISÃO: ${precisao}%`, 1260, 30);
-      
-      // Mensagem de ajuste adaptativo
-      if (adaptiveMessageRef.current) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(340, 80, 600, 60);
-        ctx.fillStyle = '#8cc9d6';
-        ctx.font = 'bold 18px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessageRef.current, 640, 115);
-      }
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 100;
+      desenharPlacar(ctx, [`Pontos ${score}`, `Nível ${level}`, `Precisão ${precisao}%`]);
+
+      const phaseText = {
+        encoding: '👀 Memorize o caminho',
+        retention: '⏳ Aguarde',
+        recall: '🎯 Agora repita o caminho'
+      };
+      desenharFaixa(ctx, adaptiveMessageRef.current || phaseText[phase], { y: 690 });
       
       // Timer de retenção
       if (phase === 'retention' && game.retentionTimer > 0) {
         const seconds = Math.ceil(game.retentionTimer / 60);
         ctx.fillStyle = '#e6c768';
-        ctx.font = 'bold 48px Arial';
+        ctx.font = 'bold 48px Inter, "Segoe UI", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(seconds, 640, 360);
       }
@@ -584,53 +556,17 @@ const EchoTemple = () => {
     };
 
     const drawMenu = () => {
-      ctx.fillStyle = '#0a0e1a';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Título
-      const titleY = 150 + Math.sin(Date.now() / 500) * 10;
-      ctx.fillStyle = '#8cc9d6';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#8cc9d6';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('TEMPLO DOS ECOS', 640, titleY);
-      ctx.shadowBlur = 0;
-
-      // Subtítulo
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '28px Arial';
-      ctx.fillText('🧠 Treinamento de Memória Visuoespacial 🧠', 640, 250);
-
-      // Instruções
-      const instructions = [
-        '1. MEMORIZE a sequência de plataformas',
-        '2. AGUARDE o tempo de retenção',
-        '3. NAVEGUE pela sequência correta',
-        '',
-        'Use as SETAS ← ↑ → ↓ para mover',
-        '',
-        'Pressione ESPAÇO para começar'
-      ];
-
-      let y = 350;
-      instructions.forEach(inst => {
-        ctx.fillStyle = inst === '' ? '#8cc9d6' : 'white';
-        ctx.font = inst.includes('ESPAÇO') ? 'bold 24px Arial' : '20px Arial';
-        ctx.fillText(inst, 640, y);
-        y += 40;
+      pintarFundo(ctx, canvas.width, canvas.height);
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Templo dos Ecos',
+        subtitulo: 'Memorize o caminho e repita',
+        linhas: [
+          '1. Observe a ordem em que as casas acendem',
+          '2. Espere um pouquinho',
+          '3. Ande pelas mesmas casas, na mesma ordem, com as setas',
+        ],
+        chamada: 'Toque em Começar ou aperte ESPAÇO',
       });
-      
-      // Botão de configurações
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(20, 650, 200, 50);
-      ctx.strokeStyle = '#8cc9d6';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(20, 650, 200, 50);
-      ctx.fillStyle = '#8cc9d6';
-      ctx.font = 'bold 18px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('⚙️ Config (C)', 40, 682);
     };
 
     const drawGame = () => {
@@ -642,25 +578,15 @@ const EchoTemple = () => {
     };
 
     const drawGameOver = () => {
-      ctx.fillStyle = '#0a0e1a';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = '#e06b68';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', 640, 200);
-
+      pintarFundo(ctx, canvas.width, canvas.height);
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
-
-      ctx.fillStyle = 'white';
-      ctx.font = '28px Arial';
-      ctx.fillText(`Pontuação: ${score}`, 640, 300);
-      ctx.fillText(`Nível Alcançado: ${level}`, 640, 350);
-      ctx.fillText(`Precisão: ${precisao}%`, 640, 400);
-
-      ctx.fillStyle = '#8cc9d6';
-      ctx.fillText('Pressione ESPAÇO para voltar ao menu', 640, 500);
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 0;
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Atividade concluída',
+        subtitulo: 'Bom trabalho!',
+        linhas: [`Pontos: ${score}   ·   Nível: ${level}   ·   Precisão: ${precisao}%`],
+        chamada: 'Aperte ESPAÇO para voltar ao início',
+      });
     };
 
     // GAME LOOP
@@ -702,7 +628,7 @@ const EchoTemple = () => {
       durationSeconds: (Date.now() - inicio) / 1000,
       acertos: delta.acertos,
       erros: delta.erros,
-      metadata: { ...metadata, level, phase }
+      metadata: { paradigma: 'span-visuoespacial', ...metadata, nivel: level, maior_sequencia: maxSequenceLengthRef.current }
     }).catch(() => {
       salvoRef.current = salvo; // tenta de novo no próximo registro
     });
@@ -724,7 +650,7 @@ const EchoTemple = () => {
   };
 
   return (
-    <div className="echo-temple">
+    <div className="game-stage echo-temple">
       <canvas ref={canvasRef} />
       <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: 'ArrowLeft', icon: '←', label: 'Esquerda' }, { key: 'ArrowUp', icon: '↑', label: 'Cima' }, { key: 'ArrowDown', icon: '↓', label: 'Baixo' }, { key: 'ArrowRight', icon: '→', label: 'Direita' }, { key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       

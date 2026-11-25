@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import './CyberRunner.css';
+import '../../shared/theme/gameStage.css';
 import GameControls from '../../shared/components/GameControls';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import { apiUrl } from '../../shared/config/api';
 import { AdaptiveDifficulty } from '../../shared/adaptation/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
+import { pintarFundo, desenharTelaTitulo } from '../../shared/theme/gameTheme';
 import { drawBackground, drawCollectible, drawParticles, drawHUD, drawChallenge } from './gameDrawFunctions';
 
 const CyberRunner = () => {
@@ -117,7 +118,7 @@ const CyberRunner = () => {
         generate: () => {
           const colors = [
             { name: 'VERMELHO', color: '#e06b68', text: 'VERMELHO' },
-            { name: 'AZUL', color: '#0000ff', text: 'AZUL' },
+            { name: 'AZUL', color: '#3f6fb5', text: 'AZUL' },
             { name: 'VERDE', color: '#5cc98a', text: 'VERDE' },
             { name: 'AMARELO', color: '#e6c768', text: 'AMARELO' }
           ];
@@ -179,11 +180,11 @@ const CyberRunner = () => {
       const height = p.sliding ? p.height / 2 : p.height;
       
       // Corpo do robô
-      const bodyColor = powerUp === 'shield' ? '#8cc9d6' : '#4a9eff';
+      const bodyColor = powerUp === 'shield' ? '#8cc9d6' : '#628cc6';
       const glowColor = p.jumping || p.sliding ? '#e6c768' : '#8cc9d6';
       
       // Efeito glow
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 0;
       ctx.shadowColor = glowColor;
       
       // Corpo principal
@@ -191,7 +192,7 @@ const CyberRunner = () => {
       ctx.fillRect(p.x, p.y, p.width, height);
       
       // Cabeça
-      ctx.fillStyle = '#6ab7ff';
+      ctx.fillStyle = '#8eadd8';
       ctx.fillRect(p.x + 5, p.y - 20, p.width - 10, 20);
       
       // Olhos (piscando)
@@ -204,7 +205,7 @@ const CyberRunner = () => {
       
       // Braços (animados)
       const armOffset = Math.sin(game.player.animationCounter / 5) * 5;
-      ctx.fillStyle = '#4a9eff';
+      ctx.fillStyle = '#628cc6';
       ctx.fillRect(p.x - 10, p.y + 15 + armOffset, 10, 25);
       ctx.fillRect(p.x + p.width, p.y + 15 - armOffset, 10, 25);
       
@@ -318,16 +319,11 @@ const CyberRunner = () => {
     };
 
     const handleClick = (e) => {
+      // Converte a posição na tela para coordenadas do canvas (ele é redimensionado).
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      // Verifica clique no botão de configurações (menu)
-      if (gameState === 'menu' && x >= 20 && x <= 220 && y >= 650 && y <= 700) {
-        setShowSettings(true);
-        return;
-      }
-      
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
       if (!game.challengeActive) return;
 
       game.challengeButtons.forEach(btn => {
@@ -522,7 +518,7 @@ const CyberRunner = () => {
           if (col.type === 'coin') {
             setCoins(c => c + 1);
             setScore(s => s + 5);
-            createParticles(col.x, col.y, '#ffd700', 8);
+            createParticles(col.x, col.y, '#e6c768', 8);
           } else if (col.type === 'star') {
             setScore(s => s + 25);
             createParticles(col.x, col.y, '#e6c768', 12);
@@ -585,60 +581,17 @@ const CyberRunner = () => {
     };
 
     const drawMenu = () => {
-      ctx.fillStyle = '#0a0e27';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Título animado
-      const titleY = 150 + Math.sin(Date.now() / 500) * 10;
-      ctx.fillStyle = '#8cc9d6';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#8cc9d6';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('CYBER-RUNNER', 640, titleY);
-      ctx.shadowBlur = 0;
-
-      // Subtítulo
-      ctx.fillStyle = 'white';
-      ctx.font = '28px Arial';
-      ctx.fillText('🧠 Treinamento Cognitivo Avançado 🧠', 640, 250);
-
-      // Instruções com ícones
-      const instructions = [
-        { text: 'VERDE ↑ = PULAR (ESPAÇO)', color: '#5cc98a' },
-        { text: 'VERMELHO ↓ = DESLIZAR (↓)', color: '#e06b68' },
-        { text: '💰 Colete moedas e power-ups!', color: '#ffd700' },
-        { text: '🧠 Resolva desafios cognitivos!', color: '#8cc9d6' }
-      ];
-
-      let y = 350;
-      instructions.forEach(inst => {
-        ctx.fillStyle = inst.color;
-        ctx.font = 'bold 22px Arial';
-        ctx.fillText(inst.text, 640, y);
-        y += 50;
+      pintarFundo(ctx, canvas.width, canvas.height);
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Cyber-Runner',
+        subtitulo: 'Corra, desvie e decida rápido',
+        linhas: [
+          'Obstáculo verde ↑  pule (ESPAÇO)',
+          'Obstáculo vermelho ↓  deslize (seta para baixo)',
+          'Pegue as moedas e responda aos desafios no caminho',
+        ],
+        chamada: 'Toque em Começar ou aperte ESPAÇO',
       });
-
-      // Botão start pulsante
-      const pulseSize = 1 + Math.sin(Date.now() / 300) * 0.1;
-      ctx.save();
-      ctx.translate(640, 580);
-      ctx.scale(pulseSize, pulseSize);
-      ctx.fillStyle = '#8cc9d6';
-      ctx.font = 'bold 32px Arial';
-      ctx.fillText('Pressione ESPAÇO para começar', 0, 0);
-      ctx.restore();
-      
-      // Botão de configurações
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(20, 650, 200, 50);
-      ctx.strokeStyle = '#8cc9d6';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(20, 650, 200, 50);
-      ctx.fillStyle = '#8cc9d6';
-      ctx.font = 'bold 20px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('⚙️ Configurações', 35, 682);
     };
 
     const drawGame = () => {
@@ -647,12 +600,12 @@ const CyberRunner = () => {
 
       // Efeito de câmera lenta durante desafio
       if (game.challengeActive) {
-        ctx.fillStyle = 'rgba(0, 100, 200, 0.1)';
+        ctx.fillStyle = 'rgba(140, 201, 214, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Texto "SLOW MOTION"
         ctx.fillStyle = 'rgba(140, 201, 214, 0.3)';
-        ctx.font = 'bold 48px Arial';
+        ctx.font = 'bold 48px Inter, "Segoe UI", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('⏱️ SLOW MOTION', 640, 150);
       }
@@ -663,7 +616,7 @@ const CyberRunner = () => {
       // Desenha obstáculos
       game.obstacles.forEach(obs => {
         ctx.fillStyle = obs.color;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 0;
         ctx.shadowColor = obs.color;
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
         ctx.strokeStyle = 'white';
@@ -673,7 +626,7 @@ const CyberRunner = () => {
         // Ícone
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 36px Arial';
+        ctx.font = 'bold 36px Inter, "Segoe UI", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(obs.type === 'go' ? '↑' : '↓', obs.x + 30, obs.y + obs.height / 2 + 12);
       });
@@ -691,10 +644,10 @@ const CyberRunner = () => {
       
       // Mensagem de ajuste adaptativo
       if (adaptiveMessageRef.current) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillStyle = 'rgba(22, 41, 74, 0.85)';
         ctx.fillRect(340, 80, 600, 60);
         ctx.fillStyle = '#8cc9d6';
-        ctx.font = 'bold 20px Arial';
+        ctx.font = 'bold 20px Inter, "Segoe UI", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(adaptiveMessageRef.current, 640, 115);
       }
@@ -719,54 +672,18 @@ const CyberRunner = () => {
     };
 
     const drawGameOver = () => {
-      ctx.fillStyle = '#0a0e27';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Título
-      ctx.fillStyle = '#e06b68';
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#e06b68';
-      ctx.font = 'bold 72px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', 640, 150);
-      ctx.shadowBlur = 0;
-
-      // Estatísticas
+      pintarFundo(ctx, canvas.width, canvas.height);
       const total = stats.acertos + stats.erros;
-      const precisao = total > 0 ? (stats.acertos / total * 100).toFixed(1) : 0;
-
-      const statsData = [
-        { label: '🏆 Pontuação Final', value: score, color: '#e6c768' },
-        { label: '💰 Moedas Coletadas', value: coins, color: '#ffd700' },
-        { label: '📊 Nível Alcançado', value: level, color: '#8cc9d6' },
-        { label: '✅ Acertos', value: stats.acertos, color: '#5cc98a' },
-        { label: '❌ Erros', value: stats.erros, color: '#e06b68' },
-        { label: '🎯 Precisão', value: `${precisao}%`, color: '#8cc9d6' }
-      ];
-
-      let y = 280;
-      statsData.forEach(stat => {
-        ctx.fillStyle = stat.color;
-        ctx.font = 'bold 28px Arial';
-        ctx.fillText(`${stat.label}: ${stat.value}`, 640, y);
-        y += 50;
+      const precisao = total > 0 ? Math.round((stats.acertos / total) * 100) : 0;
+      desenharTelaTitulo(ctx, canvas.width, {
+        titulo: 'Corrida concluída',
+        subtitulo: precisao >= 75 ? 'Muito bem!' : 'Bom esforço! Cada corrida conta.',
+        linhas: [
+          `Pontos: ${score}   ·   Moedas: ${coins}   ·   Nível: ${level}`,
+          `Acertos: ${stats.acertos}   ·   Erros: ${stats.erros}   ·   Precisão: ${precisao}%`,
+        ],
+        chamada: 'Aperte ESPAÇO para jogar de novo',
       });
-
-      // Mensagem motivacional
-      let message;
-      if (precisao >= 90) message = '🌟 EXCELENTE! Você é um mestre!';
-      else if (precisao >= 75) message = '👏 MUITO BOM! Continue assim!';
-      else if (precisao >= 60) message = '👍 BOM TRABALHO! Você está melhorando!';
-      else message = '💪 CONTINUE TENTANDO! Você consegue!';
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 24px Arial';
-      ctx.fillText(message, 640, y + 30);
-
-      // Botão restart
-      ctx.fillStyle = '#8cc9d6';
-      ctx.font = 'bold 28px Arial';
-      ctx.fillText('Pressione ESPAÇO para jogar novamente', 640, y + 90);
     };
 
     const gameLoop = () => {
@@ -800,7 +717,8 @@ const CyberRunner = () => {
       duration_seconds: Math.max(0, Math.floor((Date.now() - sessionStartedAtRef.current) / 1000)),
       acertos: stats.acertos,
       erros: stats.erros,
-      events: [{ type: 'run_completed', data: { lives_remaining: lives, coins, level, combo } }]
+      events: [{ type: 'run_completed', data: { lives_remaining: lives, coins, level, combo } }],
+      metadata: { paradigma: 'escolha-rapida', nivel: level, moedas: coins, vidas_restantes: lives }
     }, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {
       sessionPersistedRef.current = false;
     });
@@ -814,7 +732,7 @@ const CyberRunner = () => {
   };
 
   return (
-    <div className="cyber-runner-canvas">
+    <div className="game-stage cyber-runner-canvas">
       <canvas ref={canvasRef} />
       <GameControls onSettings={() => setShowSettings(true)} studentId={studentId} isPlaying={gameState === 'playing'} controls={[{ key: ' ', icon: '⬆', label: 'Pular' }, { key: 'ArrowDown', icon: '⬇', label: 'Deslizar' }, { key: 'Escape', icon: '⏹', label: 'Encerrar' }]} />
       
