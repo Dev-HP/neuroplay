@@ -47,8 +47,10 @@ services:
     image: dpage/pgadmin4:latest
     profiles: ["admin"]
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:?Defina PGADMIN_DEFAULT_EMAIL ao usar o perfil admin}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Defina PGADMIN_DEFAULT_PASSWORD ao usar o perfil admin}
+      # O Compose valida variáveis até de perfis desligados; o próprio PgAdmin
+      # se recusa a subir se elas estiverem vazias.
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-}
     ports:
       - "127.0.0.1:5050:80"
     depends_on:
