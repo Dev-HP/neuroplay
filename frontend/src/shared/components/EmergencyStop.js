@@ -1,4 +1,3 @@
-import React from 'react';
 import './EmergencyStop.css';
 
 function EmergencyStop({ onStop }) {

@@ -851,9 +851,20 @@
     grid-template-columns: 1fr;
   }
   
+  /* No celular as quatro abas ficam em grade 2x2: nenhuma some fora da tela. */
+  .painel-educador .educator-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 0 0.5rem;
+    overflow-x: visible;
+  }
+
   .painel-educador .nav-tab {
-    padding: 0.75rem 1rem;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
     font-size: 0.875rem;
+    min-height: 48px;
   }
   
   .painel-educador .modal-content {

@@ -1,68 +1,43 @@
-"""
-Tests for Flask App
-"""
-
-import pytest
-import sys
-import os
-
-# Add parent directory to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Import app.py directly by manipulating sys.modules
-import importlib.util
-spec = importlib.util.spec_from_file_location("app_main", os.path.join(os.path.dirname(__file__), '..', 'app.py'))
-app_main = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(app_main)
+"""Testes básicos da aplicação Flask (usam os fixtures de conftest.py)."""
 
 
-@pytest.fixture
-def app():
-    """Create application for testing"""
-    flask_app = app_main.app
-    flask_app.config.update({
-        "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-    })
-    
-    with flask_app.app_context():
-        app_main.db.create_all()
-    
-    yield flask_app
-    
-    with flask_app.app_context():
-        app_main.db.drop_all()
+def test_app_em_modo_de_teste(app):
+    assert app.config["TESTING"]
 
 
-@pytest.fixture
-def client(app):
-    """Create test client"""
-    return app.test_client()
+def test_health_confirma_o_banco(client):
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "healthy"
+    assert data["database"] == "ok"
 
 
-class TestApp:
-    """Test Flask application"""
-    
-    def test_app_exists(self, app):
-        """Test that app exists"""
-        assert app is not None
-    
-    def test_app_is_testing(self, app):
-        """Test that app is in testing mode"""
-        assert app.config['TESTING']
-    
-    def test_health_endpoint(self, client):
-        """Test health check endpoint"""
-        response = client.get('/health')
-        # Accept both 200 (healthy) and 503 (unhealthy but responding)
-        assert response.status_code in [200, 503]
-        data = response.get_json()
-        assert 'status' in data
-    
-    def test_api_health_endpoint(self, client):
-        """Test API health check endpoint"""
-        response = client.get('/api/v1/health')
-        assert response.status_code == 200
-        data = response.get_json()
-        assert data['status'] == 'healthy'
-        assert data['version'] == '3.0.0'
+def test_api_health(client):
+    response = client.get("/api/v1/health")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "healthy"
+    assert data["version"] == "3.1.0"
+
+
+def test_rotas_legadas_foram_removidas(client):
+    assert client.post("/api/auth/login", json={}).status_code == 404
+    assert client.get("/api/alunos").status_code == 404
+    assert client.get("/api/telemetry/session/qualquer").status_code == 404
+
+
+def test_producao_recusa_secret_de_exemplo(monkeypatch):
+    import app as app_module
+
+    monkeypatch.setattr(app_module, "IS_PRODUCTION", True)
+    monkeypatch.setenv("SECRET_KEY", "replace-with-at-least-32-random-characters")
+    try:
+        app_module._secret_key()
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("o secret de exemplo foi aceito em produção")
+
+    monkeypatch.setenv("SECRET_KEY", "k9F2vQ7xL1pZ8mW4tR6yB3nC5hJ0sD2eG7aU1iO9")
+    assert app_module._secret_key().startswith("k9F2")

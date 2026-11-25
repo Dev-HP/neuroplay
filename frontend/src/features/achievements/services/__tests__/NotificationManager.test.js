@@ -14,7 +14,7 @@ describe('NotificationManager', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     document.body.innerHTML = '';
   });
 
@@ -36,7 +36,7 @@ describe('NotificationManager', () => {
   describe('show', () => {
     beforeEach(() => {
       // Mock _showNext to prevent automatic processing
-      manager._showNext = jest.fn();
+      manager._showNext = vi.fn();
     });
 
     it('should add notification to queue', () => {

@@ -1,85 +1,57 @@
-# Guia de Instalação - NeuroPlay
+# Instalação e execução local
 
-## Pré-requisitos
+## Requisitos
 
-- Python 3.8+
-- Node.js 16+
-- PostgreSQL 12+
+- Node.js 22.12 ou mais novo (frontend)
+- Python 3.11 ou mais novo (backend)
+- Docker com Compose v2 (opcional, para a stack completa)
 
-## Instalação do Backend
+## 1. Só o frontend, em modo demonstração
 
-1. Instale o PostgreSQL e crie o banco de dados:
-```bash
-psql -U postgres
-CREATE DATABASE neuroplay;
-\q
-```
+Não precisa de banco nem de backend: as rotas da API são simuladas no navegador.
 
-2. Execute o script de criação das tabelas:
-```bash
-psql -U postgres -d neuroplay -f database/schema.sql
-```
-
-3. Instale as dependências Python:
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-4. Configure a conexão com o banco de dados em `backend/app.py`:
-```python
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://usuario:senha@localhost/neuroplay'
-```
-
-5. Inicie o servidor backend:
-```bash
-python app.py
-```
-
-O backend estará rodando em `http://localhost:5000`
-
-## Instalação do Frontend
-
-1. Instale as dependências:
 ```bash
 cd frontend
-npm install
+npm ci
+REACT_APP_DEMO_MODE=true npm start      # http://localhost:3000
 ```
 
-2. Inicie o servidor de desenvolvimento:
+No Windows (PowerShell): `$env:REACT_APP_DEMO_MODE="true"; npm start`.
+
+## 2. Stack completa com Docker
+
 ```bash
-npm start
+cp .env.example .env      # troque SECRET_KEY, POSTGRES_PASSWORD e a senha dentro de DATABASE_URL
+docker compose up -d --build
 ```
 
-O frontend estará rodando em `http://localhost:3000`
+| Serviço | Endereço |
+|---|---|
+| Frontend (nginx, encaminha `/api` para o backend) | http://localhost:3000 |
+| API | http://localhost:5000 (`/health` testa o banco) |
+| PgAdmin (opcional) | `docker compose --profile admin up -d pgadmin` → http://127.0.0.1:5050 |
 
-## Acesso à Plataforma
+O backend cria as tabelas e o catálogo de atividades na primeira subida.
 
-1. Acesse `http://localhost:3000`
-2. Crie uma conta como Educador ou Aluno
-3. Faça login e explore a plataforma!
+## 3. Backend sem Docker
 
-## Estrutura de Usuários
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements-test.txt
+export APP_ENV=development SECRET_KEY='uma-chave-local-com-pelo-menos-32-caracteres'
+export DATABASE_URL='sqlite:///neuroplay-development.db'
+flask --app wsgi:application init-db
+flask --app wsgi:application run --port 5000
+```
 
-- **Educador**: Pode visualizar relatórios e acompanhar o progresso dos alunos
-- **Aluno**: Pode jogar os jogos educativos e acumular pontos
+Para o frontend usar essa API: `REACT_APP_API_URL=http://localhost:5000 npm start` (o `CORS_ORIGINS` padrão já libera `http://localhost:3000`).
 
-## Jogos Disponíveis
+## Testes e verificação
 
-1. **Mestres do Sinal**: Jogo de controle inibitório (Go/No-Go)
-2. **Quebra-cabeça**: Em desenvolvimento
-3. **Jogo da Memória**: Em desenvolvimento
+```bash
+cd frontend && npm run lint && npm test          # ESLint (zero avisos) e Vitest
+cd backend && flake8 . && pytest                 # flake8 e pytest
+```
 
-## Troubleshooting
-
-### Erro de conexão com banco de dados
-- Verifique se o PostgreSQL está rodando
-- Confirme as credenciais de acesso no arquivo `app.py`
-
-### Erro CORS no frontend
-- Certifique-se de que o backend está rodando na porta 5000
-- Verifique se o Flask-CORS está instalado
-
-### Porta já em uso
-- Backend: Altere a porta em `app.py`: `app.run(port=NOVA_PORTA)`
-- Frontend: Defina `PORT=NOVA_PORTA` antes de executar `npm start`
+Os mesmos comandos rodam no GitHub Actions (`.github/workflows/ci.yml`), junto com `npm audit`, `pip-audit` e a subida da stack Docker.

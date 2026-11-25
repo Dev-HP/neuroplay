@@ -42,15 +42,15 @@ Data: 24/11/2026 · Escopo: frontend React (todas as telas e os 7 jogos) e backe
 
 ## 3. Resultado do mapeamento (depois)
 
-17 telas × 2 tamanhos: **0 erros de JavaScript, 0 botões cobertos, 0 textos vazando de botões, 0 rolagens horizontais**. Pendência aceita: no celular, a aba "Governança" do painel do educador fica numa barra de abas com rolagem lateral.
+17 telas × 2 tamanhos: **0 erros de JavaScript, 0 botões cobertos, 0 textos vazando de botões, 0 rolagens horizontais**. No celular, as quatro abas do painel do educador ficam numa grade 2×2 (antes a aba "Governança" ficava fora da tela).
 
 Capturas: `depois_desktop_sheet.jpg` e `depois_celular_sheet.jpg`.
 
 ## 4. Testes automatizados
 
-- Frontend (Jest): **146/146** (18 suítes), incluindo 5 testes novos do modo demonstração.
-- Backend (Pytest): **9 aprovados, 4 ignorados**, cobertura de 62%.
-- Lint: 0 erros.
+- Frontend (Vitest): **78/78** (8 suítes). Na migração para o Vite foram removidas 8 suítes que só testavam valores criados dentro do próprio teste, sem importar código do app.
+- Backend (pytest): **9/9**, nenhum ignorado.
+- Lint: ESLint com 0 erros e 0 avisos; flake8 sem apontamentos.
 
 ## 5. Teste prático (jogando no navegador)
 

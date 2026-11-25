@@ -178,14 +178,46 @@ class AudioManager {
     oscillator.stop(this.audioContext.currentTime + 0.2);
   }
 
-  playNote(note, duration = 0.2) {
-    // Simplificado - apenas toca um beep
-    this.play('click');
+  // Converte notação científica ("C4", "F#5", "Bb3") em frequência (Hz).
+  static noteToFrequency(note) {
+    const match = /^([A-G])([#b]?)(\d)$/.exec(String(note));
+    if (!match) return 440;
+    const [, letter, accidental, octave] = match;
+    const semitones = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 }[letter]
+      + (accidental === '#' ? 1 : accidental === 'b' ? -1 : 0)
+      + (Number(octave) - 4) * 12;
+    return 440 * 2 ** (semitones / 12);
   }
 
+  // Toca uma nota com altura própria: no n-back auditivo cada estímulo
+  // precisa soar diferente para que a comparação faça sentido.
+  playNote(note, duration = 0.2, startAt = 0) {
+    if (!this.audioContext) return;
+    const ctx = this.audioContext;
+    const start = ctx.currentTime + startAt;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = AudioManager.noteToFrequency(note);
+    gainNode.gain.setValueAtTime(0.0001, start);
+    gainNode.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.02);
+  }
+
+  // Toca uma sequência de notas; tempo em batidas por minuto (uma nota por batida).
   playMelody(notes, tempo = 120) {
-    // Simplificado
-    this.play('success');
+    const beat = 60 / tempo;
+    notes.forEach((item, index) => {
+      const note = typeof item === 'string' ? item : (item?.note ?? item?.pitch);
+      const duration = typeof item === 'object' && item?.duration ? item.duration : beat * 0.9;
+      this.playNote(note, duration, index * beat);
+    });
   }
 
   stopAll() {

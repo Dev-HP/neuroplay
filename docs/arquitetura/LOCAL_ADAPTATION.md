@@ -17,7 +17,7 @@ A decisão exige dez tentativas por padrão. O motor não altera a dificuldade q
 
 ## Motor dos jogos
 
-`frontend/src/games/CyberRunnerCanvas/adaptiveDifficulty.js` implementa o contrato consumido por Cyber Runner, Templo dos Ecos, Sonic Jump e Gravity Lab. O contrato público desses jogos permanece:
+`frontend/src/shared/adaptation/adaptiveDifficulty.js` implementa o contrato consumido por Cyber Runner, Templo dos Ecos, Sonic Jump e Gravity Lab. O contrato público desses jogos permanece:
 
 ```javascript
 recordAttempt({ correct, reactionTime, type });

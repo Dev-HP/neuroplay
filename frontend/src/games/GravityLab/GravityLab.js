@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './GravityLab.css';
 import GameControls from '../../shared/components/GameControls';
@@ -24,8 +24,16 @@ const GravityLab = () => {
   const [currentRule, setCurrentRule] = useState('color'); // color ou shape
   const [ruleChanges, setRuleChanges] = useState(0);
   const [stats, setStats] = useState({ acertos: 0, erros: 0 });
-  const [experimentsCompleted, setExperimentsCompleted] = useState(0);
   const [adaptiveMessage, setAdaptiveMessage] = useState(null);
+  // O laço do canvas é criado uma vez; refs mantêm os valores atuais visíveis nele.
+  const adaptiveMessageRef = useRef(null);
+  useEffect(() => {
+    adaptiveMessageRef.current = adaptiveMessage;
+  }, [adaptiveMessage]);
+  const trackEventRef = useRef(trackEvent);
+  useEffect(() => {
+    trackEventRef.current = trackEvent;
+  }, [trackEvent]);
   const [showSettings, setShowSettings] = useState(false);
   const gameRef = useRef(null);
   const audioRef = useRef(null);
@@ -398,13 +406,13 @@ const GravityLab = () => {
       ctx.fillText('Arraste os objetos para as zonas corretas!', 640, 690);
       
       // Mensagem de ajuste adaptativo
-      if (adaptiveMessage) {
+      if (adaptiveMessageRef.current) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 620, 600, 50);
         ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessage, 640, 650);
+        ctx.fillText(adaptiveMessageRef.current, 640, 650);
       }
     };
 
@@ -536,16 +544,11 @@ const GravityLab = () => {
                 audioRef.current?.onLevelComplete();
                 
                 // Track experiment completion
-                setExperimentsCompleted(e => {
-                  const newCount = e + 1;
-                  trackEvent('experiment_completed', {
-                    game: 'gravity-lab',
-                    totalCompleted: newCount
-                  });
-                  return newCount;
-                });
-                
                 experimentsRef.current += 1;
+                trackEventRef.current('experiment_completed', {
+                  game: 'gravity-lab',
+                  totalCompleted: experimentsRef.current
+                });
                 if (experimentsRef.current >= EXPERIMENTOS_POR_SESSAO) {
                   // Sessão completa: encerra e dispara o salvamento.
                   setTimeout(() => setGameState('gameover'), 1000);

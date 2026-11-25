@@ -14,7 +14,7 @@ O produto não fornece diagnóstico, tratamento, cura, prescrição ou recomenda
 
 O build de produção é gerado com `REACT_APP_DEMO_MODE=false`; não há credenciais de demonstração, arrays de alunos ou progresso fictício no fluxo de runtime. O frontend consulta a API e bloqueia operações identificáveis quando não existe estudante selecionado ou consentimento válido. Os sete jogos enviam sessões autorizadas ao endpoint real `/api/v1/gameplay/sync`.
 
-O GitHub Pages hospeda apenas o frontend estático. Para operar com dados reais, o secret `REACT_APP_API_URL` precisa apontar para uma API Flask pública com HTTPS, PostgreSQL e Redis gerenciados, CORS restrito e secrets configurados no provedor. Sem essa infraestrutura e sem a governança institucional descrita no guia de deploy, a publicação deve ser usada somente com dados sintéticos.
+O GitHub Pages hospeda apenas o frontend estático. Para operar com dados reais, o secret `REACT_APP_API_URL` precisa apontar para uma API Flask pública com HTTPS e PostgreSQL gerenciado, CORS restrito e secrets configurados no provedor. Sem essa infraestrutura e sem a governança institucional descrita no guia de deploy, a publicação deve ser usada somente com dados sintéticos.
 
 ## Critérios para futuros resultados
 

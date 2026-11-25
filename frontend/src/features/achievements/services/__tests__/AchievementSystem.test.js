@@ -3,23 +3,21 @@
  */
 
 import AchievementSystem, { getAchievementSystem } from '../AchievementSystem';
-import { StorageManager } from '../StorageManager';
-import NotificationManager from '../NotificationManager';
 
 // Mock dependencies
-jest.mock('../StorageManager');
-jest.mock('../NotificationManager');
+vi.mock('../StorageManager');
+vi.mock('../NotificationManager');
 
 describe('AchievementSystem', () => {
   let system;
 
   beforeEach(() => {
     system = new AchievementSystem();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('singleton pattern', () => {
@@ -47,7 +45,7 @@ describe('AchievementSystem', () => {
 
     it('should handle initialization errors', async () => {
       const errorSystem = new AchievementSystem();
-      errorSystem.storage.initialize = jest.fn().mockRejectedValue(new Error('Init failed'));
+      errorSystem.storage.initialize = vi.fn().mockRejectedValue(new Error('Init failed'));
       
       await expect(errorSystem.initialize()).rejects.toThrow('Init failed');
     });
@@ -117,7 +115,7 @@ describe('AchievementSystem', () => {
 
     it('should not unlock already unlocked achievement', async () => {
       const achievement = { id: 'test', condition: () => true };
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({ unlocked: true });
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({ unlocked: true });
       
       const result = await system._checkAchievement(achievement, {});
       
@@ -126,8 +124,8 @@ describe('AchievementSystem', () => {
 
     it('should unlock achievement when condition is met', async () => {
       const achievement = { id: 'test', condition: () => true, name: 'Test', icon: '🎮' };
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({ unlocked: false });
-      system.storage.unlockAchievement = jest.fn().mockResolvedValue(true);
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({ unlocked: false });
+      system.storage.unlockAchievement = vi.fn().mockResolvedValue(true);
       
       const result = await system._checkAchievement(achievement, {});
       
@@ -136,7 +134,7 @@ describe('AchievementSystem', () => {
 
     it('should not unlock achievement when condition is not met', async () => {
       const achievement = { id: 'test', condition: () => false };
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({ unlocked: false });
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({ unlocked: false });
       
       const result = await system._checkAchievement(achievement, {});
       
@@ -158,8 +156,8 @@ describe('AchievementSystem', () => {
         xp: 100
       };
       
-      const unlockSpy = jest.spyOn(system.storage, 'unlockAchievement');
-      const showSpy = jest.spyOn(system.notificationManager, 'show');
+      const unlockSpy = vi.spyOn(system.storage, 'unlockAchievement');
+      const showSpy = vi.spyOn(system.notificationManager, 'show');
       
       await system._unlockAchievement(achievement);
       
@@ -190,7 +188,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should merge achievement definitions with progress', async () => {
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({
         progress: 50,
         unlocked: false,
         unlockedAt: null
@@ -236,7 +234,7 @@ describe('AchievementSystem', () => {
     it('should return only unlocked achievements', async () => {
       // Mock para retornar valores diferentes para cada achievement
       let callCount = 0;
-      system.storage.getAchievementProgress = jest.fn().mockImplementation(() => {
+      system.storage.getAchievementProgress = vi.fn().mockImplementation(() => {
         callCount++;
         if (callCount % 3 === 0) {
           return Promise.resolve({ unlocked: true, progress: 100 });
@@ -250,7 +248,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should return empty array if no achievements unlocked', async () => {
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({ unlocked: false });
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({ unlocked: false });
       
       const unlocked = await system.getUnlockedAchievements();
       
@@ -281,7 +279,7 @@ describe('AchievementSystem', () => {
 
     it('should calculate total points correctly', async () => {
       // Mock para retornar todos achievements como desbloqueados
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({ 
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({ 
         unlocked: true, 
         progress: 100 
       });
@@ -295,7 +293,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should handle zero unlocked achievements', async () => {
-      system.storage.getAchievementProgress = jest.fn().mockResolvedValue({ unlocked: false });
+      system.storage.getAchievementProgress = vi.fn().mockResolvedValue({ unlocked: false });
       
       const stats = await system.getStats();
       
@@ -307,7 +305,7 @@ describe('AchievementSystem', () => {
 
   describe('addEventListener', () => {
     it('should add listener', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const unsubscribe = system.addEventListener(callback);
       
       expect(typeof unsubscribe).toBe('function');
@@ -315,7 +313,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should remove listener on unsubscribe', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const unsubscribe = system.addEventListener(callback);
       
       unsubscribe();
@@ -324,7 +322,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should notify listeners', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       system.addEventListener(callback);
       
       system._notifyListeners('test_event', { data: 'test' });
@@ -333,7 +331,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should handle listener errors', () => {
-      const errorCallback = jest.fn(() => {
+      const errorCallback = vi.fn(() => {
         throw new Error('Test error');
       });
       system.addEventListener(errorCallback);
@@ -344,8 +342,8 @@ describe('AchievementSystem', () => {
     });
 
     it('should notify multiple listeners', () => {
-      const callback1 = jest.fn();
-      const callback2 = jest.fn();
+      const callback1 = vi.fn();
+      const callback2 = vi.fn();
       system.addEventListener(callback1);
       system.addEventListener(callback2);
       
@@ -362,7 +360,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should reset all data', async () => {
-      const clearSpy = jest.spyOn(system.storage, 'clearAllData');
+      const clearSpy = vi.spyOn(system.storage, 'clearAllData');
       
       await system.reset();
       
@@ -370,7 +368,7 @@ describe('AchievementSystem', () => {
     });
 
     it('should clear storage when reset', async () => {
-      const clearSpy = jest.spyOn(system.storage, 'clearAllData').mockResolvedValue(true);
+      const clearSpy = vi.spyOn(system.storage, 'clearAllData').mockResolvedValue(true);
       
       await system.reset();
       
@@ -380,8 +378,8 @@ describe('AchievementSystem', () => {
 
   describe('_notifyListeners', () => {
     it('should call all listeners with event data', () => {
-      const callback1 = jest.fn();
-      const callback2 = jest.fn();
+      const callback1 = vi.fn();
+      const callback2 = vi.fn();
       system.addEventListener(callback1);
       system.addEventListener(callback2);
       
@@ -393,8 +391,8 @@ describe('AchievementSystem', () => {
     });
 
     it('should continue notifying even if one listener fails', () => {
-      const errorCallback = jest.fn(() => { throw new Error('Fail'); });
-      const successCallback = jest.fn();
+      const errorCallback = vi.fn(() => { throw new Error('Fail'); });
+      const successCallback = vi.fn();
       
       system.addEventListener(errorCallback);
       system.addEventListener(successCallback);

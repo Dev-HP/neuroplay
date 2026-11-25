@@ -26,7 +26,7 @@ Data: 24/11/2026. Este documento é um checklist técnico e de produto. **Não s
 | Plano de resposta a incidentes | Art. 48; Res. CD/ANPD 15/2024 | Não existe | Plano escrito: quem decide, como avaliar o risco, modelo de comunicação, prazo de 3 dias úteis, registro por 5 anos |
 | Relatório de Impacto (RIPD) | Art. 38 | Não existe | Elaborar o RIPD: tratamento de dados de crianças, potencialmente sensíveis, em ambiente escolar |
 | Registro das operações | Art. 37 | Parcial: auditoria de eventos no sistema | Inventário: dados, finalidade, base legal, prazo, onde ficam, quem acessa |
-| Terceiros e transferência internacional | Arts. 33 e 39 | GitHub Pages (frontend estático); Sentry (opcional, sem dados pessoais) | Listar fornecedores no aviso de privacidade; contrato de operador com a hospedagem da API |
+| Terceiros e transferência internacional | Arts. 33 e 39 | GitHub Pages (frontend estático) e a hospedagem da API e do banco | Listar fornecedores no aviso de privacidade; contrato de operador com a hospedagem da API |
 | ECA Digital | Lei 15.211/2025 | **Bom:** sem publicidade, sem chat entre usuários, sem perfil comercial, sem compras; controle por adulto | Confirmar o enquadramento com assessoria jurídica; manter "proteção por padrão" como requisito de produto |
 | Pesquisa com crianças (artigo, TCC, extensão) | Ética em pesquisa | — | Uso dos dados em pesquisa requer aprovação de Comitê de Ética (CEP), TCLE do responsável e assentimento da criança; usar dados anonimizados |
 

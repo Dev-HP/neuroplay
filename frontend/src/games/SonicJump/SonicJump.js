@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './SonicJump.css';
 import GameControls from '../../shared/components/GameControls';
@@ -20,10 +20,18 @@ const SonicJump = () => {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(3);
-  const [currentSound, setCurrentSound] = useState(null);
   const [stats, setStats] = useState({ acertos: 0, erros: 0 });
-  const [platformsReached, setPlatformsReached] = useState(0);
+  const platformsReachedRef = useRef(0);
   const [adaptiveMessage, setAdaptiveMessage] = useState(null);
+  // O laço do canvas é criado uma vez; refs mantêm os valores atuais visíveis nele.
+  const adaptiveMessageRef = useRef(null);
+  useEffect(() => {
+    adaptiveMessageRef.current = adaptiveMessage;
+  }, [adaptiveMessage]);
+  const trackEventRef = useRef(trackEvent);
+  useEffect(() => {
+    trackEventRef.current = trackEvent;
+  }, [trackEvent]);
   const [showSettings, setShowSettings] = useState(false);
   const gameRef = useRef(null);
   const audioRef = useRef(null);
@@ -139,8 +147,6 @@ const SonicJump = () => {
       // Tempo de exibição adaptativo
       const soundTime = Math.max(120, 240 - params.speed * 10); // 2-4 segundos
       game.soundTimer = soundTime;
-      
-      setCurrentSound(phoneme);
       
       // 🎵 PLAY REAL PHONEME AUDIO
       if (phonemeRef.current) {
@@ -410,13 +416,13 @@ const SonicJump = () => {
       }
       
       // Mensagem de ajuste adaptativo
-      if (adaptiveMessage) {
+      if (adaptiveMessageRef.current) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 620, 600, 50);
         ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessage, 640, 650);
+        ctx.fillText(adaptiveMessageRef.current, 640, 650);
       }
     };
 
@@ -513,13 +519,10 @@ const SonicJump = () => {
             setStats(st => ({ ...st, acertos: st.acertos + 1 }));
             
             // Track platform achievement
-            setPlatformsReached(p => {
-              const newCount = p + 1;
-              trackEvent('platform_reached', {
-                game: 'sonic-jump',
-                totalReached: newCount
-              });
-              return newCount;
+            platformsReachedRef.current += 1;
+            trackEventRef.current('platform_reached', {
+              game: 'sonic-jump',
+              totalReached: platformsReachedRef.current
             });
             
             createParticles(platform.x + platform.width / 2, platform.y, platform.color, 30);

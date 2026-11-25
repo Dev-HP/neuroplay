@@ -5,6 +5,7 @@ import axios from 'axios';
 import App from './App';
 import { isDemoMode } from './shared/config/api';
 import { installDemoBackend } from './shared/demo/localBackend';
+import { registerServiceWorker } from './registerServiceWorker';
 
 if (isDemoMode()) {
   installDemoBackend(axios);
@@ -16,3 +17,5 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+registerServiceWorker();

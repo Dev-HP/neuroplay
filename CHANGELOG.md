@@ -5,6 +5,28 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [3.1.0] - 2026-11-24
+
+### Alterado
+- Frontend migrado do Create React App (descontinuado) para **Vite 7**, testes para **Vitest** e lint para **ESLint 10** (configuração flat). `npm audit`: 0 vulnerabilidades.
+- React Router 6 → 7. `@react-three/drei` substituído por primitivas do `@react-three/fiber` (câmera fixa e fundo estrelado próprio).
+- CI reunido em dois workflows: `ci.yml` (lint, testes, `npm audit`, `pip-audit` e stack Docker) e `deploy-frontend.yml` (GitHub Pages). Actions em Node 24; auditorias passam a bloquear.
+- Docker: imagem do backend enxuta; compose só com frontend, API e PostgreSQL (PgAdmin opcional); API na mesma origem via nginx.
+- Documentação consolidada: um documento atual por assunto; relatórios de etapa removidos (seguem no histórico do git).
+
+### Corrigido
+- Memória Dupla: cada letra do n-back auditivo agora toca uma nota própria (antes todas soavam iguais).
+- Jogos em canvas: a mensagem de dificuldade adaptativa e o registro de conquistas liam valores antigos dentro do laço de desenho.
+- Painel do educador no celular: abas em grade 2×2; a aba "Governança" ficava fora da tela.
+- A API em produção recusava `SECRET_KEY` curta, mas aceitava o valor de exemplo do `.env.example`.
+- 72 apontamentos do ESLint (variáveis sem uso, dependências de hooks, `require` em módulo ES).
+
+### Removido
+- Código sem uso: pacote `backend/app/` (Celery, Redis, Sentry), `ai_engine.py`, serviço e rotas de telemetria em SQLite, rotas de compatibilidade `/api/*` sem versão, componentes de conquistas nunca exibidos, fila offline, IndexedDB e outros módulos não importados.
+- Dependências sem uso: Celery, Redis, pandas, numpy, scikit-learn, Socket.IO, Flask-WTF, Talisman, gevent, Sentry, Prometheus, Locust, `uuid`, `gsap`, `tone` e outras.
+- 8 suítes de teste que só verificavam valores criados no próprio teste.
+- `database/schema.sql` (tabelas antigas, não usadas pela API), `legacy/pygame/`, `scripts/`, `tests/load/`, `docs/historico/`, cobertura e saídas de teste versionadas.
+
 ## [3.0.0] - 2026-11-24
 
 ### Adicionado
@@ -16,7 +38,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### Alterado
 - Mestres do Sinal segue o paradigma Go/No-Go clássico: bloco de 20 sinais, 75% Go, omissões e comissões medidas.
 - Jogos reunidos em `frontend/src/games/<Nome>/`; dificuldade adaptativa em `shared/adaptation/`.
-- Documentação reorganizada por assunto (`docs/produto`, `arquitetura`, `pesquisa`, `jogos`, `guias`, `qualidade`, `seguranca`, `marca`, `historico`).
+- Documentação reorganizada por assunto (`docs/produto`, `arquitetura`, `pesquisa`, `jogos`, `guias`, `qualidade`, `seguranca`, `marca`).
 - Catálogo "Em breve": Jogo das Emoções e Peixinhos (Flanker) no lugar de Quebra-cabeça e Jogo da Memória.
 
 ### Corrigido

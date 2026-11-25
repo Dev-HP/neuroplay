@@ -112,22 +112,3 @@ def test_respostas_da_api_tem_cabecalhos_de_seguranca(client):
     assert response.headers["X-Content-Type-Options"] == "nosniff"
     assert response.headers["X-Frame-Options"] == "DENY"
     assert response.headers["Cache-Control"] == "no-store"
-
-
-def test_resumo_de_telemetria_nao_vaza_sessao_de_outra_organizacao(client):
-    owner = client.post("/api/v1/auth/register", json={
-        "nome": "Educadora A", "email": "a@escola.br", "senha": "senha-forte-123", "organizacao_nome": "Escola A",
-    }).get_json()
-    other = client.post("/api/v1/auth/register", json={
-        "nome": "Educador B", "email": "b@escola.br", "senha": "senha-forte-456", "organizacao_nome": "Escola B",
-    }).get_json()
-    headers_a = {"Authorization": f"Bearer {owner['token']}"}
-    headers_b = {"Authorization": f"Bearer {other['token']}"}
-    student = client.post("/api/v1/students", json={"apelido": "Estrela"}, headers=headers_a).get_json()
-    client.post("/api/v1/consents", json={"student_id": student["id"]}, headers=headers_a)
-    session = client.post("/api/v1/gameplay/sync", json={
-        "student_id": student["id"], "game_type": "mestres-sinal", "session_id": "sessao-isolamento-1",
-        "score": 10, "acertos": 1, "erros": 0,
-    }, headers=headers_a).get_json()["session"]
-    response = client.get(f"/api/telemetry/session/{session['session_id']}", headers=headers_b)
-    assert response.status_code in (404, 503)

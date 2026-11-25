@@ -1,14 +1,8 @@
-name: Deploy Frontend to GitHub Pages
+name: Deploy do frontend (GitHub Pages)
 
 on:
   push:
-    branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -17,120 +11,56 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
-  # Job de testes: falhas impedem a publicação.
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Instalar dependências
-        working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
-
-      - name: Executar testes
-        working-directory: ./frontend
-        run: npm test -- --passWithNoTests --watchAll=false
-        env:
-          CI: true
-
-      - name: Lint do código (quando configurado)
-        working-directory: ./frontend
-        run: npm run lint --if-present
-
-  # Job de Build
   build:
+    name: Testes e build
     runs-on: ubuntu-latest
-    needs: test
-    
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
+          cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Verificar diretório frontend
-        run: |
-          echo "Conteúdo da raiz:"
-          ls -la
-          echo "Conteúdo do frontend:"
-          ls -la frontend/
-
       - name: Instalar dependências
-        working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
-      - name: Build do projeto
-        working-directory: ./frontend
+      - name: Lint e testes (falhas impedem a publicação)
+        run: |
+          npm run lint
+          npm test
+
+      - name: Build
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          # Sem API configurada, publica no modo demonstração (dados só no navegador).
+          REACT_APP_DEMO_MODE: ${{ secrets.REACT_APP_API_URL == '' && 'true' || 'false' }}
         run: |
           npm run build
-          # GitHub Pages precisa de um shell SPA para deep links.
+          # O GitHub Pages usa o 404.html para abrir rotas do React Router por link direto.
           cp build/index.html build/404.html
-        env:
-          CI: false
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          # Sem backend configurado, publica no modo demonstração (dados no navegador).
-          REACT_APP_DEMO_MODE: ${{ secrets.REACT_APP_API_URL == '' && 'true' || 'false' }}
-          GENERATE_SOURCEMAP: false
+          test -d build/static/js
+          test -d build/static/css
 
-      - name: Verificar build
-        run: |
-          echo "Verificando artefatos do build..."
-          test -f frontend/build/index.html
-          test -f frontend/build/404.html
-          test -d frontend/build/static/js
-          test -d frontend/build/static/css
-          ls -la frontend/build/
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
-          path: ./frontend/build
+          path: frontend/build
 
-  # Job de Deploy
   deploy:
-    # Pull requests só testam e compilam; publicar no Pages apenas em push.
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    name: Publicar
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - id: deployment
+        uses: actions/deploy-pages@v5

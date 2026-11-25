@@ -325,7 +325,7 @@ export class StorageManager {
       
       const data = JSON.parse(serialized);
       return data.lastSync || null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

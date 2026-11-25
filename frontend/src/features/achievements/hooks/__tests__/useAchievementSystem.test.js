@@ -6,11 +6,11 @@ import { renderHook } from '@testing-library/react';
 import useAchievementSystem from '../useAchievementSystem';
 
 // Mock do AchievementSystem
-jest.mock('../../services/AchievementSystem', () => ({
-  getAchievementSystem: jest.fn(() => ({
-    initialize: jest.fn().mockResolvedValue(undefined),
-    trackEvent: jest.fn().mockResolvedValue([]),
-    addEventListener: jest.fn(() => jest.fn())
+vi.mock('../../services/AchievementSystem', () => ({
+  getAchievementSystem: vi.fn(() => ({
+    initialize: vi.fn().mockResolvedValue(undefined),
+    trackEvent: vi.fn().mockResolvedValue([]),
+    addEventListener: vi.fn(() => vi.fn())
   }))
 }));
 

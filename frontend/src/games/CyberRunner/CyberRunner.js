@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './CyberRunner.css';
 import GameControls from '../../shared/components/GameControls';
 import { useSearchParams } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { apiUrl } from '../../shared/config/api';
 import { AdaptiveDifficulty } from '../../shared/adaptation/adaptiveDifficulty';
 import { SensorySettings, loadSensorySettings, applySensorySettings } from '../../shared/components/SensorySettings';
 import { getAudioFeedback } from '../../shared/utils/audioFeedback';
+import { drawBackground, drawCollectible, drawParticles, drawHUD, drawChallenge } from './gameDrawFunctions';
 
 const CyberRunner = () => {
   const [searchParams] = useSearchParams();
@@ -23,6 +24,11 @@ const CyberRunner = () => {
   const [combo, setCombo] = useState(0);
   const [stats, setStats] = useState({ acertos: 0, erros: 0 });
   const [adaptiveMessage, setAdaptiveMessage] = useState(null);
+  // O laço do canvas é criado uma vez; refs mantêm os valores atuais visíveis nele.
+  const adaptiveMessageRef = useRef(null);
+  useEffect(() => {
+    adaptiveMessageRef.current = adaptiveMessage;
+  }, [adaptiveMessage]);
   const [showSettings, setShowSettings] = useState(false);
   const gameRef = useRef(null);
   const adaptiveSystemRef = useRef(null);
@@ -372,9 +378,6 @@ const CyberRunner = () => {
     window.addEventListener('keyup', handleKeyUp);
     canvas.addEventListener('click', handleClick);
 
-    // Importar funções de desenho
-    const { drawBackground, drawCollectible, drawParticles, drawHUD, drawChallenge } = 
-      require('./gameDrawFunctions');
 
     const resetGame = () => {
       sessionStartedAtRef.current = Date.now();
@@ -687,13 +690,13 @@ const CyberRunner = () => {
       drawHUD(ctx, score, lives, coins, level, combo, precisao, powerUp);
       
       // Mensagem de ajuste adaptativo
-      if (adaptiveMessage) {
+      if (adaptiveMessageRef.current) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 80, 600, 60);
         ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessage, 640, 115);
+        ctx.fillText(adaptiveMessageRef.current, 640, 115);
       }
 
       // Desafio cognitivo
@@ -750,7 +753,7 @@ const CyberRunner = () => {
       });
 
       // Mensagem motivacional
-      let message = '';
+      let message;
       if (precisao >= 90) message = '🌟 EXCELENTE! Você é um mestre!';
       else if (precisao >= 75) message = '👏 MUITO BOM! Continue assim!';
       else if (precisao >= 60) message = '👍 BOM TRABALHO! Você está melhorando!';

@@ -12,8 +12,9 @@ os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 os.environ.setdefault("SECRET_KEY", "test-secret-neuroplay-01234567890123456789")
 
-from wsgi import application as flask_app  # noqa: E402
-from wsgi import _module as app_module  # noqa: E402
+import app as app_module  # noqa: E402
+
+flask_app = app_module.app
 
 
 @pytest.fixture

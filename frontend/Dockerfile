@@ -1,35 +1,20 @@
-# Multi-stage build para otimização
-FROM node:20-alpine AS builder
-
+# Build com Node e publicação estática com nginx
+FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copiar package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Instalar dependências
-RUN npm ci || npm install
-
-# Copiar código fonte
 COPY . .
+# A API fica na mesma origem (o nginx encaminha /api para o backend).
+RUN PUBLIC_URL=/ npm run build
 
-# Build da aplicação
-RUN npm run build
-
-# Stage de produção com Nginx
 FROM nginx:alpine
-
-# Copiar build do stage anterior
 COPY --from=builder /app/build /usr/share/nginx/html
-
-# Copiar configuração customizada do Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expor porta
 EXPOSE 80
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
 
-# Comando para iniciar Nginx
 CMD ["nginx", "-g", "daemon off;"]

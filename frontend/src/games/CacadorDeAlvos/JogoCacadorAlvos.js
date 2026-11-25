@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import audioManager from '../../shared/utils/audioManager';
 import localAdaptation from '../../shared/utils/localAdaptation';
@@ -12,8 +11,33 @@ import useGameStore from '../../store/gameStore';
 import { apiUrl } from '../../shared/config/api';
 import './JogoCacadorAlvos.css';
 
+// Fundo estrelado: pontos fixos numa casca esférica ao redor da cena.
+function Estrelas({ quantidade = 3000, raio = 100, profundidade = 50 }) {
+  const posicoes = useMemo(() => {
+    const dados = new Float32Array(quantidade * 3);
+    for (let i = 0; i < quantidade; i += 1) {
+      const r = raio + Math.random() * profundidade;
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(2 * Math.random() - 1);
+      dados[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      dados[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      dados[i * 3 + 2] = r * Math.cos(phi);
+    }
+    return dados;
+  }, [quantidade, raio, profundidade]);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[posicoes, 3]} />
+      </bufferGeometry>
+      <pointsMaterial size={0.6} sizeAttenuation color="#ffffff" transparent opacity={0.85} />
+    </points>
+  );
+}
+
 // Componente do personagem (nave espacial)
-function Spaceship({ position, onMove }) {
+function Spaceship({ position }) {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
 
@@ -85,7 +109,7 @@ function Obstacle({ position, onCollision, id }) {
   const meshRef = useRef();
   const [hit, setHit] = useState(false);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (meshRef.current && !hit) {
       meshRef.current.rotation.x += 0.03;
       meshRef.current.rotation.z += 0.02;
@@ -492,15 +516,13 @@ function JogoCacadorAlvos({ user }) {
         </div>
       )}
 
-      <Canvas className="game-canvas">
-        <PerspectiveCamera makeDefault position={[0, 5, 10]} />
-        <OrbitControls enableZoom={false} enablePan={false} />
-        
+      <Canvas className="game-canvas" camera={{ position: [0, 5, 10], fov: 75 }}>
+
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />
         <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3f6fb5" />
         
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+        <Estrelas />
         
         {gameState === 'playing' && (
           <>

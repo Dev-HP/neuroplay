@@ -8,7 +8,6 @@ Adult users authenticate; children are represented by pseudonymous profiles.
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import secrets
 import uuid
@@ -52,12 +51,17 @@ def _database_url() -> str:
     return "sqlite:///neuroplay-development.db"
 
 
+# Valores de exemplo (como o do .env.example) nunca podem chegar à produção.
+PLACEHOLDER_SECRET_MARKERS = ("replace-with", "change-before-deploy", "changeme", "example")
+
+
 def _secret_key() -> str:
     configured = os.getenv("SECRET_KEY") or os.getenv("JWT_SECRET")
-    if configured and len(configured) >= 32:
+    is_placeholder = bool(configured) and any(m in configured.lower() for m in PLACEHOLDER_SECRET_MARKERS)
+    if configured and len(configured) >= 32 and not (IS_PRODUCTION and is_placeholder):
         return configured
     if IS_PRODUCTION:
-        raise RuntimeError("SECRET_KEY/JWT_SECRET deve ter pelo menos 32 caracteres")
+        raise RuntimeError("SECRET_KEY/JWT_SECRET deve ter pelo menos 32 caracteres aleatórios (não use o valor de exemplo)")
     return "development-only-neuroplay-secret-change-before-deploy-32"
 
 
@@ -97,7 +101,8 @@ CORS(
 )
 
 # Limite de tentativas nas rotas de autenticação (força bruta / credential stuffing).
-# Em produção com vários workers, use RATELIMIT_STORAGE_URI=redis://...
+# A contagem fica em memória, por worker. Para um limite único entre workers,
+# instale o pacote redis e defina RATELIMIT_STORAGE_URI=redis://...
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
@@ -963,6 +968,7 @@ def _create_or_get_session(user: User, data: dict[str, Any], complete: bool = Fa
 def _complete_session(session: GameSession, data: dict[str, Any]) -> None:
     if session.status == "completed":
         return
+
     def as_int(name: str, default: int = 0) -> int:
         try:
             return max(0, int(data.get(name, default)))
@@ -1045,81 +1051,7 @@ def progress_v1(user: User, student_id: int):
 
 
 # ---------------------------------------------------------------------------
-# Compatibility routes for the existing frontend during migration
-# ---------------------------------------------------------------------------
-
-
-@app.post("/api/auth/register")
-@limiter.limit(REGISTER_LIMIT)
-def register_legacy():
-    response = register_v1()
-    return response
-
-
-@app.post("/api/auth/login")
-@limiter.limit(LOGIN_LIMIT)
-def login_legacy():
-    return login_v1()
-
-
-@app.get("/api/alunos")
-@token_required
-def students_legacy(user: User):
-    response = students_v1(user)
-    if isinstance(response, tuple):
-        return response
-    data = response.get_json() or {}
-    return jsonify(data.get("students", []))
-
-
-@app.post("/api/alunos")
-@token_required
-def create_student_legacy(user: User):
-    response = create_student_v1(user)
-    return response
-
-
-@app.get("/api/progresso/<int:aluno_id>")
-@token_required
-def progress_legacy(user: User, aluno_id: int):
-    response = progress_v1(user, aluno_id)
-    if isinstance(response, tuple):
-        return response
-    data = response.get_json() or {}
-    return jsonify([{
-        "atividade_id": session["activity_id"],
-        "pontos": session["score"],
-        "tempo_gasto": session["duration_seconds"],
-        "acertos": session["acertos"],
-        "erros": session["erros"],
-        "data": session["completed_at"],
-    } for session in data.get("sessions", [])])
-
-
-@app.post("/api/progresso")
-@token_required
-def save_progress_legacy(user: User):
-    data = _require_json()
-    if not data.get("session_id"):
-        data["session_id"] = f"legacy-{uuid.uuid4()}"
-    return sync_gameplay_v1(user)
-
-
-@app.get("/api/atividades")
-def activities_legacy():
-    response = activities_v1()
-    data = response.get_json() or {}
-    return jsonify([{
-        "id": activity["id"],
-        "nome": activity["nome"],
-        "tipo": activity["slug"],
-        "descricao": activity["descricao"],
-        "dificuldade": activity["dificuldade"],
-    } for activity in data.get("activities", [])])
-
-
-# ---------------------------------------------------------------------------
-# Health and telemetry
+# Health
 # ---------------------------------------------------------------------------
 
 
@@ -1140,56 +1072,7 @@ def health_check():
 
 @app.get("/api/v1/health")
 def api_health_check():
-    return jsonify({"status": "healthy", "version": "3.0.0", "api": "v1", "environment": APP_ENV}), 200
-
-
-try:
-    from telemetry_service import TelemetryService
-
-    def get_telemetry_db():
-        import sqlite3
-        return sqlite3.connect(os.getenv("TELEMETRY_DB_PATH", "telemetry.db"))
-
-    telemetry_service = TelemetryService(get_telemetry_db())
-except Exception as telemetry_import_error:  # pragma: no cover - optional legacy module
-    telemetry_service = None
-    app.logger.warning("Telemetry service unavailable: %s", telemetry_import_error.__class__.__name__)
-
-
-@app.post("/api/telemetry/batch")
-@token_required
-def telemetry_batch(user: User):
-    if telemetry_service is None:
-        return json_error("Telemetria indisponível", 503, "SERVICE_UNAVAILABLE")
-    data = _require_json()
-    events = data.get("events") if isinstance(data.get("events"), list) else []
-    if not events:
-        return json_error("Nenhum evento fornecido")
-    # Do not accept identity fields from the client as authorization metadata.
-    if len(events) > 500:
-        return json_error("Lote de telemetria grande demais (máximo 500 eventos)", 413, "PAYLOAD_TOO_LARGE")
-    sanitized = [{"type": str(event.get("type", "unknown"))[:60], "data": event.get("data", {})} for event in events if isinstance(event, dict)]
-    result = telemetry_service.process_batch(sanitized)
-    audit("telemetry_batch", "telemetry", metadata={"count": len(sanitized)})
-    db.session.commit()
-    return jsonify(result), 200 if result.get("success") else 500
-
-
-@app.get("/api/telemetry/session/<session_id>")
-@token_required
-def get_session_summary(user: User, session_id: str):
-    if telemetry_service is None:
-        return json_error("Telemetria indisponível", 503, "SERVICE_UNAVAILABLE")
-    # Só devolve o resumo de uma sessão de jogo que o usuário pode acessar
-    # (mesma organização ou responsável vinculado). Antes, qualquer usuário
-    # autenticado lia a telemetria de qualquer sessão (IDOR entre organizações).
-    game_session = GameSession.query.filter_by(public_id=session_id).first()
-    if not game_session or not student_for_user(user, game_session.student_id)[0]:
-        return json_error("Sessão não encontrada", 404, "NOT_FOUND")
-    summary = telemetry_service.get_session_summary(session_id)
-    if "error" in summary:
-        return jsonify(summary), 404
-    return jsonify(summary), 200
+    return jsonify({"status": "healthy", "version": "3.1.0", "api": "v1", "environment": APP_ENV}), 200
 
 
 @app.cli.command("init-db")

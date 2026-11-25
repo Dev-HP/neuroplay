@@ -112,5 +112,4 @@ models/trained/
 checkpoints/
 
 # ===== DOCKER =====
-.dockerignore
 docker-compose.override.yml

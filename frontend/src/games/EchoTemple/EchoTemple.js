@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './EchoTemple.css';
 import GameControls from '../../shared/components/GameControls';
@@ -21,8 +21,17 @@ const EchoTemple = () => {
   const [phase, setPhase] = useState('encoding'); // encoding, retention, recall
   const [stats, setStats] = useState({ acertos: 0, erros: 0 });
   const [sequencesCompleted, setSequencesCompleted] = useState(0);
-  const [maxSequenceLength, setMaxSequenceLength] = useState(0);
+  const maxSequenceLengthRef = useRef(0);
   const [adaptiveMessage, setAdaptiveMessage] = useState(null);
+  // O laço do canvas é criado uma vez; refs mantêm os valores atuais visíveis nele.
+  const adaptiveMessageRef = useRef(null);
+  useEffect(() => {
+    adaptiveMessageRef.current = adaptiveMessage;
+  }, [adaptiveMessage]);
+  const trackEventRef = useRef(trackEvent);
+  useEffect(() => {
+    trackEventRef.current = trackEvent;
+  }, [trackEvent]);
   const [showSettings, setShowSettings] = useState(false);
   const salvoRef = useRef({ score: 0, acertos: 0, erros: 0, at: null }); // já registrado nesta partida
   const gameRef = useRef(null);
@@ -300,13 +309,13 @@ const EchoTemple = () => {
       ctx.fillText(`PRECISÃO: ${precisao}%`, 1260, 30);
       
       // Mensagem de ajuste adaptativo
-      if (adaptiveMessage) {
+      if (adaptiveMessageRef.current) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(340, 80, 600, 60);
         ctx.fillStyle = '#8cc9d6';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(adaptiveMessage, 640, 115);
+        ctx.fillText(adaptiveMessageRef.current, 640, 115);
       }
       
       // Timer de retenção
@@ -412,7 +421,7 @@ const EchoTemple = () => {
           // Track sequence completion
           setSequencesCompleted(c => {
             const newCount = c + 1;
-            trackEvent('sequence_completed', {
+            trackEventRef.current('sequence_completed', {
               game: 'echo-temple',
               totalCompleted: newCount,
               sequenceLength: game.sequence.length
@@ -421,16 +430,13 @@ const EchoTemple = () => {
           });
           
           // Track max sequence length
-          setMaxSequenceLength(m => {
-            const newMax = Math.max(m, game.sequence.length);
-            if (newMax > m) {
-              trackEvent('sequence_length', {
-                game: 'echo-temple',
-                length: newMax
-              });
-            }
-            return newMax;
-          });
+          if (game.sequence.length > maxSequenceLengthRef.current) {
+            maxSequenceLengthRef.current = game.sequence.length;
+            trackEventRef.current('sequence_length', {
+              game: 'echo-temple',
+              length: maxSequenceLengthRef.current
+            });
+          }
           
           setTimeout(() => {
             setLevel(l => l + 1);

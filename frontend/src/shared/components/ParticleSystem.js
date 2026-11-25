@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const ParticleSystem = ({ type = 'success', active = false }) => {
   const canvasRef = useRef(null);
@@ -91,8 +91,8 @@ const ParticleSystem = ({ type = 'success', active = false }) => {
 
     const drawStar = (ctx, cx, cy, spikes, outerRadius, innerRadius, color) => {
       let rot = Math.PI / 2 * 3;
-      let x = cx;
-      let y = cy;
+      let x;
+      let y;
       const step = Math.PI / spikes;
 
       ctx.beginPath();

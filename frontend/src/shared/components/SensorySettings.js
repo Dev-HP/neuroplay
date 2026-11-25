@@ -4,7 +4,7 @@
  * Personalização reduz sobrecarga sensorial e aumenta tempo de jogo em 60%
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './SensorySettings.css';
 
 const defaultSettings = {

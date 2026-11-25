@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neuroplay-v4';
+const CACHE_NAME = 'neuroplay-v5';
 const APP_ROOT = new URL('./', self.location).pathname;
 const SHELL_FILES = [
   APP_ROOT,

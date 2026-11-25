@@ -56,7 +56,7 @@ export class AudioFeedback {
           // Usa síntese se arquivo não existe
           this.sounds[name] = this.synthesizeSound(name);
         }
-      } catch (error) {
+      } catch {
         // Fallback para síntese
         this.sounds[name] = this.synthesizeSound(name);
       }

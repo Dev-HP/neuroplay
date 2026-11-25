@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import audioManager from '../../shared/utils/audioManager';
@@ -11,6 +11,17 @@ import { apiUrl } from '../../shared/config/api';
 import './JogoMemoriaDupla.css';
 
 // Dual N-Back Game - Treino de memória de trabalho
+// Posições do grid 3x3
+const gridPositions = [
+  [0, 0], [1, 0], [2, 0],
+  [0, 1], [1, 1], [2, 1],
+  [0, 2], [1, 2], [2, 2]
+];
+
+// Sons/letras para estímulo auditivo
+const audioStimuli = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+const audioNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
+
 function JogoMemoriaDupla({ user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -36,17 +47,6 @@ function JogoMemoriaDupla({ user }) {
   
   const gameStartTime = useRef(null);
   const addPoints = useGameStore(state => state.addPoints);
-
-  // Posições do grid 3x3
-  const gridPositions = [
-    [0, 0], [1, 0], [2, 0],
-    [0, 1], [1, 1], [2, 1],
-    [0, 2], [1, 2], [2, 2]
-  ];
-
-  // Sons/letras para estímulo auditivo
-  const audioStimuli = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-  const audioNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
 
   useEffect(() => {
     audioManager.init();
@@ -93,7 +93,7 @@ function JogoMemoriaDupla({ user }) {
     setSequence(newSequence);
     setCurrentIndex(0);
     setShowingStimulus(true);
-  }, [nBackLevel, audioStimuli.length]);
+  }, [nBackLevel]);
 
   const finishGame = useCallback(async () => {
     setGameState('finished');
@@ -124,7 +124,7 @@ function JogoMemoriaDupla({ user }) {
           erros: stats.visualWrong + stats.audioWrong
         })
       });
-    } catch (error) {
+    } catch {
       setGameState('ready');
     }
   }, [score, stats, studentId, addPoints]);
@@ -167,7 +167,6 @@ function JogoMemoriaDupla({ user }) {
     }
   }, [round, stats, nBackLevel, generateSequence, finishGame]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const nextStimulus = useCallback(() => {
     if (currentIndex >= sequence.length - 1) {
       finishRound();
@@ -179,7 +178,7 @@ function JogoMemoriaDupla({ user }) {
     // Tocar som correspondente
     const current = sequence[currentIndex + 1];
     audioManager.playNote(audioNotes[current.audio], 0.3);
-  }, [currentIndex, sequence, audioNotes, finishRound]);
+  }, [currentIndex, sequence, finishRound]);
 
   // O avanço usa a versão mais recente de nextStimulus via ref, e o cronômetro
   // depende só da posição na sequência: responder não reinicia o tempo do
@@ -304,8 +303,8 @@ function JogoMemoriaDupla({ user }) {
             <h2>Como Jogar:</h2>
             <p>1. Observe a posição iluminada no grid</p>
             <p>2. Ouça a letra/som apresentado</p>
-            <p>3. Clique "Visual" se a posição for igual a {nBackLevel} passo(s) atrás</p>
-            <p>4. Clique "Áudio" se o som for igual a {nBackLevel} passo(s) atrás</p>
+            <p>3. Clique “Visual” se a posição for igual a {nBackLevel} passo(s) atrás</p>
+            <p>4. Clique “Áudio” se o som for igual a {nBackLevel} passo(s) atrás</p>
             <p>5. Você pode clicar ambos se os dois coincidirem!</p>
           </div>
           <button onClick={startGame} className="btn btn-primary btn-large">

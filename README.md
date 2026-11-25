@@ -28,7 +28,7 @@
 | Mestres do Sinal | Controle inibitório | Go/No-Go (75% Go / 25% No-Go) |
 | Cyber-Runner | Atenção em multitarefa | Escolha rápida com distratores |
 | Templo dos Ecos | Memória visuoespacial | Sequência tipo Corsi |
-| Memória Dupla | Memória de trabalho | n-back |
+| Memória Dupla | Memória de trabalho | n-back visual e auditivo |
 | Gravity Lab | Flexibilidade cognitiva | Troca de regra (tipo DCCS) |
 | Caçador de Alvos | Busca visual | — |
 | Sonic Jump | Processamento fonológico | — |
@@ -39,20 +39,16 @@ A análise da evidência científica de cada jogo, com o que manter, melhorar e 
 
 ```text
 neuroplay/
-├── backend/            API Flask (app.py), WSGI, testes Pytest e Dockerfile
-├── frontend/           App React
+├── backend/            API Flask (app.py), WSGI, testes pytest e Dockerfile
+├── frontend/           App React (Vite)
 │   └── src/
 │       ├── pages/      Login, painel do estudante e painel do educador
-│       ├── games/      Um jogo por pasta + games/shared (feedback e telemetria)
+│       ├── games/      Um jogo por pasta
 │       ├── features/   Conquistas
-│       ├── shared/     Componentes, API, modo demonstração, adaptação, utilitários
+│       ├── shared/     Componentes, API, modo demonstração, adaptação, áudio
 │       └── store/      Estado global (Zustand)
-├── database/           schema.sql
 ├── docs/               Documentação (índice em docs/README.md)
-├── legacy/pygame/      Protótipos desktop antigos (fora do produto)
-├── scripts/            Scripts de apoio (PowerShell/Bash)
-├── tests/load/         Teste de carga (Locust)
-└── .github/workflows/  CI, testes e deploy no GitHub Pages
+└── .github/workflows/  ci.yml (lint, testes, auditoria, Docker) e deploy-frontend.yml (Pages)
 ```
 
 Detalhes em [`docs/arquitetura/PROJECT_STRUCTURE.md`](docs/arquitetura/PROJECT_STRUCTURE.md).
@@ -63,59 +59,44 @@ Detalhes em [`docs/arquitetura/PROJECT_STRUCTURE.md`](docs/arquitetura/PROJECT_S
 
 ```bash
 cd frontend
-npm ci --legacy-peer-deps
-REACT_APP_DEMO_MODE=true npm start
+npm ci
+REACT_APP_DEMO_MODE=true npm start      # http://localhost:3000
 ```
 
 **Stack completa com Docker:**
 
 ```bash
-cp .env.example .env   # troque SECRET_KEY, POSTGRES_PASSWORD e DATABASE_URL
+cp .env.example .env   # troque SECRET_KEY, POSTGRES_PASSWORD e a senha em DATABASE_URL
 docker compose up -d --build
 ```
 
-Frontend em `http://localhost:3000` e API em `http://localhost:5000`.
-
-**Backend manual:**
-
-```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-export APP_ENV=development SECRET_KEY='uma-chave-local-com-pelo-menos-32-caracteres'
-export DATABASE_URL='sqlite:///neuroplay-development.db'
-flask --app wsgi:application init-db
-gunicorn --bind 127.0.0.1:5000 wsgi:application
-```
-
-Em produção, use PostgreSQL, secrets próprios e HTTPS.
+Frontend em `http://localhost:3000` (o nginx encaminha `/api` para a API) e API em `http://localhost:5000`. Outras formas em [`docs/guias/INSTALACAO.md`](docs/guias/INSTALACAO.md).
 
 ## Testes
 
 ```bash
-cd backend && pytest -q                                   # 15 testes da API (11 ativos + 4 opcionais)
-cd frontend && CI=true npm test -- --watchAll=false       # 146 testes (18 suítes)
+cd frontend && npm run lint && npm test     # ESLint sem avisos + 78 testes (Vitest)
+cd backend && flake8 . && pytest            # flake8 + 9 testes da API
 ```
 
-O GitHub Actions roda as duas suítes a cada push e publica o frontend no GitHub Pages.
+O GitHub Actions roda lint, testes, `npm audit`, `pip-audit` e sobe a stack Docker a cada push; o deploy no GitHub Pages só acontece se lint e testes passarem.
 
 ## Modo demonstração e deploy
 
-Sem o secret `REACT_APP_API_URL`, o deploy no GitHub Pages ativa o modo demonstração: as rotas da API (login, estudantes, consentimento, sessões, relatórios) são atendidas no próprio navegador e nada é enviado a servidores. Com o secret configurado, o frontend usa a API real. Veja [`docs/guias/DEPLOY_BACKEND.md`](docs/guias/DEPLOY_BACKEND.md).
+Sem o secret `REACT_APP_API_URL`, o deploy no GitHub Pages ativa o modo demonstração: as rotas da API (login, estudantes, consentimento, sessões, relatórios) são atendidas no próprio navegador e nada é enviado a servidores. Com o secret configurado, o frontend usa a API real. Veja [`docs/guias/DEPLOY.md`](docs/guias/DEPLOY.md).
 
 ## Documentação
 
 | Pasta | Conteúdo |
 |---|---|
-| [`docs/produto/`](docs/produto/) | Posicionamento, limites de uso, roadmap e especificação do painel |
-| [`docs/arquitetura/`](docs/arquitetura/) | Arquitetura, modelo de dados, adaptação local e design system |
+| [`docs/produto/`](docs/produto/) | Posicionamento, limites de uso e especificação do painel |
+| [`docs/arquitetura/`](docs/arquitetura/) | Arquitetura, estrutura, design system e adaptação local |
+| [`docs/jogos/`](docs/jogos/) | Os jogos e os recursos comuns |
 | [`docs/pesquisa/`](docs/pesquisa/) | Evidência científica, análise dos jogos e artigo |
-| [`docs/jogos/`](docs/jogos/) | Guias dos jogos e sistema de conquistas |
 | [`docs/guias/`](docs/guias/) | Instalação e deploy |
-| [`docs/qualidade/`](docs/qualidade/) | Auditoria de UX e código, teste prático e estratégia de testes |
-| [`docs/seguranca/`](docs/seguranca/) | Revisão de segurança e requisitos de LGPD |
+| [`docs/qualidade/`](docs/qualidade/) | Auditoria de UX e código e teste prático |
+| [`docs/seguranca/`](docs/seguranca/) | Revisão de segurança, LGPD e aviso de privacidade |
 | [`docs/marca/`](docs/marca/) | Logo e aplicações |
-| [`docs/historico/`](docs/historico/) | Relatórios e planos antigos, mantidos só como registro |
 
 ## Privacidade
 

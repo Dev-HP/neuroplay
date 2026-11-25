@@ -259,7 +259,7 @@ export function handleDemoRequest(method, url, body = {}, headers = {}) {
     return ok({ success: true, processing: 'completed', session: sessionPayload(session) }, 201);
   }
 
-  if (verb === 'POST' && (/\/achievements\/unlock$/.test(path) || /\/telemetry\/batch$/.test(path))) {
+  if (verb === 'POST' && (/\/achievements\/unlock$/.test(path))) {
     return ok({ success: true, mode: 'demo' });
   }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import EmergencyStop from '../../shared/components/EmergencyStop';
@@ -173,7 +173,6 @@ function JogoMestresSinal({ user }) {
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(iniciarRodada, 1800 + Math.random() * 900);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

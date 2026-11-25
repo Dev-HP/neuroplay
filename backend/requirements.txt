@@ -1,40 +1,9 @@
+# Dependências da API NeuroPlay (somente o que app.py importa ou executa)
 Flask==3.1.3
 Flask-CORS==6.0.1
 Flask-SQLAlchemy==3.1.1
-Flask-SocketIO==5.3.5
-python-socketio==5.16.2
-psycopg2-binary==2.9.9
-PyJWT==2.15.0
-Werkzeug==3.1.9
-numpy==1.26.2
-scikit-learn==1.5.2
-pandas==2.1.4
-redis==5.0.1
-gunicorn==23.0.0
-python-dotenv==1.2.2
-
-# Background Tasks
-celery==5.3.4
-redis==5.0.1
-
-# Validation
-pydantic==2.5.2
-
-# Rate Limiting
 Flask-Limiter==3.12
-
-# Security
-Flask-WTF==1.2.1
-Flask-Talisman==1.1.0
-
-# Performance
+Werkzeug==3.1.9
+PyJWT==2.15.0
+psycopg2-binary==2.9.10
 gunicorn==23.0.0
-gevent==23.9.1
-
-# NeuroPlay 2.5 - Observabilidade
-sentry-sdk[flask,celery]==2.20.0
-prometheus-client==0.19.0
-python-json-logger==2.0.7
-
-# NeuroPlay 2.5 - Testes de Carga
-locust==2.20.0

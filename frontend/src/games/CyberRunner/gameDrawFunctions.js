@@ -182,7 +182,7 @@ export const drawChallenge = (ctx, challenge, buttons) => {
   }
 
   // Botões de resposta
-  buttons.forEach((btn, i) => {
+  buttons.forEach((btn) => {
     ctx.fillStyle = '#00aaff';
     ctx.fillRect(btn.x, btn.y, btn.width, btn.height);
     ctx.strokeStyle = '#8cc9d6';

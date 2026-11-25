@@ -1,147 +1,59 @@
-version: '3.8'
-
+# Stack local: frontend (nginx) + API Flask + PostgreSQL.
+# Copie .env.example para .env antes de subir.
 services:
-  # Frontend
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     ports:
       - "3000:80"
-    environment:
-      - REACT_APP_API_URL=${FRONTEND_API_URL:-http://localhost:5000}
     depends_on:
       - backend
-    networks:
-      - neuroplay-network
     restart: unless-stopped
 
-  # Backend
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
-      - APP_ENV=${APP_ENV:-production}
-      - FLASK_ENV=${APP_ENV:-production}
-      - DATABASE_URL=${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - SECRET_KEY=${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      APP_ENV: ${APP_ENV:-production}
+      DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
+      SECRET_KEY: ${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - neuroplay-network
     restart: unless-stopped
 
-  # PostgreSQL Database
   db:
-    image: postgres:14-alpine
+    image: postgres:16-alpine
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-neuroplay}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env antes de iniciar}
-      - POSTGRES_DB=${POSTGRES_DB:-neuroplay}
+      POSTGRES_USER: ${POSTGRES_USER:-neuroplay}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env antes de iniciar}
+      POSTGRES_DB: ${POSTGRES_DB:-neuroplay}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    networks:
-      - neuroplay-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - neuroplay-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-    restart: unless-stopped
-
-  # PgAdmin (opcional - para gerenciar banco)
+  # Opcional: docker compose --profile admin up -d pgadmin
   pgadmin:
     image: dpage/pgadmin4:latest
     profiles: ["admin"]
     environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:?Defina PGADMIN_DEFAULT_EMAIL ao usar o perfil admin}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:?Defina PGADMIN_DEFAULT_PASSWORD ao usar o perfil admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:?Defina PGADMIN_DEFAULT_EMAIL ao usar o perfil admin}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Defina PGADMIN_DEFAULT_PASSWORD ao usar o perfil admin}
     ports:
-      - "5050:80"
+      - "127.0.0.1:5050:80"
     depends_on:
       - db
-    networks:
-      - neuroplay-network
     restart: unless-stopped
-
-  # Celery Worker (Background Tasks)
-  celery_worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      - APP_ENV=${APP_ENV:-production}
-      - FLASK_ENV=${APP_ENV:-production}
-      - DATABASE_URL=${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
-      - SECRET_KEY=${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
-      - SKIP_DB_INIT=true
-    depends_on:
-      - db
-      - redis
-    networks:
-      - neuroplay-network
-    restart: unless-stopped
-    healthcheck:
-      disable: true
-    command: celery -A app.infra.tasks.celery_app worker --loglevel=info --concurrency=4
-
-  # Celery Beat (Scheduled Tasks)
-  celery_beat:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      - APP_ENV=${APP_ENV:-production}
-      - FLASK_ENV=${APP_ENV:-production}
-      - DATABASE_URL=${DATABASE_URL:?Defina DATABASE_URL no .env antes de iniciar}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
-      - SECRET_KEY=${SECRET_KEY:?Defina SECRET_KEY no .env antes de iniciar}
-      - SKIP_DB_INIT=true
-    depends_on:
-      - db
-      - redis
-    networks:
-      - neuroplay-network
-    restart: unless-stopped
-    healthcheck:
-      disable: true
-    command: celery -A app.infra.tasks.celery_app beat --loglevel=info
 
 volumes:
   postgres-data:
-  redis-data:
-
-networks:
-  neuroplay-network:
-    driver: bridge
